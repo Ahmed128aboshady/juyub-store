@@ -1,0 +1,546 @@
+// ============ JUYUB — owner login + admin dashboard ============
+const { useState: adUS } = React;
+
+const handleImageUpload = (file, callback) => {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const maxDim = 800;
+      let width = img.width;
+      let height = img.height;
+      if (width > height) {
+        if (width > maxDim) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        }
+      } else {
+        if (height > maxDim) {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      const base64 = canvas.toDataURL('image/jpeg', 0.75);
+      callback(base64);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+/* ---------- Login modal ---------- */
+const LoginModal = () => {
+  const { setLoginOpen, login, t } = useStore();
+  const [u, setU] = adUS('');
+  const [p, setP] = adUS('');
+  const [err, setErr] = adUS(false);
+  const submit = (e) => { e.preventDefault(); if (!login(u, p)) setErr(true); };
+  return (
+    <div className="modal-scrim" onClick={() => setLoginOpen(false)}>
+      <form className="modal" onClick={e => e.stopPropagation()} onSubmit={submit}>
+        <button type="button" className="modal-close" onClick={() => setLoginOpen(false)}><Icon n="close" /></button>
+        <img className="modal-emblem" src="https://juyub.odoo.com/web/image/1082" alt="" />
+        <h3 className="h3">{t({ en: 'Owner login', ar: 'دخول المالك' })}</h3>
+        <p className="sub">{t({ en: 'Sign in to manage your store', ar: 'سجّلي دخولك لإدارة متجرك' })}</p>
+        <div className="field">
+          <label>{t({ en: 'Username', ar: 'اسم المستخدم' })}</label>
+          <input className="input" value={u} autoComplete="username" onChange={e => { setU(e.target.value); setErr(false); }} />
+        </div>
+        <div className="field">
+          <label>{t({ en: 'Password', ar: 'كلمة السر' })}</label>
+          <input className="input" type="password" value={p} autoComplete="current-password" onChange={e => { setP(e.target.value); setErr(false); }} />
+        </div>
+        {err && <p className="msg" style={{ marginBottom: 12 }}>{t({ en: 'Wrong username or password', ar: 'اسم المستخدم أو كلمة السر غلط' })}</p>}
+        <button className="btn btn-primary btn-block btn-lg" type="submit">{t({ en: 'Sign in', ar: 'دخول' })}</button>
+      </form>
+    </div>
+  );
+};
+
+/* ---------- helpers ---------- */
+const blankProduct = () => ({
+  id: 'p' + Date.now().toString(36),
+  sku: '', cat: 'totes', price: 0, featured: false,
+  name: { en: '', ar: '' }, tagline: { en: '', ar: '' }, blurb: { en: '', ar: '' },
+  variants: [{ color: { en: 'Default', ar: 'أساسي', hex: '#540b14' }, img: '', stock: true, shots: [] }],
+  specs: { size: { en: '', ar: '' }, material: { en: '', ar: '' }, strap: { en: '', ar: '' }, closure: { en: '', ar: '' }, interior: { en: '', ar: '' } },
+});
+
+/* ---------- Product editor ---------- */
+const ProductEditor = ({ initial, onDone }) => {
+  const { t, lang, saveProduct, categories } = useStore();
+  const [f, setF] = adUS(() => JSON.parse(JSON.stringify(initial)));
+  const upd = (patch) => setF(s => ({ ...s, ...patch }));
+  const updName = (field, lng, val) => setF(s => ({ ...s, [field]: { ...s[field], [lng]: val } }));
+  const updSpec = (key, lng, val) => setF(s => ({ ...s, specs: { ...s.specs, [key]: { ...s.specs[key], [lng]: val } } }));
+  const updVar = (i, patch) => setF(s => { const vs = [...s.variants]; vs[i] = { ...vs[i], ...patch }; return { ...s, variants: vs }; });
+  const updVarColor = (i, lng, val) => setF(s => { const vs = [...s.variants]; vs[i] = { ...vs[i], color: { ...vs[i].color, [lng]: val } }; return { ...s, variants: vs }; });
+  const addVar = () => setF(s => ({ ...s, variants: [...s.variants, { color: { en: '', ar: '', hex: '#888888' }, img: '', stock: true, shots: [] }] }));
+  const rmVar = (i) => setF(s => ({ ...s, variants: s.variants.filter((_, j) => j !== i) }));
+
+  const save = () => {
+    if (!f.name.en.trim() && !f.name.ar.trim()) { alert(t({ en: 'Please enter a product name', ar: 'اكتبي اسم المنتج' })); return; }
+    const clean = { ...f, price: Number(f.price) || 0, compareAt: Number(f.compareAt) || 0, variants: f.variants.map(v => ({ ...v, shots: (v.shots || []).filter(Boolean) })) };
+    saveProduct(clean);
+    onDone();
+  };
+
+  const L = (en, ar) => t({ en, ar });
+  const field = (label, val, on, ph) => (
+    <div className="field"><label>{label}</label><input className="input" value={val} placeholder={ph || ''} onChange={e => on(e.target.value)} /></div>
+  );
+
+  return (
+    <div className="adm-editor">
+      <h3 className="h3">{initial.name.en || initial.name.ar ? L('Edit product', 'تعديل منتج') : L('New product', 'منتج جديد')}</h3>
+
+      <div className="adm-grid">
+        {field(L('Name (English)', 'الاسم (إنجليزي)'), f.name.en, v => updName('name', 'en', v))}
+        {field(L('Name (Arabic)', 'الاسم (عربي)'), f.name.ar, v => updName('name', 'ar', v))}
+      </div>
+      <div className="adm-grid">
+        {field(L('SKU / code', 'الكود'), f.sku, v => upd({ sku: v }), 'B10-001')}
+        <div className="field">
+          <label>{L('Category', 'الفئة')}</label>
+          <select className="input" value={f.cat} onChange={e => upd({ cat: e.target.value })}>
+            {categories.filter(c => c.id !== 'all').map(c => <option key={c.id} value={c.id}>{t(c)}</option>)}
+          </select>
+        </div>
+      </div>
+      <div className="adm-grid">
+        {field(L('Selling price (LE)', 'سعر البيع (ج.م)'), f.price, v => upd({ price: v }))}
+        {field(L('Old price (optional)', 'السعر قبل الخصم (اختياري)'), f.compareAt || '', v => upd({ compareAt: v }))}
+      </div>
+      {Number(f.compareAt) > Number(f.price) && Number(f.price) > 0 && (
+        <p className="muted" style={{ marginTop: -4, marginBottom: 6, fontSize: 13.5 }}>
+          🏷️ {L('Discount', 'الخصم')}: <strong style={{ color: 'var(--maroon)' }}>-{Math.round((1 - Number(f.price) / Number(f.compareAt)) * 100)}%</strong> — {L('shown as a sale badge on the product.', 'هيظهر كشارة تخفيض على المنتج.')}
+        </p>
+      )}
+      <label className="field-check" style={{ marginBottom: 14 }}>
+        <input type="checkbox" checked={f.featured} onChange={e => upd({ featured: e.target.checked })} />
+        {L('Show as bestseller', 'يظهر كأكثر مبيعاً')}
+      </label>
+      <div className="adm-grid">
+        {field(L('Tagline (EN)', 'سطر تعريفي (EN)'), f.tagline.en, v => updName('tagline', 'en', v))}
+        {field(L('Tagline (AR)', 'سطر تعريفي (AR)'), f.tagline.ar, v => updName('tagline', 'ar', v))}
+      </div>
+      <div className="adm-grid">
+        <div className="field"><label>{L('Description (EN)', 'الوصف (EN)')}</label><textarea className="input" rows="2" value={f.blurb.en} onChange={e => updName('blurb', 'en', e.target.value)} /></div>
+        <div className="field"><label>{L('Description (AR)', 'الوصف (AR)')}</label><textarea className="input" rows="2" value={f.blurb.ar} onChange={e => updName('blurb', 'ar', e.target.value)} /></div>
+      </div>
+
+      {/* variants */}
+      <div className="adm-sec">
+        <h4>{L('Colors & images', 'الألوان والصور')}</h4>
+        {f.variants.map((v, i) => (
+          <div className="adm-variant" key={i}>
+            {f.variants.length > 1 && <button className="v-remove" onClick={() => rmVar(i)}>{L('Remove', 'حذف')}</button>}
+            <div className="adm-grid">
+              {field(L('Color name (EN)', 'اللون (EN)'), v.color.en, val => updVarColor(i, 'en', val))}
+              {field(L('Color name (AR)', 'اللون (AR)'), v.color.ar, val => updVarColor(i, 'ar', val))}
+            </div>
+            <div className="adm-row-inline">
+              <div className="field" style={{ flex: 1, minWidth: 200 }}>
+                <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>{L('Main image URL', 'رابط الصورة الأساسية')}</span>
+                  <label style={{ cursor: 'pointer', color: 'var(--maroon)', fontSize: '13.5px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px', margin: 0 }}>
+                    📎 {L('Upload from device', 'رفع من الجهاز')}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={e => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          handleImageUpload(file, (base64) => {
+                            updVar(i, { img: base64 });
+                          });
+                        }
+                      }}
+                    />
+                  </label>
+                </label>
+                <input className="input" value={v.img} placeholder="https://…  ·  assets/products/…" onChange={e => updVar(i, { img: e.target.value })} />
+              </div>
+              <div className="field" style={{ width: 70 }}>
+                <label>{L('Swatch', 'اللون')}</label>
+                <input className="color-input" type="color" value={v.color.hex} onChange={e => updVarColor(i, 'hex', e.target.value)} />
+              </div>
+              <div className="img-preview">{v.img ? <img src={v.img} alt="" /> : <Icon n="box" style={{ width: 20, opacity: .4 }} />}</div>
+            </div>
+            <div className="field">
+              <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>{L('Detail image URLs (one per line)', 'روابط صور التفاصيل (كل رابط في سطر)')}</span>
+                <label style={{ cursor: 'pointer', color: 'var(--maroon)', fontSize: '13.5px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px', margin: 0 }}>
+                  📎 {L('Upload details', 'رفع صور تفاصيل')}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    style={{ display: 'none' }}
+                    onChange={e => {
+                      const files = Array.from(e.target.files);
+                      let uploadedCount = 0;
+                      const newShots = [...(v.shots || [])];
+                      files.forEach(file => {
+                        handleImageUpload(file, (base64) => {
+                          newShots.push(base64);
+                          uploadedCount++;
+                          if (uploadedCount === files.length) {
+                            updVar(i, { shots: newShots.filter(Boolean) });
+                          }
+                        });
+                      });
+                    }}
+                  />
+                </label>
+              </label>
+              <textarea className="input" rows="2" value={(v.shots || []).join('\n')} onChange={e => updVar(i, { shots: e.target.value.split('\n') })} />
+            </div>
+            <label className="field-check" style={{ marginBottom: 0 }}>
+              <input type="checkbox" checked={v.stock} onChange={e => updVar(i, { stock: e.target.checked })} />
+              {L('In stock', 'متوفر')}
+            </label>
+          </div>
+        ))}
+        <button className="btn btn-outline" onClick={addVar} style={{ marginTop: 4 }}><Icon n="plus" style={{ width: 16 }} />{L('Add color', 'أضف لون')}</button>
+      </div>
+
+      {/* specs */}
+      <div className="adm-sec">
+        <h4>{L('Specifications', 'المواصفات')}</h4>
+        {Object.keys(f.specs).map(key => (
+          <div className="adm-grid" key={key}>
+            {field(SPEC_LABELS[key].en, f.specs[key].en, v => updSpec(key, 'en', v))}
+            {field(SPEC_LABELS[key].ar, f.specs[key].ar, v => updSpec(key, 'ar', v))}
+          </div>
+        ))}
+      </div>
+
+      <div className="adm-foot">
+        <button className="btn btn-outline" onClick={onDone}>{L('Cancel', 'إلغاء')}</button>
+        <button className="btn btn-primary" onClick={save}>{L('Save product', 'حفظ المنتج')}</button>
+      </div>
+    </div>
+  );
+};
+
+/* ---------- Admin dashboard ---------- */
+const AdminPage = () => {
+  const { t, lang, money, navigate, products, saveProduct, deleteProduct, resetProducts,
+    orders, updateOrder, deleteOrder, creds, setCreds, logout, categories } = useStore();
+  const [tab, setTab] = adUS('products');
+  const [editing, setEditing] = adUS(null);
+  const L = (en, ar) => t({ en, ar });
+
+  return (
+    <div className="admin">
+      <div className="admin-bar">
+        <div className="a-logo"><img src="https://juyub.odoo.com/web/image/1082" alt="" /> JUYUB · {L('Admin', 'الإدارة')}</div>
+        <div className="admin-tabs">
+          <button className={tab === 'products' ? 'active' : ''} onClick={() => { setTab('products'); setEditing(null); }}>{L('Products', 'المنتجات')}</button>
+          <button className={tab === 'orders' ? 'active' : ''} onClick={() => { setTab('orders'); setEditing(null); }}>{L('Orders', 'الأوردرات')} {orders.length > 0 && `(${orders.length})`}</button>
+          <button className={tab === 'content' ? 'active' : ''} onClick={() => { setTab('content'); setEditing(null); }}>{L('Content', 'المحتوى')}</button>
+          <button className={tab === 'settings' ? 'active' : ''} onClick={() => { setTab('settings'); setEditing(null); }}>{L('Settings', 'الإعدادات')}</button>
+        </div>
+        <div className="a-actions">
+          <button className="a-btn" onClick={() => navigate('home')}>{L('View store', 'المتجر')}</button>
+          <button className="a-btn" onClick={logout}>{L('Log out', 'خروج')}</button>
+        </div>
+      </div>
+
+      <div className="admin-body">
+        {tab === 'products' && (editing ? (
+          <ProductEditor initial={editing} onDone={() => setEditing(null)} />
+        ) : (
+          <>
+            <div className="admin-head">
+              <div><h2 className="h2">{L('Products', 'المنتجات')}</h2><p className="muted">{products.length} {L('items', 'منتج')}</p></div>
+              <button className="btn btn-primary" onClick={() => setEditing(blankProduct())}><Icon n="plus" style={{ width: 16 }} />{L('Add product', 'أضف منتج')}</button>
+            </div>
+            <div className="adm-table">
+              {products.map(p => {
+                const inStock = p.variants.some(v => v.stock);
+                return (
+                  <div className="adm-row" key={p.id}>
+                    <div className="a-thumb"><img src={p.variants[0].img} alt="" /></div>
+                    <div className="a-info">
+                      <div className="a-name">{t(p.name) || L('(untitled)', '(بدون اسم)')}</div>
+                      <div className="a-meta">{p.sku || '—'} · {t(categories.find(c => c.id === p.cat) || {})} · {p.variants.length} {L('colors', 'ألوان')}</div>
+                    </div>
+                    <span className={'a-pill ' + (inStock ? 'in' : 'out')}>{inStock ? L('In stock', 'متوفر') : L('Out', 'نفد')}</span>
+                    <span className="a-price">{money(p.price)}</span>
+                    <div className="adm-actions">
+                      <button className="a-iconbtn" onClick={() => setEditing(JSON.parse(JSON.stringify(p)))} title={L('Edit', 'تعديل')}><Icon n="edit" /></button>
+                      <button className="a-iconbtn danger" onClick={() => { if (confirm(L('Delete this product?', 'تحذفي المنتج ده؟'))) deleteProduct(p.id); }} title={L('Delete', 'حذف')}><Icon n="trash" /></button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        ))}
+
+        {tab === 'orders' && <OrdersPanel />}
+
+        {tab === 'settings' && <AdminSettings />}
+        {tab === 'content' && <ContentEditor />}
+      </div>
+    </div>
+  );
+};
+
+const AdminSettings = () => {
+  const { t, lang, money, creds, setCreds, resetProducts, toast,
+    categories, addCategory, deleteCategory, shipRates, saveShipRate, setAllShipRates,
+    sheetUrl, setSheetUrl, firebaseConfig, setFirebaseConfig, db } = useStore();
+  const [u, setU] = adUS(creds.user);
+  const [p, setP] = adUS(creds.pass);
+  const [sUrl, setSUrl] = adUS(sheetUrl || '');
+  const [fbConfigStr, setFbConfigStr] = adUS(() => {
+    return firebaseConfig ? JSON.stringify(firebaseConfig, null, 2) : '';
+  });
+  const [newCatEn, setNewCatEn] = adUS('');
+  const [newCatAr, setNewCatAr] = adUS('');
+  const [bulkRate, setBulkRate] = adUS('');
+  const L = (en, ar) => t({ en, ar });
+  return (
+    <div className="adm-editor" style={{ maxWidth: 640 }}>
+      <h3 className="h3">{L('Settings', 'الإعدادات')}</h3>
+
+      {/* login */}
+      <div className="adm-sec" style={{ borderTop: 0, marginTop: 0, paddingTop: 0 }}>
+        <h4>{L('Login details', 'بيانات الدخول')}</h4>
+        <div className="adm-grid">
+          <div className="field"><label>{L('Username', 'اسم المستخدم')}</label><input className="input" value={u} onChange={e => setU(e.target.value)} /></div>
+          <div className="field"><label>{L('Password', 'كلمة السر')}</label><input className="input" type="password" value={p} onChange={e => setP(e.target.value)} /></div>
+        </div>
+        <button className="btn btn-primary" onClick={() => { setCreds({ user: u.trim(), pass: p }); toast(L('Login details saved', 'تم حفظ بيانات الدخول')); }}>{L('Save login', 'حفظ')}</button>
+      </div>
+
+      {/* google sheet */}
+      <div className="adm-sec">
+        <h4>{L('Google Sheet (orders export)', 'جوجل شيت (تصدير الأوردرات)')}</h4>
+        <p className="muted" style={{ marginTop: -6, marginBottom: 12, fontSize: 13 }}>{L('Every new order is added as a row in your sheet automatically. Paste your Apps Script web app link here.', 'كل أوردر جديد بيتسجّل كصف في الشيت أوتوماتيك. الصقي لينك الـ Web App بتاع Apps Script هنا.')}</p>
+        <div className="field"><label>{L('Web app URL', 'لينك الـ Web App')}</label><input className="input" value={sUrl} onChange={e => setSUrl(e.target.value)} placeholder="https://script.google.com/macros/s/…/exec" /></div>
+        <button className="btn btn-primary" onClick={() => { setSheetUrl(sUrl.trim()); toast(L('Sheet link saved', 'تم حفظ لينك الشيت')); }}>{L('Save sheet link', 'حفظ لينك الشيت')}</button>
+      </div>
+
+      {/* firebase database */}
+      <div className="adm-sec">
+        <h4>{L('Firebase Database (Realtime Database)', 'قاعدة بيانات فايربيس (Realtime Database)')}</h4>
+        <p className="muted" style={{ marginTop: -6, marginBottom: 12, fontSize: 13 }}>
+          {L('Enables real-time sync across devices. Paste your firebaseConfig object here.', 'لتفعيل المزامنة اللحظية بين الأجهزة. الصق كود firebaseConfig (كائن الـ JavaScript أو الـ JSON) هنا.')}
+        </p>
+        <div className="field">
+          <label>{L('Firebase Configuration (JS object or JSON)', 'كود الإعدادات (firebaseConfig)')}</label>
+          <textarea
+            className="input"
+            rows="6"
+            style={{ fontFamily: 'monospace', fontSize: '12.5px', direction: 'ltr', textAlign: 'left' }}
+            value={fbConfigStr}
+            onChange={e => setFbConfigStr(e.target.value)}
+            placeholder={`{\n  apiKey: "...",\n  authDomain: "...",\n  databaseURL: "...",\n  projectId: "...",\n  storageBucket: "...",\n  messagingSenderId: "...",\n  appId: "..."\n}`}
+          />
+        </div>
+        <div className="adm-row-inline" style={{ marginTop: 8 }}>
+          <button className="btn btn-primary" onClick={() => {
+            try {
+              if (!fbConfigStr.trim()) {
+                setFirebaseConfig(null);
+                toast(L('Firebase disabled', 'تم إيقاف اتصال فايربيس'));
+                return;
+              }
+              // Parse config safely
+              let cleaned = fbConfigStr.trim();
+              cleaned = cleaned.replace(/^(const|let|var)\s+\w+\s*=\s*/, '');
+              cleaned = cleaned.replace(/;$/, '');
+              const fn = new Function('return (' + cleaned + ')');
+              const obj = fn();
+              if (obj && typeof obj === 'object' && obj.databaseURL) {
+                setFirebaseConfig(obj);
+                toast(L('Firebase settings saved!', 'تم حفظ إعدادات فايربيس والاتصال!'));
+              } else {
+                alert(L('Invalid config object. Make sure databaseURL is present.', 'إعدادات غير صالحة. تأكد من وجود حقل databaseURL.'));
+              }
+            } catch (err) {
+              alert(L('Error parsing config: ' + err.message, 'خطأ في قراءة الإعدادات: ' + err.message));
+            }
+          }}>{L('Connect to Firebase', 'اتصال بقاعدة البيانات')}</button>
+          
+          {db ? (
+            <span className="a-pill in" style={{ height: '38px', display: 'inline-flex', alignItems: 'center', margin: 0 }}>
+              🟢 {L('Connected', 'متصل')}
+            </span>
+          ) : (
+            <span className="a-pill out" style={{ height: '38px', display: 'inline-flex', alignItems: 'center', margin: 0 }}>
+              🔴 {L('Disconnected (Local Mode)', 'غير متصل (الوضع المحلي)')}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* categories */}
+      <div className="adm-sec">
+        <h4>{L('Categories', 'الفئات')}</h4>
+        <div className="cat-chips">
+          {categories.filter(c => c.id !== 'all').map(c => (
+            <span className="cat-chip" key={c.id}>
+              {t(c)}
+              <button onClick={() => { if (confirm(L('Delete this category?', 'تحذفي الفئة دي؟'))) deleteCategory(c.id); }} aria-label="Delete"><Icon n="close" style={{ width: 13 }} /></button>
+            </span>
+          ))}
+        </div>
+        <div className="adm-grid" style={{ marginTop: 12 }}>
+          <div className="field"><label>{L('New category (English)', 'فئة جديدة (إنجليزي)')}</label><input className="input" value={newCatEn} onChange={e => setNewCatEn(e.target.value)} placeholder="e.g. Backpacks" /></div>
+          <div className="field"><label>{L('New category (Arabic)', 'فئة جديدة (عربي)')}</label><input className="input" value={newCatAr} onChange={e => setNewCatAr(e.target.value)} placeholder="مثلاً: شنط ظهر" /></div>
+        </div>
+        <button className="btn btn-outline" onClick={() => {
+          if (!newCatEn.trim() && !newCatAr.trim()) return;
+          addCategory(newCatEn.trim(), newCatAr.trim()); setNewCatEn(''); setNewCatAr(''); toast(L('Category added', 'تمت إضافة الفئة'));
+        }}><Icon n="plus" style={{ width: 16 }} />{L('Add category', 'أضف فئة')}</button>
+      </div>
+
+      {/* shipping rates */}
+      <div className="adm-sec">
+        <h4>{L('Shipping rates per governorate', 'أسعار الشحن لكل محافظة')}</h4>
+        <div className="adm-row-inline" style={{ marginBottom: 14 }}>
+          <div className="field" style={{ marginBottom: 0, width: 160 }}>
+            <label>{L('Set all to (LE)', 'وحّد الكل على (ج.م)')}</label>
+            <input className="input" type="number" value={bulkRate} onChange={e => setBulkRate(e.target.value)} placeholder="70" />
+          </div>
+          <button className="btn btn-outline" style={{ marginBottom: 0 }} onClick={() => { if (bulkRate !== '') { setAllShipRates(bulkRate); toast(L('Applied to all', 'تم التطبيق على الكل')); } }}>{L('Apply to all', 'طبّقي على الكل')}</button>
+        </div>
+        <div className="ship-rates">
+          {GOVERNORATES.map(g => (
+            <div className="ship-rate-row" key={g}>
+              <span className="g-name">{lang === 'ar' ? (GOV_AR[g] || g) : g}</span>
+              <div className="g-input">
+                <input className="input" type="number" value={shipRates[g] ?? 0} onChange={e => saveShipRate(g, e.target.value)} />
+                <span className="g-unit">{lang === 'ar' ? 'ج.م' : 'LE'}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="muted" style={{ marginTop: 12, fontSize: 13 }}>{L('Changes save automatically. Set 0 for free shipping.', 'التغييرات بتتحفظ تلقائياً. حطي 0 للشحن المجاني.')}</p>
+      </div>
+
+      {/* reset */}
+      <div className="adm-sec">
+        <h4>{L('Catalog', 'الكتالوج')}</h4>
+        <p className="muted" style={{ marginBottom: 14, fontSize: 14 }}>{L('Restore the original products that came with the store.', 'استرجاع المنتجات الأصلية اللي جت مع المتجر.')}</p>
+        <button className="btn btn-outline" onClick={() => { if (confirm(L('Reset all products to defaults? Your edits will be lost.', 'استرجاع كل المنتجات للأصل؟ تعديلاتك هتتمسح.'))) { resetProducts(); toast(L('Products reset', 'تم الاسترجاع')); } }}>{L('Reset products to defaults', 'استرجاع المنتجات الأصلية')}</button>
+      </div>
+    </div>
+  );
+};
+
+/* ---------- Orders panel ---------- */
+const OrdersPanel = () => {
+  const { t, lang, money, orders, updateOrder, deleteOrder } = useStore();
+  const [sub, setSub] = adUS('new');
+  const [openId, setOpenId] = adUS(null);
+  const L = (en, ar) => t({ en, ar });
+
+  const fmtDate = (ts) => {
+    if (!ts) return '—';
+    try { return new Date(ts).toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+    catch { return new Date(ts).toLocaleString(); }
+  };
+  const newOrders = orders.filter(o => o.status !== 'done');
+  const doneOrders = orders.filter(o => o.status === 'done');
+  const list = sub === 'new' ? newOrders : doneOrders;
+
+  return (
+    <>
+      <div className="admin-head" style={{ marginBottom: 16 }}>
+        <h2 className="h2">{L('Orders', 'الأوردرات')}</h2>
+      </div>
+      <div className="content-nav" style={{ marginBottom: 18 }}>
+        <button className={sub === 'new' ? 'active' : ''} onClick={() => setSub('new')}>{L('In progress', 'تحت التنفيذ')} ({newOrders.length})</button>
+        <button className={sub === 'done' ? 'active' : ''} onClick={() => setSub('done')}>{L('Fulfilled', 'تم تنفيذها')} ({doneOrders.length})</button>
+      </div>
+
+      {list.length === 0 ? (
+        <div className="admin-empty"><Icon n="bag" style={{ width: 40, margin: '0 auto 12px', opacity: .4 }} /><p>{sub === 'new' ? L('No orders in progress.', 'لا توجد أوردرات تحت التنفيذ.') : L('No fulfilled orders yet.', 'لا توجد أوردرات متنفّذة.')}</p></div>
+      ) : (
+        <div className="ord-list">
+          {list.map(o => {
+            const open = openId === o.id;
+            const count = (o.items || []).reduce((s, i) => s + i.qty, 0);
+            return (
+              <div className={'ord-card' + (open ? ' open' : '')} key={o.id}>
+                <button className="ord-head" onClick={() => setOpenId(open ? null : o.id)}>
+                  <div className="ord-thumbs">
+                    {(o.items || []).slice(0, 3).map((it, i) => <span className="ord-thumb" key={i}><img src={it.img} alt="" /></span>)}
+                    {(o.items || []).length > 3 && <span className="ord-more">+{o.items.length - 3}</span>}
+                  </div>
+                  <div className="ord-main">
+                    <div className="ord-line1">
+                      <strong>#{o.id}</strong>
+                      <span className={'a-pill ' + (o.status === 'done' ? 'in' : 'out')}>{o.status === 'done' ? L('Fulfilled', 'تم') : L('New', 'جديد')}</span>
+                    </div>
+                    <div className="ord-line2">{o.f.name} · {count} {L('item(s)', 'قطعة')}</div>
+                    <div className="ord-date">{fmtDate(o.at)}</div>
+                  </div>
+                  <div className="ord-right">
+                    <span className="a-price">{money(o.total)}</span>
+                    <Icon n="arrow" className={'ord-chev' + (open ? ' up' : '')} style={{ width: 18 }} />
+                  </div>
+                </button>
+
+                {open && (
+                  <div className="ord-detail">
+                    <div className="ord-items">
+                      {(o.items || []).map((it, i) => (
+                        <div className="ord-item" key={i}>
+                          <span className="ord-item-img"><img src={it.img} alt="" /></span>
+                          <div className="ord-item-info">
+                            <div className="ord-item-name">{t(it.name)}</div>
+                            <div className="a-meta">{t(it.color)}{it.size ? ' · ' + t(it.size) : ''} · ×{it.qty}</div>
+                          </div>
+                          <span className="ord-item-price">{money(it.price * it.qty)}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="ord-grid">
+                      <div className="ord-field"><span className="ord-k">{L('Phone', 'الموبايل')}</span><a className="ord-v" href={'tel:' + o.f.phone} dir="ltr">{o.f.phone}</a></div>
+                      <div className="ord-field"><span className="ord-k">{L('Governorate', 'المحافظة')}</span><span className="ord-v">{o.f.gov}{o.f.city ? ' · ' + o.f.city : ''}</span></div>
+                      <div className="ord-field" style={{ gridColumn: '1 / -1' }}><span className="ord-k">{L('Address', 'العنوان')}</span><span className="ord-v">{o.f.address}</span></div>
+                      {o.f.notes && <div className="ord-field" style={{ gridColumn: '1 / -1' }}><span className="ord-k">{L('Notes', 'ملاحظات')}</span><span className="ord-v">{o.f.notes}</span></div>}
+                      <div className="ord-field"><span className="ord-k">{L('Ordered on', 'تاريخ الطلب')}</span><span className="ord-v">{fmtDate(o.at)}</span></div>
+                      <div className="ord-field"><span className="ord-k">{L('Payment', 'الدفع')}</span><span className="ord-v">{L('Cash on delivery', 'عند الاستلام')}</span></div>
+                    </div>
+
+                    <div className="ord-totals">
+                      <div className="summary-row"><span>{L('Subtotal', 'الإجمالي الفرعي')}</span><span>{money(o.total - o.shipping)}</span></div>
+                      <div className="summary-row"><span>{L('Shipping', 'الشحن')}</span><span>{o.shipping ? money(o.shipping) : L('Free', 'مجاني')}</span></div>
+                      <div className="summary-row total"><span>{L('Total', 'الإجمالي')}</span><span>{money(o.total)}</span></div>
+                    </div>
+
+                    <div className="ord-actions">
+                      <a className="btn btn-wa" href={'https://wa.me/2' + (o.f.phone || '').replace(/^0/, '')} target="_blank" rel="noopener"><Icon n="chat" style={{ width: 18 }} />{L('Contact customer', 'كلّمي العميلة')}</a>
+                      <button className="btn btn-outline" onClick={() => updateOrder(o.id, { status: o.status === 'done' ? 'new' : 'done' })}>
+                        <Icon n="check" style={{ width: 17 }} />{o.status === 'done' ? L('Mark as in progress', 'رجّعيها تحت التنفيذ') : L('Mark as fulfilled', 'تم تنفيذها')}
+                      </button>
+                      <button className="btn btn-outline ord-del" onClick={() => { if (confirm(L('Delete this order?', 'تحذفي الأوردر؟'))) deleteOrder(o.id); }}><Icon n="trash" style={{ width: 17 }} />{L('Delete', 'حذف')}</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+};
+
+Object.assign(window, { LoginModal, AdminPage, OrdersPanel });

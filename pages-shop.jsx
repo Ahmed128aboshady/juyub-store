@@ -1,0 +1,349 @@
+// ============ JUYUB — shop / product / checkout / confirm ============
+const { useState: uS, useEffect: uE, useMemo: uM } = React;
+
+const WA_LINK = 'https://wa.me/message/HRQIN2XJSVOWO1'; // JUYUB WhatsApp click-to-chat
+const waLink = () => WA_LINK;
+
+/* ---------- Shop ---------- */
+const ShopPage = () => {
+  const { t, route, navigate, lang, products, categories } = useStore();
+  const [cat, setCat] = uS(route.params.cat || 'all');
+  const [sort, setSort] = uS('featured');
+  uE(() => { if (route.params.cat) setCat(route.params.cat); }, [route.params.cat]);
+
+  const counts = uM(() => {
+    const c = {}; categories.forEach(k => c[k.id] = k.id === 'all' ? products.length : products.filter(p => p.cat === k.id).length);
+    return c;
+  }, [products, categories]);
+  let list = cat === 'all' ? [...products] : products.filter(p => p.cat === cat);
+  if (sort === 'low') list.sort((a, b) => a.price - b.price);
+  if (sort === 'high') list.sort((a, b) => b.price - a.price);
+  if (sort === 'featured') list.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+
+  return (
+    <>
+      <div className="page-hero">
+        <div className="ftr-pattern" style={{ opacity: 0.06 }} />
+        <div className="wrap">
+          <span className="eyebrow">{t({ en: 'The Collection', ar: 'المجموعة' })}</span>
+          <h1 className="h1">{t({ en: 'Carry Your Confidence', ar: 'احملي ثقتك' })}</h1>
+          <p className="lede">{t({ en: 'A curated edit of leather bags and wallets — selected to complement the modern everyday.', ar: 'تشكيلة مختارة من شنط ومحافظ الجلد — منتقاة عشان تكمّل يومك العصري.' })}</p>
+        </div>
+      </div>
+      <section className="wrap section-sm">
+        <div className="shop-layout">
+          <aside className="filters">
+            <div className="filter-group">
+              <h4>{t({ en: 'Category', ar: 'الفئة' })}</h4>
+              <div className="filter-list">
+                {categories.map(c => (
+                  <button key={c.id} className={cat === c.id ? 'active' : ''} onClick={() => setCat(c.id)}>
+                    <span>{t(c)}</span><span className="cnt">{counts[c.id]}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="filter-group">
+              <h4>{t({ en: 'Good to know', ar: 'معلومة' })}</h4>
+              <div className="stack gap-m" style={{ fontSize: 14, color: 'var(--ink-soft)' }}>
+                <span className="row gap-s"><Icon n="cash" style={{ width: 19, color: 'var(--maroon)' }} />{t({ en: 'Cash on delivery', ar: 'دفع عند الاستلام' })}</span>
+                <span className="row gap-s"><Icon n="truck" style={{ width: 19, color: 'var(--maroon)' }} />{t({ en: 'Delivery in 2–4 days', ar: 'توصيل ٢–٤ أيام' })}</span>
+                <span className="row gap-s"><Icon n="shield" style={{ width: 19, color: 'var(--maroon)' }} />{t({ en: 'Genuine leather', ar: 'جلد طبيعي' })}</span>
+              </div>
+            </div>
+          </aside>
+          <div>
+            <div className="shop-toolbar">
+              <span className="toolbar-count">{list.length} {t({ en: 'pieces', ar: 'قطعة' })}</span>
+              <div className="chip-row">
+                {categories.map(c => (
+                  <button key={c.id} className={'chip mobile-cat ' + (cat === c.id ? 'active' : '')} onClick={() => setCat(c.id)}>{t(c)}</button>
+                ))}
+              </div>
+              <select className="select" value={sort} onChange={e => setSort(e.target.value)}>
+                <option value="featured">{lang === 'en' ? 'Featured' : 'المميزة'}</option>
+                <option value="low">{lang === 'en' ? 'Price: Low to High' : 'السعر: من الأقل'}</option>
+                <option value="high">{lang === 'en' ? 'Price: High to Low' : 'السعر: من الأعلى'}</option>
+              </select>
+            </div>
+            <div className="grid-products shop-grid">
+              {list.map(p => <ProductCard key={p.id} p={p} />)}
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+};
+
+/* ---------- Product detail ---------- */
+const ProductPage = () => {
+  const { t, money, navigate, route, addToCart, openCart, toast, lang, products, categories } = useStore();
+  const p = products.find(x => x.id === route.params.id) || products[0];
+  const firstInStock = p.variants.findIndex(v => v.stock);
+  const [vi, setVi] = uS(firstInStock < 0 ? 0 : firstInStock);
+  const [qty, setQty] = uS(1);
+  const [activeImg, setActiveImg] = uS(p.variants[firstInStock < 0 ? 0 : firstInStock].img);
+  uE(() => {
+    const fi = firstInStock < 0 ? 0 : firstInStock;
+    setVi(fi); setQty(1); window.scrollTo(0, 0);
+  }, [p.id]);
+  const v = p.variants[vi];
+  const cat = categories.find(c => c.id === p.cat);
+  const related = products.filter(x => x.id !== p.id).slice(0, 4);
+  // gallery is scoped to the selected colour: its hero image + that colour's detail shots
+  const thumbs = [v.img, ...(v.shots || [])];
+  // when colour (or product) changes, snap the main image back to that colour's hero
+  uE(() => { setActiveImg(v.img); }, [vi, p.id]);
+
+  const add = () => { addToCart(p, v, qty); toast(t({ en: 'Added to cart', ar: 'اتضاف للسلة' })); openCart(); };
+  const waMsg = t({
+    en: `Hi JUYUB! I'd like to order:\n• ${t(p.name)} (${t(v.color)}) ×${qty}\nSKU ${p.sku} — ${money(p.price * qty)}`,
+    ar: `أهلاً چيوب! عايزة أطلب:\n• ${t(p.name)} (${t(v.color)}) ×${qty}\nكود ${p.sku} — ${money(p.price * qty)}`,
+  });
+
+  return (
+    <section className="wrap section-sm">
+      <div className="crumbs" style={{ marginBottom: 26 }}>
+        <a onClick={() => navigate('home')}>{t({ en: 'Home', ar: 'الرئيسية' })}</a><Icon n="arrow" style={{ width: 13 }} />
+        <a onClick={() => navigate('shop')}>{t({ en: 'Shop', ar: 'المتجر' })}</a><Icon n="arrow" style={{ width: 13 }} />
+        <span className="muted">{t(p.name)}</span>
+      </div>
+      <div className="pdp">
+        <div className="pdp-gallery">
+          <div className="pdp-main">
+            {!v.stock && <div className="card-oos"><span>{t({ en: 'Out of stock', ar: 'نفد المخزون' })}</span></div>}
+            <img src={activeImg} alt={t(p.name)} />
+          </div>
+          {thumbs.length > 1 && (
+            <div className="pdp-thumbs">
+              {thumbs.map((img, i) => (
+                <button key={i} className={'pdp-thumb ' + (activeImg === img ? 'active' : '')} onClick={() => setActiveImg(img)} aria-label={t(v.color)}><img src={img} alt={t(p.name)} /></button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="pdp-info">
+          <div className="stack gap-s">
+            <span className="pdp-sku">{t(cat)} · {p.sku}</span>
+            <h1 className="h1" style={{ fontSize: 'clamp(30px,4vw,50px)' }}>{t(p.name)}</h1>
+            <span className="eyebrow" style={{ color: 'var(--ink-soft)' }}>{t(p.tagline)}</span>
+          </div>
+          <div className="pdp-price">
+            {money(p.price)}
+            {p.compareAt > p.price && (
+              <>
+                <span className="price-was">{money(p.compareAt)}</span>
+                <span className="price-off">-{Math.round((1 - p.price / p.compareAt) * 100)}%</span>
+              </>
+            )}
+          </div>
+          <p className="lede" style={{ fontSize: 16 }}>{t(p.blurb)}</p>
+
+          <div>
+            <div className="opt-label">{t({ en: 'Color', ar: 'اللون' })}<span className="val">{t(v.color)}</span></div>
+            <div className="swatch-row">
+              {p.variants.map((x, i) => (
+                <button key={i} className={'swatch ' + (i === vi ? 'active ' : '') + (x.stock ? '' : 'oos')} style={{ background: x.color.hex }} onClick={() => setVi(i)} title={t(x.color)} />
+              ))}
+            </div>
+          </div>
+
+          <div className="row gap-m" style={{ flexWrap: 'wrap' }}>
+            <div className="qty">
+              <button onClick={() => setQty(q => Math.max(1, q - 1))}><Icon n="minus" style={{ width: 16 }} /></button>
+              <span>{qty}</span>
+              <button onClick={() => setQty(q => q + 1)}><Icon n="plus" style={{ width: 16 }} /></button>
+            </div>
+            <div className="pdp-cta" style={{ flex: 1 }}>
+              <button className="btn btn-primary btn-lg" disabled={!v.stock} onClick={add}>
+                {v.stock ? t({ en: 'Add to cart', ar: 'أضف للسلة' }) : t({ en: 'Out of stock', ar: 'نفد المخزون' })}
+              </button>
+            </div>
+          </div>
+          <a className="btn btn-wa btn-block" href={waLink(waMsg)} target="_blank" rel="noopener">
+            <Icon n="chat" style={{ width: 19 }} />{t({ en: 'Order on WhatsApp', ar: 'اطلبي على واتساب' })}
+          </a>
+
+          <div className="trust-row">
+            <span className="trust"><Icon n="cash" />{t({ en: 'Pay on delivery', ar: 'دفع عند الاستلام' })}</span>
+            <span className="trust"><Icon n="truck" />{t({ en: '2–4 day delivery', ar: 'توصيل ٢–٤ أيام' })}</span>
+            <span className="trust"><Icon n="shield" />{t({ en: 'Genuine leather', ar: 'جلد طبيعي' })}</span>
+          </div>
+
+          <dl className="specs">
+            {Object.entries(p.specs).map(([k, val]) => (
+              <div className="spec-row" key={k}>
+                <dt>{t({ en: SPEC_LABELS[k].en, ar: SPEC_LABELS[k].ar })}</dt>
+                <dd>{t(val)}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
+
+      <div className="section">
+        <div className="sec-head">
+          <div className="stack"><span className="eyebrow">{t({ en: 'You may also like', ar: 'ممكن يعجبك كمان' })}</span><h2 className="h2">{t({ en: 'Complete the look', ar: 'كمّلي الإطلالة' })}</h2></div>
+          <button className="btn btn-ghost" onClick={() => navigate('shop')}>{t({ en: 'View all', ar: 'عرض الكل' })}</button>
+        </div>
+        <div className="grid-products home-grid">{related.map(r => <ProductCard key={r.id} p={r} />)}</div>
+      </div>
+    </section>
+  );
+};
+
+const SPEC_LABELS = {
+  size: { en: 'Size', ar: 'المقاس' },
+  material: { en: 'Material', ar: 'الخامة' },
+  strap: { en: 'Strap', ar: 'الحزام' },
+  closure: { en: 'Closure', ar: 'الإغلاق' },
+  interior: { en: 'Interior', ar: 'من الداخل' },
+};
+
+/* ---------- Checkout ---------- */
+const CheckoutPage = () => {
+  const { t, money, cart, subtotal, navigate, lang, placeOrder, shipRates } = useStore();
+  const [f, setF] = uS({ name: '', phone: '', gov: '', city: '', address: '', notes: '' });
+  const [errs, setErrs] = uS({});
+  const set = (k) => (e) => setF(s => ({ ...s, [k]: e.target.value }));
+  const shipping = f.gov ? (shipRates[f.gov] ?? 0) : null; // null until governorate chosen
+  const total = subtotal + (shipping || 0);
+
+  uE(() => window.scrollTo(0, 0), []);
+  if (cart.length === 0) {
+    return (
+      <section className="wrap section center">
+        <h2 className="h2">{t({ en: 'Your bag is empty', ar: 'سلتك فاضية' })}</h2>
+        <button className="btn btn-primary" style={{ marginTop: 24 }} onClick={() => navigate('shop')}>{t({ en: 'Browse the collection', ar: 'تصفّحي المجموعة' })}</button>
+      </section>
+    );
+  }
+  const submit = (e) => {
+    e.preventDefault();
+    const er = {};
+    if (!f.name.trim()) er.name = t({ en: 'Required', ar: 'مطلوب' });
+    if (!/^01[0-9]{9}$/.test(f.phone.replace(/\s/g, ''))) er.phone = t({ en: 'Enter a valid Egyptian number', ar: 'اكتبي رقم مصري صحيح' });
+    if (!f.gov) er.gov = t({ en: 'Required', ar: 'مطلوب' });
+    if (!f.address.trim()) er.address = t({ en: 'Required', ar: 'مطلوب' });
+    setErrs(er);
+    if (Object.keys(er).length === 0) placeOrder(f, shipping || 0);
+  };
+  // plain function (NOT a component) → returns elements inline, avoids remount/focus-loss
+  const field = ({ k, label, type = 'text', ph, full, ac }) => (
+    <div className="field" style={full ? { gridColumn: '1 / -1' } : null}>
+      <label>{t(label)} <span className="req">*</span></label>
+      <input className={'input ' + (errs[k] ? 'err' : '')} type={type} name={k} autoComplete={ac}
+        inputMode={type === 'tel' ? 'tel' : undefined}
+        value={f[k]} onChange={set(k)} placeholder={ph ? t(ph) : ''} />
+      {errs[k] && <span className="msg">{errs[k]}</span>}
+    </div>
+  );
+  return (
+    <section className="wrap section-sm">
+      <div className="crumbs" style={{ marginBottom: 24 }}>
+        <a onClick={() => navigate('shop')}>{t({ en: 'Shop', ar: 'المتجر' })}</a><Icon n="arrow" style={{ width: 13 }} />
+        <span className="muted">{t({ en: 'Checkout', ar: 'إتمام الطلب' })}</span>
+      </div>
+      <h1 className="h1" style={{ marginBottom: 30 }}>{t({ en: 'Checkout', ar: 'إتمام الطلب' })}</h1>
+      <form className="checkout" onSubmit={submit} autoComplete="on">
+        <div>
+          <h3 className="h3" style={{ marginBottom: 18 }}>{t({ en: 'Delivery details', ar: 'بيانات التوصيل' })}</h3>
+          <div className="grid-2">
+            {field({ k: 'name', label: { en: 'Full name', ar: 'الاسم بالكامل' }, full: true, ac: 'name' })}
+            {field({ k: 'phone', label: { en: 'Phone number', ar: 'رقم الموبايل' }, type: 'tel', ac: 'tel', ph: { en: '01XXXXXXXXX', ar: '01XXXXXXXXX' } })}
+            <div className="field">
+              <label>{t({ en: 'Governorate', ar: 'المحافظة' })} <span className="req">*</span></label>
+              <select className={'input ' + (errs.gov ? 'err' : '')} name="gov" autoComplete="address-level1" value={f.gov} onChange={set('gov')}>
+                <option value="">{t({ en: 'Select…', ar: 'اختاري…' })}</option>
+                {GOVERNORATES.map(g => <option key={g} value={g}>{lang === 'ar' ? (GOV_AR[g] || g) : g}</option>)}
+              </select>
+              {errs.gov && <span className="msg">{errs.gov}</span>}
+            </div>
+            {field({ k: 'city', label: { en: 'Area / City', ar: 'المنطقة / المدينة' }, ac: 'address-level2' })}
+            {field({ k: 'address', label: { en: 'Street address', ar: 'العنوان بالتفصيل' }, full: true, ac: 'street-address' })}
+          </div>
+          <div className="field">
+            <label>{t({ en: 'Order notes (optional)', ar: 'ملاحظات (اختياري)' })}</label>
+            <textarea className="input" name="notes" rows="3" value={f.notes} onChange={set('notes')} placeholder={t({ en: 'Landmark, preferred delivery time…', ar: 'علامة مميزة، وقت توصيل مفضل…' })} />
+          </div>
+
+          <h3 className="h3" style={{ margin: '14px 0 14px' }}>{t({ en: 'Payment', ar: 'الدفع' })}</h3>
+          <div className="pay-opt">
+            <span className="radio" />
+            <div>
+              <strong style={{ display: 'block' }}>{t({ en: 'Cash on delivery', ar: 'الدفع عند الاستلام' })}</strong>
+              <span className="muted" style={{ fontSize: 14 }}>{t({ en: 'Pay in cash when your order arrives. No deposit needed.', ar: 'ادفعي كاش لما الأوردر يوصلك. من غير أي مقدم.' })}</span>
+            </div>
+          </div>
+        </div>
+
+        <aside className="osummary">
+          <h3 className="h3" style={{ marginBottom: 8 }}>{t({ en: 'Order summary', ar: 'ملخص الطلب' })}</h3>
+          {cart.map(it => (
+            <div className="li-mini" key={it.key}>
+              <img src={it.img} alt="" />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600, fontSize: 14 }}>{t(it.name)}</div>
+                <div className="muted" style={{ fontSize: 12.5 }}>{t(it.color)} · ×{it.qty}</div>
+              </div>
+              <span style={{ fontWeight: 700, fontSize: 14 }}>{money(it.price * it.qty)}</span>
+            </div>
+          ))}
+          <div className="stack gap-s" style={{ padding: '16px 0' }}>
+            <div className="summary-row"><span>{t({ en: 'Subtotal', ar: 'الإجمالي الفرعي' })}</span><span>{money(subtotal)}</span></div>
+            <div className="summary-row">
+              <span>{t({ en: 'Shipping', ar: 'الشحن' })}</span>
+              <span>{shipping === null ? t({ en: 'Select governorate', ar: 'اختاري المحافظة' }) : (shipping === 0 ? t({ en: 'Free', ar: 'مجاني' }) : money(shipping))}</span>
+            </div>
+          </div>
+          <div className="summary-row total" style={{ borderTop: '1px solid var(--line)', paddingTop: 16 }}>
+            <span>{t({ en: 'Total', ar: 'الإجمالي' })}</span><span>{money(total)}</span>
+          </div>
+          <div className="cod-note" style={{ margin: '16px 0' }}><Icon n="cash" />{t({ en: 'You pay on delivery', ar: 'بتدفعي عند الاستلام' })}</div>
+          <button className="btn btn-primary btn-lg btn-block" type="submit">{t({ en: 'Place order', ar: 'تأكيد الطلب' })}</button>
+        </aside>
+      </form>
+    </section>
+  );
+};
+
+/* ---------- Confirmation ---------- */
+const ConfirmPage = () => {
+  const { t, money, navigate, lastOrder } = useStore();
+  uE(() => window.scrollTo(0, 0), []);
+  const o = lastOrder;
+  if (!o) { navigate('home'); return null; }
+  const waMsg = t({
+    en: `Hi JUYUB! Confirming my order ${o.id}\nName: ${o.f.name}\nPhone: ${o.f.phone}\n${o.f.gov}, ${o.f.address}\nTotal: ${money(o.total)} (Cash on delivery)`,
+    ar: `أهلاً چيوب! بأكد أوردري ${o.id}\nالاسم: ${o.f.name}\nالموبايل: ${o.f.phone}\n${o.f.gov}، ${o.f.address}\nالإجمالي: ${money(o.total)} (دفع عند الاستلام)`,
+  });
+  return (
+    <section className="wrap confirm">
+      <img className="confirm-emblem" src="https://juyub.odoo.com/web/image/1082" alt="" />
+      <span className="eyebrow">{t({ en: 'Order received', ar: 'تم استلام الطلب' })}</span>
+      <h1 className="h1">{t({ en: 'Thank you, ', ar: 'شكراً ليكي، ' })}{o.f.name.split(' ')[0]}!</h1>
+      <p className="lede" style={{ textAlign: 'center' }}>{t({ en: 'We’ve received your order and our team will confirm everything with you shortly. Pay in cash when it arrives.', ar: 'استلمنا طلبك وفريقنا هيأكد معاكي كل حاجة قريب. ادفعي كاش لما يوصلك.' })}</p>
+      <div className="confirm-card">
+        <div className="row between" style={{ marginBottom: 14 }}>
+          <span className="muted">{t({ en: 'Order number', ar: 'رقم الطلب' })}</span>
+          <strong>{o.id}</strong>
+        </div>
+        {o.items.map(it => (
+          <div className="li-mini" key={it.key}>
+            <img src={it.img} alt="" />
+            <div style={{ flex: 1 }}><div style={{ fontWeight: 600, fontSize: 14 }}>{t(it.name)}</div><div className="muted" style={{ fontSize: 12.5 }}>{t(it.color)} · ×{it.qty}</div></div>
+            <span style={{ fontWeight: 700, fontSize: 14 }}>{money(it.price * it.qty)}</span>
+          </div>
+        ))}
+        <div className="summary-row total" style={{ paddingTop: 16 }}><span>{t({ en: 'Total (COD)', ar: 'الإجمالي (عند الاستلام)' })}</span><span>{money(o.total)}</span></div>
+      </div>
+      <div className="row gap-m" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
+        <a className="btn btn-wa btn-lg" href={waLink(waMsg)} target="_blank" rel="noopener"><Icon n="chat" style={{ width: 19 }} />{t({ en: 'Chat with us on WhatsApp', ar: 'كلّمينا على واتساب' })}</a>
+        <button className="btn btn-outline btn-lg" onClick={() => navigate('shop')}>{t({ en: 'Continue shopping', ar: 'كمّلي تسوق' })}</button>
+      </div>
+    </section>
+  );
+};
+
+Object.assign(window, { ShopPage, ProductPage, CheckoutPage, ConfirmPage, SPEC_LABELS, waLink });
