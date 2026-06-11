@@ -302,15 +302,24 @@ const AdminPage = () => {
 const AnalyticsPanel = () => {
   const { t, lang } = useStore();
   const L = (en, ar) => t({ en, ar });
-  const [data, setData] = adUS(() => {
-    try {
-      return JSON.parse(localStorage.getItem('juyub_analytics') || '{}');
-    } catch { return {}; }
-  });
+  const [data, setData] = adUS({});
+  const [loading, setLoading] = adUS(true);
+
+  React.useEffect(() => {
+    const db = window._juyubDb;
+    if (!db) { setLoading(false); return; }
+    const ref = db.ref('analytics');
+    ref.on('value', snap => {
+      setData(snap.val() || {});
+      setLoading(false);
+    });
+    return () => ref.off();
+  }, []);
 
   const clear = () => {
     if (confirm(L('Clear all analytics data?', 'مسح كل بيانات الإحصائيات؟'))) {
-      localStorage.removeItem('juyub_analytics');
+      const db = window._juyubDb;
+      if (db) db.ref('analytics').remove();
       setData({});
     }
   };
@@ -390,7 +399,8 @@ const AnalyticsPanel = () => {
         </div>
       </div>
 
-      {totalVisits === 0 && (
+      {loading && <div style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--ink-soft)' }}><p>⏳ {L('Loading...', 'جاري التحميل...')}</p></div>}
+      {!loading && totalVisits === 0 && (
         <div style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--ink-soft)' }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
           <p style={{ fontSize: 15 }}>{L('Analytics data will appear here as visitors browse your store.', 'بيانات الإحصائيات هتظهر هنا لما الزوار يبدأوا يتصفحوا المتجر.')}</p>
