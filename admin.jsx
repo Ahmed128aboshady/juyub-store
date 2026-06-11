@@ -145,7 +145,16 @@ const ProductEditor = ({ initial, onDone }) => {
               {field(L('Color name (EN)', 'اللون (EN)'), v.color.en, val => updVarColor(i, 'en', val))}
               {field(L('Color name (AR)', 'اللون (AR)'), v.color.ar, val => updVarColor(i, 'ar', val))}
             </div>
-            <div className="adm-row-inline">
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16,padding:'12px 16px',borderRadius:10,background:freeAll?'#e8f5e9':'#fff8f8',border:'1px solid',borderColor:freeAll?'#a5d6a7':'#f5c5c5'}}>
+          <div>
+            <div style={{fontWeight:700,fontSize:14,color:freeAll?'#2e7d32':'#540b14'}}>{L('Free shipping for all governorates','شحن مجاني لكل المحافظات')}</div>
+            <div style={{fontSize:12,color:'var(--ink-soft)',marginTop:2}}>{L('Prices are kept — just overrides to free','الأسعار محفوظة — بس بيحسب مجاني')}</div>
+          </div>
+          <button onClick={toggleFreeAll} style={{padding:'8px 18px',borderRadius:8,border:'none',cursor:'pointer',fontWeight:700,fontSize:13,background:freeAll?'#2e7d32':'#540b14',color:'#fff'}}>
+            {freeAll?L('✓ Active — disable','✓ فعّال — إلغاء'):L('Enable free shipping','فعّل الشحن المجاني')}
+          </button>
+        </div>
+        <div className="adm-row-inline">
               <div className="field" style={{ flex: 1, minWidth: 200 }}>
                 <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>{L('Main image URL', 'رابط الصورة الأساسية')}</span>
@@ -481,6 +490,10 @@ const AdminSettings = () => {
   const [newCatEn, setNewCatEn] = adUS('');
   const [newCatAr, setNewCatAr] = adUS('');
   const [bulkRate, setBulkRate] = adUS('');
+  const [freeAll, setFreeAll] = adUS(() => { try { return JSON.parse(localStorage.getItem('juyub_freeAll')||'false'); } catch{return false;} });
+  const [freeGovs, setFreeGovs] = adUS(() => { try { return JSON.parse(localStorage.getItem('juyub_freeGovs')||'{}'); } catch{return {};} });
+  const toggleFreeAll = () => { const n=!freeAll; setFreeAll(n); localStorage.setItem('juyub_freeAll', JSON.stringify(n)); };
+  const toggleFreeGov = (g) => { const n={...freeGovs,[g]:!freeGovs[g]}; setFreeGovs(n); localStorage.setItem('juyub_freeGovs', JSON.stringify(n)); };
   const L = (en, ar) => t({ en, ar });
   return (
     <div className="adm-editor" style={{ maxWidth: 640 }}>
@@ -591,12 +604,20 @@ const AdminSettings = () => {
         </div>
         <div className="ship-rates">
           {GOVERNORATES.map(g => (
-            <div className="ship-rate-row" key={g}>
+            <div className="ship-rate-row" key={g} style={{opacity:freeAll?0.5:1}}>
               <span className="g-name">{lang === 'ar' ? (GOV_AR[g] || g) : g}</span>
               <div className="g-input">
-                <input className="input" type="number" value={shipRates[g] ?? 0} onChange={e => saveShipRate(g, e.target.value)} />
+                <input className="input" type="number" value={shipRates[g] ?? 0} onChange={e => saveShipRate(g, e.target.value)} disabled={freeAll} />
                 <span className="g-unit">{lang === 'ar' ? 'ج.م' : 'LE'}</span>
               </div>
+              <button onClick={()=>!freeAll&&toggleFreeGov(g)}
+                style={{marginLeft:8,padding:'4px 10px',borderRadius:6,border:'1px solid',
+                  borderColor:(freeGovs[g]&&!freeAll)?'#2e7d32':'#ddd',
+                  background:(freeGovs[g]&&!freeAll)?'#e8f5e9':'transparent',
+                  cursor:freeAll?'not-allowed':'pointer',fontSize:12,fontWeight:600,
+                  color:(freeGovs[g]&&!freeAll)?'#2e7d32':'var(--ink-soft)'}}>
+                {(freeGovs[g]&&!freeAll)?L('✓ Free','✓ مجاني'):L('Free','مجاني')}
+              </button>
             </div>
           ))}
         </div>
