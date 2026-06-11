@@ -118,6 +118,20 @@ const ContentEditor = () => {
             {Text('Facebook', 'footer.social.facebook', 'https://facebook.com/…')}
             {Text('WhatsApp', 'footer.social.whatsapp', 'https://wa.me/…')}
           </div>
+          <div className="adm-sec">
+            <h4>{L('Good to know (Shop sidebar)', 'معلومة (الشريط الجانبي في المتجر)')}</h4>
+            <p className="muted" style={{ marginTop: -6, marginBottom: 12, fontSize: 13 }}>{L('3 trust points in the shop sidebar. Icons: cash · truck · shield · star · heart · box', '٣ نقاط ثقة في الشريط الجانبي. الأيقونات: cash · truck · shield · star · heart · box')}</p>
+            {(c.goodToKnow || []).map((item, i) => (
+              <div className="adm-variant" key={i} style={{ paddingTop: 14 }}>
+                <div className="a-meta" style={{ marginBottom: 8, fontWeight: 700 }}>{L('Point', 'نقطة')} {i + 1}</div>
+                <div className="field"><label>{L('Icon', 'الأيقونة')}</label><input className="input" value={item.icon || ''} placeholder="cash / truck / shield" onChange={e => { const arr = JSON.parse(JSON.stringify(c.goodToKnow||[])); arr[i] = {...arr[i], icon: e.target.value}; upd('goodToKnow', arr); }} /></div>
+                <div className="adm-grid">
+                  <div className="field"><label>{L('Text', 'النص')} (EN)</label><input className="input" value={item.en || ''} onChange={e => { const arr = JSON.parse(JSON.stringify(c.goodToKnow||[])); arr[i] = {...arr[i], en: e.target.value}; upd('goodToKnow', arr); }} /></div>
+                  <div className="field"><label>{L('Text', 'النص')} (AR)</label><input className="input" dir="rtl" value={item.ar || ''} onChange={e => { const arr = JSON.parse(JSON.stringify(c.goodToKnow||[])); arr[i] = {...arr[i], ar: e.target.value}; upd('goodToKnow', arr); }} /></div>
+                </div>
+              </div>
+            ))}
+          </div>
         </>}
 
         {/* ---------------- HERO ---------------- */}
