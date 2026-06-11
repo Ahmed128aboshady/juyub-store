@@ -305,6 +305,11 @@ const SITE_CONTENT = {
     { icon: 'truck',  en: 'Delivery in 2–4 days', ar: 'توصيل ٢–٤ أيام' },
     { icon: 'shield', en: 'Genuine leather',      ar: 'جلد طبيعي' },
   ],
+  shop: {
+    eyebrow: { en: 'The Collection', ar: 'المجموعة' },
+    title:   { en: 'Carry Your Confidence', ar: 'احملي ثقتك' },
+    lede:    { en: 'A curated edit of leather bags and wallets — selected to complement the modern everyday.', ar: 'تشكيلة مختارة من شنط ومحافظ الجلد — منتقاة عشان تكمّل يومك العصري.' },
+  },
   footer: {
     tagline: { en: 'Juyub brings style to your every step. Carry what you love and craft your confidence.', ar: 'چيوب بتضيف ستايل لكل خطوة. احملي اللي بتحبيه واصنعي ثقتك.' },
     founded: { en: 'Founded in Egypt', ar: 'صُنع في مصر' },
