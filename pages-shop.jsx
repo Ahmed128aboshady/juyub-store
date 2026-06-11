@@ -46,9 +46,9 @@ const ShopPage = () => {
             <div className="filter-group">
               <h4>{t({ en: 'Good to know', ar: 'معلومة' })}</h4>
               <div className="stack gap-m" style={{ fontSize: 14, color: 'var(--ink-soft)' }}>
-                <span className="row gap-s"><Icon n="cash" style={{ width: 19, color: 'var(--maroon)' }} />{t({ en: 'Cash on delivery', ar: 'دفع عند الاستلام' })}</span>
-                <span className="row gap-s"><Icon n="truck" style={{ width: 19, color: 'var(--maroon)' }} />{t({ en: 'Delivery in 2–4 days', ar: 'توصيل ٢–٤ أيام' })}</span>
-                <span className="row gap-s"><Icon n="shield" style={{ width: 19, color: 'var(--maroon)' }} />{t({ en: 'Genuine leather', ar: 'جلد طبيعي' })}</span>
+                {(content.goodToKnow || []).map((item, i) => (
+                  <span key={i} className="row gap-s"><Icon n={item.icon} style={{ width: 19, color: 'var(--maroon)' }} />{t({ en: item.en, ar: item.ar })}</span>
+                ))}
               </div>
             </div>
           </aside>
