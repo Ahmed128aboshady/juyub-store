@@ -248,6 +248,7 @@ const AdminPage = () => {
           <button className={tab === 'orders' ? 'active' : ''} onClick={() => { setTab('orders'); setEditing(null); }}>{L('Orders', 'الأوردرات')} {orders.length > 0 && `(${orders.length})`}</button>
           <button className={tab === 'content' ? 'active' : ''} onClick={() => { setTab('content'); setEditing(null); }}>{L('Content', 'المحتوى')}</button>
           <button className={tab === 'settings' ? 'active' : ''} onClick={() => { setTab('settings'); setEditing(null); }}>{L('Settings', 'الإعدادات')}</button>
+          <button className={tab === 'analytics' ? 'active' : ''} onClick={() => { setTab('analytics'); setEditing(null); }}>{L('Analytics', 'الإحصائيات')}</button>
         </div>
         <div className="a-actions">
           <button className="a-btn" onClick={() => navigate('home')}>{L('View store', 'المتجر')}</button>
@@ -291,7 +292,110 @@ const AdminPage = () => {
 
         {tab === 'settings' && <AdminSettings />}
         {tab === 'content' && <ContentEditor />}
+        {tab === 'analytics' && <AnalyticsPanel />}
       </div>
+    </div>
+  );
+};
+
+/* ---------- Analytics Panel ---------- */
+const AnalyticsPanel = () => {
+  const { t, lang } = useStore();
+  const L = (en, ar) => t({ en, ar });
+  const [data, setData] = adUS(() => {
+    try {
+      return JSON.parse(localStorage.getItem('juyub_analytics') || '{}');
+    } catch { return {}; }
+  });
+
+  const clear = () => {
+    if (confirm(L('Clear all analytics data?', 'مسح كل بيانات الإحصائيات؟'))) {
+      localStorage.removeItem('juyub_analytics');
+      setData({});
+    }
+  };
+
+  const pageViews = data.pageViews || {};
+  const productClicks = data.productClicks || {};
+  const totalVisits = data.totalVisits || 0;
+  const dailyVisits = data.dailyVisits || {};
+
+  const sortedPages = Object.entries(pageViews).sort((a, b) => b[1] - a[1]);
+  const sortedProducts = Object.entries(productClicks).sort((a, b) => b[1] - a[1]);
+  const sortedDays = Object.entries(dailyVisits).sort((a, b) => a[0].localeCompare(b[0])).slice(-14);
+
+  const maxDay = sortedDays.length ? Math.max(...sortedDays.map(d => d[1])) : 1;
+
+  return (
+    <div style={{ padding: '28px 24px', maxWidth: 860 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+        <h3 className="h3" style={{ margin: 0 }}>{L('Analytics', 'الإحصائيات')}</h3>
+        <button className="btn btn-outline" style={{ fontSize: 13 }} onClick={clear}>{L('Clear data', 'مسح البيانات')}</button>
+      </div>
+
+      {/* Summary cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16, marginBottom: 32 }}>
+        {[
+          { label: L('Total visits', 'إجمالي الزيارات'), value: totalVisits },
+          { label: L('Pages tracked', 'الصفحات'), value: Object.keys(pageViews).length },
+          { label: L('Products clicked', 'منتجات اتضغط عليها'), value: Object.keys(productClicks).length },
+          { label: L('Days tracked', 'أيام متتبعة'), value: Object.keys(dailyVisits).length },
+        ].map((card, i) => (
+          <div key={i} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px' }}>
+            <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--maroon)' }}>{card.value}</div>
+            <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 4 }}>{card.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Daily visits bar chart */}
+      {sortedDays.length > 0 && (
+        <div className="adm-sec" style={{ marginBottom: 28 }}>
+          <h4>{L('Visits — last 14 days', 'الزيارات — آخر ١٤ يوم')}</h4>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 120, marginTop: 16 }}>
+            {sortedDays.map(([day, count]) => (
+              <div key={day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <div style={{ fontSize: 11, color: 'var(--ink-soft)' }}>{count}</div>
+                <div style={{ width: '100%', background: 'var(--maroon)', borderRadius: '4px 4px 0 0', height: `${Math.max(4, (count / maxDay) * 90)}px`, opacity: 0.85 }} />
+                <div style={{ fontSize: 10, color: 'var(--ink-soft)', writingMode: 'vertical-rl', transform: 'rotate(180deg)', height: 36 }}>{day.slice(5)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+        {/* Top pages */}
+        <div className="adm-sec">
+          <h4>{L('Top pages', 'أكتر صفحات اتزارت')}</h4>
+          {sortedPages.length === 0 && <p className="muted" style={{ fontSize: 13 }}>{L('No data yet', 'لا توجد بيانات بعد')}</p>}
+          {sortedPages.slice(0, 8).map(([page, count]) => (
+            <div key={page} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border)', fontSize: 14 }}>
+              <span style={{ color: 'var(--ink)', textTransform: 'capitalize' }}>{page}</span>
+              <span style={{ fontWeight: 700, color: 'var(--maroon)' }}>{count}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Top products */}
+        <div className="adm-sec">
+          <h4>{L('Most clicked products', 'أكتر منتجات اتضغط عليها')}</h4>
+          {sortedProducts.length === 0 && <p className="muted" style={{ fontSize: 13 }}>{L('No data yet', 'لا توجد بيانات بعد')}</p>}
+          {sortedProducts.slice(0, 8).map(([prod, count]) => (
+            <div key={prod} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border)', fontSize: 14 }}>
+              <span style={{ color: 'var(--ink)' }}>{prod}</span>
+              <span style={{ fontWeight: 700, color: 'var(--maroon)' }}>{count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {totalVisits === 0 && (
+        <div style={{ textAlign: 'center', padding: '48px 24px', color: 'var(--ink-soft)' }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>📊</div>
+          <p style={{ fontSize: 15 }}>{L('Analytics data will appear here as visitors browse your store.', 'بيانات الإحصائيات هتظهر هنا لما الزوار يبدأوا يتصفحوا المتجر.')}</p>
+        </div>
+      )}
     </div>
   );
 };
