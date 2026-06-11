@@ -187,6 +187,21 @@ function App() {
   aUE(() => { LS.set('creds', creds); }, [creds]);
   aUE(() => { LS.set('sheetUrl', sheetUrl); }, [sheetUrl]);
   aUE(() => { LS.set('isAdmin', isAdmin); }, [isAdmin]);
+
+  // ── Analytics: track every page/product view ──
+  aUE(() => {
+    const dbRef = window._juyubDb;
+    if (!dbRef || !route || !route.name) return;
+    const today = new Date().toISOString().slice(0, 10);
+    try {
+      dbRef.ref('analytics/totalVisits').transaction(v => (v || 0) + 1);
+      dbRef.ref('analytics/pageViews/' + route.name).transaction(v => (v || 0) + 1);
+      dbRef.ref('analytics/dailyVisits/' + today).transaction(v => (v || 0) + 1);
+      if (route.name === 'product' && route.params && route.params.id) {
+        dbRef.ref('analytics/productClicks/' + route.params.id).transaction(v => (v || 0) + 1);
+      }
+    } catch(e) {}
+  }, [route.name, route.params && route.params.id]);
   aUE(() => { LS.set('firebaseConfig', firebaseConfig); }, [firebaseConfig]);
 
   // sync root attributes
