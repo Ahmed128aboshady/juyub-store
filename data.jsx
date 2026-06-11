@@ -304,9 +304,9 @@ const SITE_CONTENT = {
     tagline: { en: 'Juyub brings style to your every step. Carry what you love and craft your confidence.', ar: 'چيوب بتضيف ستايل لكل خطوة. احملي اللي بتحبيه واصنعي ثقتك.' },
     founded: { en: 'Founded in Egypt', ar: 'صُنع في مصر' },
     social: {
-      instagram: 'https://instagram.com/juyub',
-      tiktok: 'https://tiktok.com/@juyub',
-      facebook: 'https://facebook.com/juyub',
+      instagram: 'https://www.instagram.com/juyub.eg/',
+      tiktok: 'https://www.tiktok.com/@juyub.eg',
+      facebook: 'https://www.facebook.com/Juyub.egg',
       whatsapp: 'https://wa.me/message/HRQIN2XJSVOWO1',
     },
   },
