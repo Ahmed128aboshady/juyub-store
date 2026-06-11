@@ -25,9 +25,9 @@ const ShopPage = () => {
       <div className="page-hero">
         <div className="ftr-pattern" style={{ opacity: 0.06 }} />
         <div className="wrap">
-          <span className="eyebrow">{t({ en: 'The Collection', ar: 'المجموعة' })}</span>
-          <h1 className="h1">{t({ en: 'Carry Your Confidence', ar: 'احملي ثقتك' })}</h1>
-          <p className="lede">{t({ en: 'A curated edit of leather bags and wallets — selected to complement the modern everyday.', ar: 'تشكيلة مختارة من شنط ومحافظ الجلد — منتقاة عشان تكمّل يومك العصري.' })}</p>
+          <span className="eyebrow">{t((content.shop && content.shop.eyebrow) || { en: 'The Collection', ar: 'المجموعة' })}</span>
+          <h1 className="h1">{t((content.shop && content.shop.title) || { en: 'Carry Your Confidence', ar: 'احملي ثقتك' })}</h1>
+          <p className="lede">{t((content.shop && content.shop.lede) || { en: 'A curated edit of leather bags and wallets — selected to complement the modern everyday.', ar: 'تشكيلة مختارة من شنط ومحافظ الجلد — منتقاة عشان تكمّل يومك العصري.' })}</p>
         </div>
       </div>
       <section className="wrap section-sm">
