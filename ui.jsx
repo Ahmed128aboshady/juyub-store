@@ -204,17 +204,34 @@ const Footer = () => {
         ])}
       </div>
       <div className="ftr-bottom">
-        <span>© {new Date().getFullYear()} JUYUB · {t(fc.founded || { en: 'Built By  <a href="https://www.linkedin.com/in/ahmed-aboshady-55751023a/" target="_blank" >
-        Ahmed Abo Shady
-    </a>', ar: '  صمم بواسطة  <a href="https://www.linkedin.com/in/ahmed-aboshady-55751023a/" target="_blank" >
-        Ahmed Abo Shady
-    </a>' })}</span>
-        {socials.length > 0 && (
-          <div className="ftr-social">
-            {socials.map(([key, icon, label]) => (
-              <a key={key} href={social[key]} target="_blank" rel="noopener" aria-label={label}><Icon n={icon} /></a>
-            ))}
-          </div>
+  <span>
+    © {new Date().getFullYear()} JUYUB · {t(fc.founded || { en: 'Built By ', ar: 'صمم بواسطة ' })}
+    <a 
+      href="https://www.linkedin.com/in/ahmed-aboshady-55751023a/" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      style={{ fontWeight: 'bold' }}
+    >
+      Ahmed Abo Shady
+    </a>
+  </span>
+
+  {socials.length > 0 && (
+    <div className="ftr-social">
+      {socials.map(([key, icon, label]) => (
+        <a 
+          key={key} 
+          href={social[key]} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          aria-label={label}
+        >
+          <Icon n={icon} />
+        </a>
+      ))}
+    </div>
+  )}
+</div>
         )}
         <button className="ftr-admin" onClick={() => isAdmin ? navigate('admin') : setLoginOpen(true)}>
           <Icon n="lock" style={{ width: 14 }} />{isAdmin ? t({ en: 'Dashboard', ar: 'لوحة التحكم' }) : t({ en: 'Owner login', ar: 'دخول المالك' })}
