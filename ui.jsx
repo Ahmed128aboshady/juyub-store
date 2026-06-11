@@ -204,7 +204,7 @@ const Footer = () => {
         ])}
       </div>
       <div className="ftr-bottom">
-        <span>© {new Date().getFullYear()} JUYUB · {t(fc.founded || { en: 'Founded in Egypt', ar: 'صُنع في مصر' })}</span>
+        <span>© {new Date().getFullYear()} JUYUB · <a href="https://www.linkedin.com/in/ahmed-aboshady-55751023a/" target="_blank" rel="noopener" style={{color:'inherit',textDecoration:'underline'}}>Made by Ahmed Abo Shady</a> · <a href="https://www.linkedin.com/in/ahmed-aboshady-55751023a/" target="_blank" rel="noopener" style={{color:'inherit',textDecoration:'underline'}}>صنع بواسطه احمد ابو شادي</a></span>
         {socials.length > 0 && (
           <div className="ftr-social">
             {socials.map(([key, icon, label]) => (
