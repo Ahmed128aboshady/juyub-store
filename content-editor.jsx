@@ -76,6 +76,7 @@ const ContentEditor = () => {
     ['about', L('About', 'عن چيوب')],
     ['shipping', L('Shipping', 'الشحن')],
     ['faq', L('Q&A', 'الأسئلة')],
+    ['shop', L('Shop page', 'صفحة المتجر')],
   ];
 
   return (
@@ -287,6 +288,31 @@ const ContentEditor = () => {
               </div>
             ))}
             <button className="btn btn-outline" onClick={() => listAdd('faq.items', { q: { en: '', ar: '' }, a: { en: '', ar: '' } })} style={{ marginTop: 4 }}><Icon n="plus" style={{ width: 16 }} />{L('Add question', 'أضف سؤال')}</button>
+          </div>
+        </>}
+
+        {/* ---------------- SHOP ---------------- */}
+        {sec === 'shop' && <>
+          <h3 className="h3">{L('Shop page', 'صفحة المتجر')}</h3>
+          <div className="adm-sec" style={{ borderTop: 0, marginTop: 10, paddingTop: 0 }}>
+            <h4>{L('Page header', 'ترويسة الصفحة')}</h4>
+            {Pair(L('Small label', 'السطر الصغير'), 'shop.eyebrow')}
+            {Pair(L('Headline', 'العنوان الكبير'), 'shop.title')}
+            {Pair(L('Subtext', 'النص'), 'shop.lede', { area: true })}
+          </div>
+          <div className="adm-sec">
+            <h4>{L('Good to know (sidebar)', 'معلومة (الشريط الجانبي)')}</h4>
+            <p className="muted" style={{ marginTop: -6, marginBottom: 12, fontSize: 13 }}>{L('3 trust points in the shop sidebar. Icons: cash · truck · shield · star · heart · box', '٣ نقاط ثقة في الشريط الجانبي. الأيقونات: cash · truck · shield · star · heart · box')}</p>
+            {(c.goodToKnow || []).map((item, i) => (
+              <div className="adm-variant" key={i} style={{ paddingTop: 14 }}>
+                <div className="a-meta" style={{ marginBottom: 8, fontWeight: 700 }}>{L('Point', 'نقطة')} {i + 1}</div>
+                <div className="field"><label>{L('Icon', 'الأيقونة')}</label><input className="input" value={item.icon || ''} placeholder="cash / truck / shield" onChange={e => { const arr = JSON.parse(JSON.stringify(c.goodToKnow||[])); arr[i] = {...arr[i], icon: e.target.value}; upd('goodToKnow', arr); }} /></div>
+                <div className="adm-grid">
+                  <div className="field"><label>{L('Text', 'النص')} (EN)</label><input className="input" value={item.en || ''} onChange={e => { const arr = JSON.parse(JSON.stringify(c.goodToKnow||[])); arr[i] = {...arr[i], en: e.target.value}; upd('goodToKnow', arr); }} /></div>
+                  <div className="field"><label>{L('Text', 'النص')} (AR)</label><input className="input" dir="rtl" value={item.ar || ''} onChange={e => { const arr = JSON.parse(JSON.stringify(c.goodToKnow||[])); arr[i] = {...arr[i], ar: e.target.value}; upd('goodToKnow', arr); }} /></div>
+                </div>
+              </div>
+            ))}
           </div>
         </>}
 
