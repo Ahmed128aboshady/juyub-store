@@ -6,7 +6,7 @@ const waLink = () => WA_LINK;
 
 /* ---------- Shop ---------- */
 const ShopPage = () => {
-  const { t, route, navigate, lang, products, categories } = useStore();
+  const { t, route, navigate, lang, products, categories, content } = useStore();
   const [cat, setCat] = uS(route.params.cat || 'all');
   const [sort, setSort] = uS('featured');
   uE(() => { if (route.params.cat) setCat(route.params.cat); }, [route.params.cat]);
@@ -46,7 +46,7 @@ const ShopPage = () => {
             <div className="filter-group">
               <h4>{t({ en: 'Good to know', ar: 'معلومة' })}</h4>
               <div className="stack gap-m" style={{ fontSize: 14, color: 'var(--ink-soft)' }}>
-                {(content.goodToKnow || []).map((item, i) => (
+                {((content && content.goodToKnow) ? content.goodToKnow : (typeof SITE_CONTENT !== 'undefined' && SITE_CONTENT.goodToKnow) || []).map((item, i) => (
                   <span key={i} className="row gap-s"><Icon n={item.icon} style={{ width: 19, color: 'var(--maroon)' }} />{t({ en: item.en, ar: item.ar })}</span>
                 ))}
               </div>
