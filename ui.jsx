@@ -56,8 +56,19 @@ const Logo = ({ variant }) => {
 
 /* ---------- Header ---------- */
 const Header = () => {
-  const { route, navigate, lang, setLang, cart, openCart, t, content } = useStore();
+  const { route, navigate, lang, setLang, cart, openCart, t, content, products } = useStore();
   const [mnav, setMnav] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQ, setSearchQ] = useState('');
+  const searchResults = React.useMemo(() => {
+    if (!searchQ.trim()) return [];
+    const q = searchQ.toLowerCase();
+    return (products || []).filter(p =>
+      t(p.name).toLowerCase().includes(q) ||
+      t(p.tagline || {en:'',ar:''}).toLowerCase().includes(q) ||
+      (p.cat || '').toLowerCase().includes(q)
+    ).slice(0, 6);
+  }, [searchQ, products, lang]);
   const count = cart.reduce((s, i) => s + i.qty, 0);
   const links = [
     ['home', { en: 'Home', ar: 'الرئيسية' }],
@@ -83,7 +94,7 @@ const Header = () => {
             <button className="lang-toggle desk" onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}>
               {lang === 'en' ? 'العربية' : 'EN'}
             </button>
-            <button className="icon-btn" aria-label="Search"><Icon n="search" /></button>
+            <button className="icon-btn" aria-label="Search" onClick={() => { setSearchOpen(s => !s); setSearchQ(''); }}><Icon n="search" /></button>
             <button className="icon-btn" onClick={openCart} aria-label="Cart">
               <Icon n="bag" />
               {count > 0 && <span className="cart-count">{count}</span>}
@@ -91,6 +102,45 @@ const Header = () => {
           </div>
         </div>
       </header>
+      {searchOpen && (
+        <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,zIndex:999,background:'rgba(0,0,0,0.5)'}} onClick={() => setSearchOpen(false)}>
+          <div style={{background:'var(--bg)',padding:'20px 24px',boxShadow:'0 4px 24px rgba(0,0,0,0.15)'}} onClick={e => e.stopPropagation()}>
+            <div style={{maxWidth:640,margin:'0 auto',position:'relative'}}>
+              <input autoFocus value={searchQ} onChange={e => setSearchQ(e.target.value)}
+                onKeyDown={e => { if(e.key==='Escape') setSearchOpen(false); }}
+                placeholder={t({en:'Search products…', ar:'ابحث عن منتج…'})}
+                style={{width:'100%',padding:'14px 48px 14px 18px',borderRadius:12,border:'2px solid var(--maroon)',fontSize:16,outline:'none',fontFamily:'inherit',boxSizing:'border-box',background:'var(--bg)',color:'var(--ink)'}} />
+              <button onClick={() => setSearchOpen(false)} style={{position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:'var(--ink-soft)',fontSize:20}}>✕</button>
+            </div>
+            {searchResults.length > 0 && (
+              <div style={{maxWidth:640,margin:'8px auto 0',background:'var(--bg)',borderRadius:12,border:'1px solid var(--border)',overflow:'hidden',boxShadow:'0 8px 24px rgba(0,0,0,0.1)'}}>
+                {searchResults.map(p => {
+                  const img = p.variants && p.variants[0] && p.variants[0].img;
+                  return (
+                    <div key={p.id} onClick={() => { navigate('product',{id:p.id}); setSearchOpen(false); setSearchQ(''); }}
+                      style={{display:'flex',alignItems:'center',gap:14,padding:'12px 18px',cursor:'pointer',borderBottom:'1px solid var(--border)'}}
+                      onMouseEnter={e=>e.currentTarget.style.background='var(--surface)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                      {img ? <img src={img} alt={t(p.name)} style={{width:44,height:44,borderRadius:8,objectFit:'cover',background:'var(--surface)'}} />
+                            : <div style={{width:44,height:44,borderRadius:8,background:'var(--surface)',display:'flex',alignItems:'center',justifyContent:'center'}}>👜</div>}
+                      <div style={{flex:1}}>
+                        <div style={{fontWeight:600,fontSize:14,color:'var(--ink)'}}>{t(p.name)}</div>
+                        <div style={{fontSize:12,color:'var(--ink-soft)',marginTop:2}}>{t(p.tagline||{en:'',ar:''})}</div>
+                      </div>
+                      <div style={{fontWeight:700,color:'var(--maroon)',fontSize:14}}>{p.price} {t({en:'LE',ar:'ج.م'})}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {searchQ.trim() && searchResults.length === 0 && (
+              <div style={{maxWidth:640,margin:'8px auto 0',textAlign:'center',padding:'20px',color:'var(--ink-soft)',fontSize:14}}>
+                {t({en:'No products found for "'+searchQ+'"', ar:'مفيش منتجات لـ "'+searchQ+'"'})}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       {mnav && (
         <div className="mnav">
           <div className="row between" style={{ marginBottom: 20 }}>
