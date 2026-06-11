@@ -258,6 +258,7 @@ const AdminPage = () => {
           <button className={tab === 'content' ? 'active' : ''} onClick={() => { setTab('content'); setEditing(null); }}>{L('Content', 'المحتوى')}</button>
           <button className={tab === 'settings' ? 'active' : ''} onClick={() => { setTab('settings'); setEditing(null); }}>{L('Settings', 'الإعدادات')}</button>
           <button className={tab === 'analytics' ? 'active' : ''} onClick={() => { setTab('analytics'); setEditing(null); }}>{L('Analytics', 'الإحصائيات')}</button>
+          <button className={tab === 'shipping' ? 'active' : ''} onClick={() => { setTab('shipping'); setEditing(null); }}>{L('Shipping', 'الشحن')}</button>
         </div>
         <div className="a-actions">
           <button className="a-btn" onClick={() => navigate('home')}>{L('View store', 'المتجر')}</button>
@@ -302,6 +303,7 @@ const AdminPage = () => {
         {tab === 'settings' && <AdminSettings />}
         {tab === 'content' && <ContentEditor />}
         {tab === 'analytics' && <AnalyticsPanel />}
+        {tab === 'shipping' && <ShippingPanel />}
       </div>
     </div>
   );
@@ -592,38 +594,7 @@ const AdminSettings = () => {
         }}><Icon n="plus" style={{ width: 16 }} />{L('Add category', 'أضف فئة')}</button>
       </div>
 
-      {/* shipping rates */}
-      <div className="adm-sec">
-        <h4>{L('Shipping rates per governorate', 'أسعار الشحن لكل محافظة')}</h4>
-        <div className="adm-row-inline" style={{ marginBottom: 14 }}>
-          <div className="field" style={{ marginBottom: 0, width: 160 }}>
-            <label>{L('Set all to (LE)', 'وحّد الكل على (ج.م)')}</label>
-            <input className="input" type="number" value={bulkRate} onChange={e => setBulkRate(e.target.value)} placeholder="70" />
-          </div>
-          <button className="btn btn-outline" style={{ marginBottom: 0 }} onClick={() => { if (bulkRate !== '') { setAllShipRates(bulkRate); toast(L('Applied to all', 'تم التطبيق على الكل')); } }}>{L('Apply to all', 'طبّقي على الكل')}</button>
-        </div>
-        <div className="ship-rates">
-          {GOVERNORATES.map(g => (
-            <div className="ship-rate-row" key={g} style={{opacity:freeAll?0.5:1}}>
-              <span className="g-name">{lang === 'ar' ? (GOV_AR[g] || g) : g}</span>
-              <div className="g-input">
-                <input className="input" type="number" value={shipRates[g] ?? 0} onChange={e => saveShipRate(g, e.target.value)} disabled={freeAll} />
-                <span className="g-unit">{lang === 'ar' ? 'ج.م' : 'LE'}</span>
-              </div>
-              <button onClick={()=>!freeAll&&toggleFreeGov(g)}
-                style={{marginLeft:8,padding:'4px 10px',borderRadius:6,border:'1px solid',
-                  borderColor:(freeGovs[g]&&!freeAll)?'#2e7d32':'#ddd',
-                  background:(freeGovs[g]&&!freeAll)?'#e8f5e9':'transparent',
-                  cursor:freeAll?'not-allowed':'pointer',fontSize:12,fontWeight:600,
-                  color:(freeGovs[g]&&!freeAll)?'#2e7d32':'var(--ink-soft)'}}>
-                {(freeGovs[g]&&!freeAll)?L('✓ Free','✓ مجاني'):L('Free','مجاني')}
-              </button>
-            </div>
-          ))}
-        </div>
-        <p className="muted" style={{ marginTop: 12, fontSize: 13 }}>{L('Changes save automatically. Set 0 for free shipping.', 'التغييرات بتتحفظ تلقائياً. حطي 0 للشحن المجاني.')}</p>
-      </div>
-
+      {/* shipping moved to Shipping tab */}
       {/* reset */}
       <div className="adm-sec">
         <h4>{L('Catalog', 'الكتالوج')}</h4>
@@ -736,5 +707,104 @@ const OrdersPanel = () => {
   );
 };
 
+
+/* ---------- Shipping Panel ---------- */
+const ShippingPanel = () => {
+  const { t, lang, shipRates, saveShipRate, setAllShipRates } = useStore();
+  const L = (en, ar) => t({ en, ar });
+  const [freeAll,  setFreeAll]  = adUS(() => { try { return JSON.parse(localStorage.getItem('juyub_freeAll') ||'false'); } catch{return false;} });
+  const [freeGovs, setFreeGovs] = adUS(() => { try { return JSON.parse(localStorage.getItem('juyub_freeGovs')||'{}');   } catch{return {};} });
+  const [bulkRate, setBulkRate] = adUS('');
+
+  const toggleFreeAll = () => {
+    const n = !freeAll;
+    setFreeAll(n);
+    localStorage.setItem('juyub_freeAll', JSON.stringify(n));
+    if (n) { const all={}; GOVERNORATES.forEach(g=>all[g]=true); setFreeGovs(all); localStorage.setItem('juyub_freeGovs', JSON.stringify(all)); }
+    else   { setFreeGovs({}); localStorage.setItem('juyub_freeGovs', '{}'); }
+  };
+  const toggleFreeGov = (g) => {
+    const n = {...freeGovs, [g]: !freeGovs[g]};
+    setFreeGovs(n);
+    localStorage.setItem('juyub_freeGovs', JSON.stringify(n));
+    const allFree = GOVERNORATES.every(gov => n[gov]);
+    setFreeAll(allFree);
+    localStorage.setItem('juyub_freeAll', JSON.stringify(allFree));
+  };
+
+  return (
+    <div style={{padding:'28px 24px', maxWidth:720}}>
+      <h3 className="h3" style={{marginBottom:6}}>{L('Shipping Prices', 'أسعار الشحن')}</h3>
+      <p className="muted" style={{fontSize:13,marginBottom:24}}>{L('Prices are saved. Free toggle overrides to 0 without losing the price.','الأسعار محفوظة. زرار مجاني بيتجاهل السعر بدون ما يمسحه.')}</p>
+
+      {/* Global free shipping banner */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px 20px',borderRadius:14,marginBottom:24,
+        background: freeAll ? 'linear-gradient(135deg,#e8f5e9,#c8e6c9)' : 'linear-gradient(135deg,#fff8f8,#fdecea)',
+        border:'2px solid', borderColor: freeAll?'#81c784':'#ef9a9a', boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
+        <div>
+          <div style={{fontWeight:800,fontSize:15,color:freeAll?'#1b5e20':'#b71c1c'}}>{freeAll ? '🎉 '+L('Free shipping active for ALL governorates','الشحن المجاني فعّال لكل المحافظات') : '📦 '+L('Free shipping for all governorates','شحن مجاني لكل المحافظات')}</div>
+          <div style={{fontSize:12,color:'var(--ink-soft)',marginTop:4}}>{L('Toggle all at once — prices remain saved','فعّل أو قفل الكل دفعة واحدة — الأسعار بتفضل محفوظة')}</div>
+        </div>
+        <button onClick={toggleFreeAll} style={{padding:'10px 22px',borderRadius:10,border:'none',cursor:'pointer',fontWeight:700,fontSize:13,
+          background: freeAll?'#2e7d32':'#540b14', color:'#fff', whiteSpace:'nowrap', boxShadow:'0 2px 8px rgba(0,0,0,0.15)'}}>
+          {freeAll ? L('✓ Disable all','✓ قفل الكل') : L('Enable all free','فعّل الكل مجاني')}
+        </button>
+      </div>
+
+      {/* Bulk price setter */}
+      <div style={{display:'flex',gap:12,alignItems:'center',marginBottom:24,padding:'14px 18px',background:'var(--surface)',borderRadius:12,border:'1px solid var(--border)'}}>
+        <span style={{fontSize:13,fontWeight:600,color:'var(--ink)',whiteSpace:'nowrap'}}>{L('Set all prices to:','اضبط كل الأسعار على:')}</span>
+        <input type="number" value={bulkRate} onChange={e=>setBulkRate(e.target.value)} placeholder="70"
+          style={{width:90,padding:'8px 12px',borderRadius:8,border:'1px solid var(--border)',fontSize:14,fontFamily:'inherit'}} />
+        <span style={{fontSize:13,color:'var(--ink-soft)'}}>{L('LE','ج.م')}</span>
+        <button onClick={()=>{ if(bulkRate!=='') { setAllShipRates(Number(bulkRate)); setBulkRate(''); }}}
+          style={{padding:'8px 18px',borderRadius:8,background:'var(--maroon)',color:'#fff',border:'none',cursor:'pointer',fontWeight:600,fontSize:13}}>
+          {L('Apply to all','طبّق على الكل')}
+        </button>
+      </div>
+
+      {/* Governorate cards */}
+      <div style={{display:'grid',gridTemplateColumns:'1fr',gap:10}}>
+        {GOVERNORATES.map(g => {
+          const isFree = freeAll || freeGovs[g];
+          return (
+            <div key={g} onClick={()=>toggleFreeGov(g)} style={{
+              display:'flex', alignItems:'center', justifyContent:'space-between',
+              padding:'14px 18px', borderRadius:12, cursor:'pointer',
+              border:'2px solid', borderColor: isFree?'#81c784':'var(--border)',
+              background: isFree?'linear-gradient(135deg,#f1f8f1,#e8f5e9)':'var(--bg)',
+              boxShadow: isFree?'0 2px 10px rgba(46,125,50,0.12)':'0 1px 4px rgba(0,0,0,0.04)',
+              transition:'all 0.2s'}}>
+              <div style={{display:'flex',alignItems:'center',gap:12}}>
+                <div style={{width:36,height:36,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,
+                  background: isFree?'#c8e6c9':'var(--surface)'}}>
+                  {isFree?'🎉':'📦'}
+                </div>
+                <div>
+                  <div style={{fontWeight:700,fontSize:14,color:'var(--ink)'}}>{lang==='ar'?(GOV_AR[g]||g):g}</div>
+                  <div style={{fontSize:12,color: isFree?'#2e7d32':'var(--ink-soft)',marginTop:2}}>
+                    {isFree ? L('Free shipping','شحن مجاني') : (shipRates[g]??0)+' '+(lang==='ar'?'ج.م':'LE')}
+                  </div>
+                </div>
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:12}}>
+                <input type="number" value={shipRates[g]??0}
+                  onClick={e=>e.stopPropagation()}
+                  onChange={e=>{e.stopPropagation(); saveShipRate(g,e.target.value);}}
+                  style={{width:72,padding:'6px 10px',borderRadius:8,border:'1px solid var(--border)',fontSize:13,fontFamily:'inherit',textAlign:'center',opacity:isFree?0.4:1}} />
+                <span style={{fontSize:12,color:'var(--ink-soft)'}}>{lang==='ar'?'ج.م':'LE'}</span>
+                <div style={{width:52,height:26,borderRadius:99,position:'relative',cursor:'pointer',transition:'background 0.2s',
+                  background: isFree?'#43a047':'#ccc'}}>
+                  <div style={{position:'absolute',top:3,width:20,height:20,borderRadius:'50%',background:'#fff',transition:'left 0.2s',
+                    left: isFree?'28px':'4px', boxShadow:'0 1px 4px rgba(0,0,0,0.2)'}} />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 Object.assign(window, { LoginModal, AdminPage, OrdersPanel });
