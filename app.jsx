@@ -90,25 +90,28 @@ function App() {
 
   // Initialize Firebase Realtime Database
   aUE(() => {
-    if (!window.firebase || !firebaseConfig) {
-      setDb(null);
-      return;
-    }
+    if (!window.firebase) { console.warn('Firebase SDK not loaded'); return; }
     try {
-      let app;
-      if (firebase.apps.length === 0) {
-        app = firebase.initializeApp(firebaseConfig);
-      } else {
-        app = firebase.app();
-      }
-      const dbInstance = app.database();
+      const cfg = {
+        apiKey: "AIzaSyC9taBDXZOc70Nl051t_fdlIYEF-sLaqPs",
+        authDomain: "juyub-store.firebaseapp.com",
+        databaseURL: "https://juyub-store-default-rtdb.firebaseio.com/",
+        projectId: "juyub-store",
+        storageBucket: "juyub-store.firebasestorage.app",
+        messagingSenderId: "377174545845",
+        appId: "1:377174545845:web:ed688817d74bd079acf5fc"
+      };
+      const fbApp = firebase.apps.length === 0
+        ? firebase.initializeApp(cfg)
+        : firebase.app();
+      const dbInstance = firebase.database(fbApp);
       setDb(dbInstance);
       window._juyubDb = dbInstance;
+      console.log('✅ Firebase connected!');
     } catch (e) {
-      console.error("Firebase Init Error:", e);
-      setDb(null);
+      console.error('Firebase Init Error:', e);
     }
-  }, [firebaseConfig]);
+  }, []);
 
   // Synchronize Firebase Realtime Database in Real-time
   aUE(() => {
