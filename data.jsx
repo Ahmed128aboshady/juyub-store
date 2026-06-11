@@ -300,6 +300,11 @@ const SITE_CONTENT = {
       { q: { en: 'How can I cancel my order?', ar: 'إزاي ألغي الأوردر؟' }, a: { en: 'Contact us directly. If it hasn’t shipped, just confirm the cancellation. If it already shipped, shipping fees apply on delivery.', ar: 'كلّمينا على طول. لو لسه ماتشحنش أكّدي الإلغاء وخلاص. لو اتشحن، مصاريف الشحن بتتحسب عند التسليم.' } },
     ],
   },
+  goodToKnow: [
+    { icon: 'cash',   en: 'Cash on delivery',    ar: 'دفع عند الاستلام' },
+    { icon: 'truck',  en: 'Delivery in 2–4 days', ar: 'توصيل ٢–٤ أيام' },
+    { icon: 'shield', en: 'Genuine leather',      ar: 'جلد طبيعي' },
+  ],
   footer: {
     tagline: { en: 'Juyub brings style to your every step. Carry what you love and craft your confidence.', ar: 'چيوب بتضيف ستايل لكل خطوة. احملي اللي بتحبيه واصنعي ثقتك.' },
     founded: { en: 'Founded in Egypt', ar: 'صُنع في مصر' },
