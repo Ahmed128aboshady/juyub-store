@@ -75,7 +75,17 @@ function App() {
   const [loginOpen, setLoginOpen] = aUS(false);
 
   // Firebase Realtime Database configuration
-  const [firebaseConfig, setFirebaseConfig] = aUS(() => LS.get('firebaseConfig', null));
+  const DEFAULT_FIREBASE_CONFIG = {
+    apiKey: "AIzaSyC9taBDXZOc70Nl051t_fdlIYEF-sLaqPs",
+    authDomain: "juyub-store.firebaseapp.com",
+    databaseURL: "https://juyub-store-default-rtdb.firebaseio.com/",
+    projectId: "juyub-store",
+    storageBucket: "juyub-store.firebasestorage.app",
+    messagingSenderId: "377174545845",
+    appId: "1:377174545845:web:ed688817d74bd079acf5fc",
+    measurementId: "G-Z829EX953W"
+  };
+  const [firebaseConfig, setFirebaseConfig] = aUS(() => LS.get('firebaseConfig', DEFAULT_FIREBASE_CONFIG));
   const [db, setDb] = aUS(null);
 
   // Initialize Firebase Realtime Database
@@ -210,20 +220,18 @@ function App() {
     location.hash = h;
     setRoute({ name, params });
     if (name !== 'product') window.scrollTo(0, 0);
-    // Analytics tracking
+    // Analytics tracking — Firebase
     try {
-      const an = JSON.parse(localStorage.getItem('juyub_analytics') || '{}');
+      const dbRef = window._juyubDb;
       const today = new Date().toISOString().slice(0, 10);
-      an.totalVisits = (an.totalVisits || 0) + 1;
-      an.pageViews = an.pageViews || {};
-      an.pageViews[name] = (an.pageViews[name] || 0) + 1;
-      an.dailyVisits = an.dailyVisits || {};
-      an.dailyVisits[today] = (an.dailyVisits[today] || 0) + 1;
-      if (name === 'product' && params.id) {
-        an.productClicks = an.productClicks || {};
-        an.productClicks[params.id] = (an.productClicks[params.id] || 0) + 1;
+      if (dbRef) {
+        dbRef.ref('analytics/totalVisits').transaction(v => (v || 0) + 1);
+        dbRef.ref('analytics/pageViews/' + name).transaction(v => (v || 0) + 1);
+        dbRef.ref('analytics/dailyVisits/' + today).transaction(v => (v || 0) + 1);
+        if (name === 'product' && params.id) {
+          dbRef.ref('analytics/productClicks/' + params.id).transaction(v => (v || 0) + 1);
+        }
       }
-      localStorage.setItem('juyub_analytics', JSON.stringify(an));
     } catch (e) {}
   }, []);
 
