@@ -468,4 +468,107 @@ const AnalyticsPanel = () => {
 };
 
 
+/* ---------- Orders panel ---------- */
+const OrdersPanel = () => {
+  const { t, lang, money, orders, updateOrder, deleteOrder } = useStore();
+  const [sub, setSub] = adUS('new');
+  const [openId, setOpenId] = adUS(null);
+  const L = (en, ar) => t({ en, ar });
+
+  const fmtDate = (ts) => {
+    if (!ts) return '—';
+    try { return new Date(ts).toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+    catch { return new Date(ts).toLocaleString(); }
+  };
+  const newOrders = orders.filter(o => o.status !== 'done');
+  const doneOrders = orders.filter(o => o.status === 'done');
+  const list = sub === 'new' ? newOrders : doneOrders;
+
+  return (
+    <>
+      <div className="admin-head" style={{ marginBottom: 16 }}>
+        <h2 className="h2">{L('Orders', 'الأوردرات')}</h2>
+      </div>
+      <div className="content-nav" style={{ marginBottom: 18 }}>
+        <button className={sub === 'new' ? 'active' : ''} onClick={() => setSub('new')}>{L('In progress', 'تحت التنفيذ')} ({newOrders.length})</button>
+        <button className={sub === 'done' ? 'active' : ''} onClick={() => setSub('done')}>{L('Fulfilled', 'تم تنفيذها')} ({doneOrders.length})</button>
+      </div>
+
+      {list.length === 0 ? (
+        <div className="admin-empty"><Icon n="bag" style={{ width: 40, margin: '0 auto 12px', opacity: .4 }} /><p>{sub === 'new' ? L('No orders in progress.', 'لا توجد أوردرات تحت التنفيذ.') : L('No fulfilled orders yet.', 'لا توجد أوردرات متنفّذة.')}</p></div>
+      ) : (
+        <div className="ord-list">
+          {list.map(o => {
+            const open = openId === o.id;
+            const count = (o.items || []).reduce((s, i) => s + i.qty, 0);
+            return (
+              <div className={'ord-card' + (open ? ' open' : '')} key={o.id}>
+                <button className="ord-head" onClick={() => setOpenId(open ? null : o.id)}>
+                  <div className="ord-thumbs">
+                    {(o.items || []).slice(0, 3).map((it, i) => <span className="ord-thumb" key={i}><img src={it.img} alt="" /></span>)}
+                    {(o.items || []).length > 3 && <span className="ord-more">+{o.items.length - 3}</span>}
+                  </div>
+                  <div className="ord-main">
+                    <div className="ord-line1">
+                      <strong>#{o.id}</strong>
+                      <span className={'a-pill ' + (o.status === 'done' ? 'in' : 'out')}>{o.status === 'done' ? L('Fulfilled', 'تم') : L('New', 'جديد')}</span>
+                    </div>
+                    <div className="ord-line2">{o.f.name} · {count} {L('item(s)', 'قطعة')}</div>
+                    <div className="ord-date">{fmtDate(o.at)}</div>
+                  </div>
+                  <div className="ord-right">
+                    <span className="a-price">{money(o.total)}</span>
+                    <Icon n="arrow" className={'ord-chev' + (open ? ' up' : '')} style={{ width: 18 }} />
+                  </div>
+                </button>
+
+                {open && (
+                  <div className="ord-detail">
+                    <div className="ord-items">
+                      {(o.items || []).map((it, i) => (
+                        <div className="ord-item" key={i}>
+                          <span className="ord-item-img"><img src={it.img} alt="" /></span>
+                          <div className="ord-item-info">
+                            <div className="ord-item-name">{t(it.name)}</div>
+                            <div className="a-meta">{t(it.color)}{it.size ? ' · ' + t(it.size) : ''} · ×{it.qty}</div>
+                          </div>
+                          <span className="ord-item-price">{money(it.price * it.qty)}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="ord-grid">
+                      <div className="ord-field"><span className="ord-k">{L('Phone', 'الموبايل')}</span><a className="ord-v" href={'tel:' + o.f.phone} dir="ltr">{o.f.phone}</a></div>
+                      <div className="ord-field"><span className="ord-k">{L('Governorate', 'المحافظة')}</span><span className="ord-v">{o.f.gov}{o.f.city ? ' · ' + o.f.city : ''}</span></div>
+                      <div className="ord-field" style={{ gridColumn: '1 / -1' }}><span className="ord-k">{L('Address', 'العنوان')}</span><span className="ord-v">{o.f.address}</span></div>
+                      {o.f.notes && <div className="ord-field" style={{ gridColumn: '1 / -1' }}><span className="ord-k">{L('Notes', 'ملاحظات')}</span><span className="ord-v">{o.f.notes}</span></div>}
+                      <div className="ord-field"><span className="ord-k">{L('Ordered on', 'تاريخ الطلب')}</span><span className="ord-v">{fmtDate(o.at)}</span></div>
+                      <div className="ord-field"><span className="ord-k">{L('Payment', 'الدفع')}</span><span className="ord-v">{L('Cash on delivery', 'عند الاستلام')}</span></div>
+                    </div>
+
+                    <div className="ord-totals">
+                      <div className="summary-row"><span>{L('Subtotal', 'الإجمالي الفرعي')}</span><span>{money(o.total - o.shipping)}</span></div>
+                      <div className="summary-row"><span>{L('Shipping', 'الشحن')}</span><span>{o.shipping ? money(o.shipping) : L('Free', 'مجاني')}</span></div>
+                      <div className="summary-row total"><span>{L('Total', 'الإجمالي')}</span><span>{money(o.total)}</span></div>
+                    </div>
+
+                    <div className="ord-actions">
+                      <a className="btn btn-wa" href={'https://wa.me/2' + (o.f.phone || '').replace(/^0/, '')} target="_blank" rel="noopener"><Icon n="chat" style={{ width: 18 }} />{L('Contact customer', 'كلّمي العميلة')}</a>
+                      <button className="btn btn-outline" onClick={() => updateOrder(o.id, { status: o.status === 'done' ? 'new' : 'done' })}>
+                        <Icon n="check" style={{ width: 17 }} />{o.status === 'done' ? L('Mark as in progress', 'رجّعيها تحت التنفيذ') : L('Mark as fulfilled', 'تم تنفيذها')}
+                      </button>
+                      <button className="btn btn-outline ord-del" onClick={() => { if (confirm(L('Delete this order?', 'تحذفي الأوردر؟'))) deleteOrder(o.id); }}><Icon n="trash" style={{ width: 17 }} />{L('Delete', 'حذف')}</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+};
+
+
 Object.assign(window, { LoginModal, AdminPage, OrdersPanel });
