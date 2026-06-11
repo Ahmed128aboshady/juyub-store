@@ -101,7 +101,9 @@ function App() {
       } else {
         app = firebase.app();
       }
-      setDb(app.database());
+      const dbInstance = app.database();
+      setDb(dbInstance);
+      window._juyubDb = dbInstance;
     } catch (e) {
       console.error("Firebase Init Error:", e);
       setDb(null);
