@@ -210,6 +210,21 @@ function App() {
     location.hash = h;
     setRoute({ name, params });
     if (name !== 'product') window.scrollTo(0, 0);
+    // Analytics tracking
+    try {
+      const an = JSON.parse(localStorage.getItem('juyub_analytics') || '{}');
+      const today = new Date().toISOString().slice(0, 10);
+      an.totalVisits = (an.totalVisits || 0) + 1;
+      an.pageViews = an.pageViews || {};
+      an.pageViews[name] = (an.pageViews[name] || 0) + 1;
+      an.dailyVisits = an.dailyVisits || {};
+      an.dailyVisits[today] = (an.dailyVisits[today] || 0) + 1;
+      if (name === 'product' && params.id) {
+        an.productClicks = an.productClicks || {};
+        an.productClicks[params.id] = (an.productClicks[params.id] || 0) + 1;
+      }
+      localStorage.setItem('juyub_analytics', JSON.stringify(an));
+    } catch (e) {}
   }, []);
 
   const t = useCallback((obj) => (obj ? (obj[lang] ?? obj.en ?? '') : ''), [lang]);
