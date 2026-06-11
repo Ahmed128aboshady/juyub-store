@@ -207,7 +207,9 @@ const CheckoutPage = () => {
   const [f, setF] = uS({ name: '', phone: '', gov: '', city: '', address: '', notes: '' });
   const [errs, setErrs] = uS({});
   const set = (k) => (e) => setF(s => ({ ...s, [k]: e.target.value }));
-  const shipping = f.gov ? (shipRates[f.gov] ?? 0) : null; // null until governorate chosen
+  const freeAll  = (() => { try { return JSON.parse(localStorage.getItem('juyub_freeAll')||'false'); } catch{return false;} })();
+  const freeGovs = (() => { try { return JSON.parse(localStorage.getItem('juyub_freeGovs')||'{}'); } catch{return {};} })();
+  const shipping = f.gov ? ((freeAll || freeGovs[f.gov]) ? 0 : (shipRates[f.gov] ?? 0)) : null; // null until governorate chosen
   const total = subtotal + (shipping || 0);
 
   uE(() => window.scrollTo(0, 0), []);
