@@ -468,6 +468,151 @@ const AnalyticsPanel = () => {
 };
 
 
+const AdminSettings = () => {
+  const { t, lang, money, creds, setCreds, resetProducts, toast,
+    categories, addCategory, deleteCategory, shipRates, saveShipRate, setAllShipRates,
+    sheetUrl, setSheetUrl, firebaseConfig, setFirebaseConfig, db } = useStore();
+  const [u, setU] = adUS(creds.user);
+  const [p, setP] = adUS(creds.pass);
+  const [sUrl, setSUrl] = adUS(sheetUrl || '');
+  const [fbConfigStr, setFbConfigStr] = adUS(() => {
+    return firebaseConfig ? JSON.stringify(firebaseConfig, null, 2) : '';
+  });
+  const [newCatEn, setNewCatEn] = adUS('');
+  const [newCatAr, setNewCatAr] = adUS('');
+  const [bulkRate, setBulkRate] = adUS('');
+  const L = (en, ar) => t({ en, ar });
+  return (
+    <div className="adm-editor" style={{ maxWidth: 640 }}>
+      <h3 className="h3">{L('Settings', 'الإعدادات')}</h3>
+
+      {/* login */}
+      <div className="adm-sec" style={{ borderTop: 0, marginTop: 0, paddingTop: 0 }}>
+        <h4>{L('Login details', 'بيانات الدخول')}</h4>
+        <div className="adm-grid">
+          <div className="field"><label>{L('Username', 'اسم المستخدم')}</label><input className="input" value={u} onChange={e => setU(e.target.value)} /></div>
+          <div className="field"><label>{L('Password', 'كلمة السر')}</label><input className="input" type="password" value={p} onChange={e => setP(e.target.value)} /></div>
+        </div>
+        <button className="btn btn-primary" onClick={() => { setCreds({ user: u.trim(), pass: p }); toast(L('Login details saved', 'تم حفظ بيانات الدخول')); }}>{L('Save login', 'حفظ')}</button>
+      </div>
+
+      {/* google sheet */}
+      <div className="adm-sec">
+        <h4>{L('Google Sheet (orders export)', 'جوجل شيت (تصدير الأوردرات)')}</h4>
+        <p className="muted" style={{ marginTop: -6, marginBottom: 12, fontSize: 13 }}>{L('Every new order is added as a row in your sheet automatically. Paste your Apps Script web app link here.', 'كل أوردر جديد بيتسجّل كصف في الشيت أوتوماتيك. الصقي لينك الـ Web App بتاع Apps Script هنا.')}</p>
+        <div className="field"><label>{L('Web app URL', 'لينك الـ Web App')}</label><input className="input" value={sUrl} onChange={e => setSUrl(e.target.value)} placeholder="https://script.google.com/macros/s/…/exec" /></div>
+        <button className="btn btn-primary" onClick={() => { setSheetUrl(sUrl.trim()); toast(L('Sheet link saved', 'تم حفظ لينك الشيت')); }}>{L('Save sheet link', 'حفظ لينك الشيت')}</button>
+      </div>
+
+      {/* firebase database */}
+      <div className="adm-sec">
+        <h4>{L('Firebase Database (Realtime Database)', 'قاعدة بيانات فايربيس (Realtime Database)')}</h4>
+        <p className="muted" style={{ marginTop: -6, marginBottom: 12, fontSize: 13 }}>
+          {L('Enables real-time sync across devices. Paste your firebaseConfig object here.', 'لتفعيل المزامنة اللحظية بين الأجهزة. الصق كود firebaseConfig (كائن الـ JavaScript أو الـ JSON) هنا.')}
+        </p>
+        <div className="field">
+          <label>{L('Firebase Configuration (JS object or JSON)', 'كود الإعدادات (firebaseConfig)')}</label>
+          <textarea
+            className="input"
+            rows="6"
+            style={{ fontFamily: 'monospace', fontSize: '12.5px', direction: 'ltr', textAlign: 'left' }}
+            value={fbConfigStr}
+            onChange={e => setFbConfigStr(e.target.value)}
+            placeholder={`{\n  apiKey: "...",\n  authDomain: "...",\n  databaseURL: "...",\n  projectId: "...",\n  storageBucket: "...",\n  messagingSenderId: "...",\n  appId: "..."\n}`}
+          />
+        </div>
+        <div className="adm-row-inline" style={{ marginTop: 8 }}>
+          <button className="btn btn-primary" onClick={() => {
+            try {
+              if (!fbConfigStr.trim()) {
+                setFirebaseConfig(null);
+                toast(L('Firebase disabled', 'تم إيقاف اتصال فايربيس'));
+                return;
+              }
+              // Parse config safely
+              let cleaned = fbConfigStr.trim();
+              cleaned = cleaned.replace(/^(const|let|var)\s+\w+\s*=\s*/, '');
+              cleaned = cleaned.replace(/;$/, '');
+              const fn = new Function('return (' + cleaned + ')');
+              const obj = fn();
+              if (obj && typeof obj === 'object' && obj.databaseURL) {
+                setFirebaseConfig(obj);
+                toast(L('Firebase settings saved!', 'تم حفظ إعدادات فايربيس والاتصال!'));
+              } else {
+                alert(L('Invalid config object. Make sure databaseURL is present.', 'إعدادات غير صالحة. تأكد من وجود حقل databaseURL.'));
+              }
+            } catch (err) {
+              alert(L('Error parsing config: ' + err.message, 'خطأ في قراءة الإعدادات: ' + err.message));
+            }
+          }}>{L('Connect to Firebase', 'اتصال بقاعدة البيانات')}</button>
+          
+          {db ? (
+            <span className="a-pill in" style={{ height: '38px', display: 'inline-flex', alignItems: 'center', margin: 0 }}>
+              🟢 {L('Connected', 'متصل')}
+            </span>
+          ) : (
+            <span className="a-pill out" style={{ height: '38px', display: 'inline-flex', alignItems: 'center', margin: 0 }}>
+              🔴 {L('Disconnected (Local Mode)', 'غير متصل (الوضع المحلي)')}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* categories */}
+      <div className="adm-sec">
+        <h4>{L('Categories', 'الفئات')}</h4>
+        <div className="cat-chips">
+          {categories.filter(c => c.id !== 'all').map(c => (
+            <span className="cat-chip" key={c.id}>
+              {t(c)}
+              <button onClick={() => { if (confirm(L('Delete this category?', 'تحذفي الفئة دي؟'))) deleteCategory(c.id); }} aria-label="Delete"><Icon n="close" style={{ width: 13 }} /></button>
+            </span>
+          ))}
+        </div>
+        <div className="adm-grid" style={{ marginTop: 12 }}>
+          <div className="field"><label>{L('New category (English)', 'فئة جديدة (إنجليزي)')}</label><input className="input" value={newCatEn} onChange={e => setNewCatEn(e.target.value)} placeholder="e.g. Backpacks" /></div>
+          <div className="field"><label>{L('New category (Arabic)', 'فئة جديدة (عربي)')}</label><input className="input" value={newCatAr} onChange={e => setNewCatAr(e.target.value)} placeholder="مثلاً: شنط ظهر" /></div>
+        </div>
+        <button className="btn btn-outline" onClick={() => {
+          if (!newCatEn.trim() && !newCatAr.trim()) return;
+          addCategory(newCatEn.trim(), newCatAr.trim()); setNewCatEn(''); setNewCatAr(''); toast(L('Category added', 'تمت إضافة الفئة'));
+        }}><Icon n="plus" style={{ width: 16 }} />{L('Add category', 'أضف فئة')}</button>
+      </div>
+
+      {/* shipping rates */}
+      <div className="adm-sec">
+        <h4>{L('Shipping rates per governorate', 'أسعار الشحن لكل محافظة')}</h4>
+        <div className="adm-row-inline" style={{ marginBottom: 14 }}>
+          <div className="field" style={{ marginBottom: 0, width: 160 }}>
+            <label>{L('Set all to (LE)', 'وحّد الكل على (ج.م)')}</label>
+            <input className="input" type="number" value={bulkRate} onChange={e => setBulkRate(e.target.value)} placeholder="70" />
+          </div>
+          <button className="btn btn-outline" style={{ marginBottom: 0 }} onClick={() => { if (bulkRate !== '') { setAllShipRates(bulkRate); toast(L('Applied to all', 'تم التطبيق على الكل')); } }}>{L('Apply to all', 'طبّقي على الكل')}</button>
+        </div>
+        <div className="ship-rates">
+          {GOVERNORATES.map(g => (
+            <div className="ship-rate-row" key={g}>
+              <span className="g-name">{lang === 'ar' ? (GOV_AR[g] || g) : g}</span>
+              <div className="g-input">
+                <input className="input" type="number" value={shipRates[g] ?? 0} onChange={e => saveShipRate(g, e.target.value)} />
+                <span className="g-unit">{lang === 'ar' ? 'ج.م' : 'LE'}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="muted" style={{ marginTop: 12, fontSize: 13 }}>{L('Changes save automatically. Set 0 for free shipping.', 'التغييرات بتتحفظ تلقائياً. حطي 0 للشحن المجاني.')}</p>
+      </div>
+
+      {/* reset */}
+      <div className="adm-sec">
+        <h4>{L('Catalog', 'الكتالوج')}</h4>
+        <p className="muted" style={{ marginBottom: 14, fontSize: 14 }}>{L('Restore the original products that came with the store.', 'استرجاع المنتجات الأصلية اللي جت مع المتجر.')}</p>
+        <button className="btn btn-outline" onClick={() => { if (confirm(L('Reset all products to defaults? Your edits will be lost.', 'استرجاع كل المنتجات للأصل؟ تعديلاتك هتتمسح.'))) { resetProducts(); toast(L('Products reset', 'تم الاسترجاع')); } }}>{L('Reset products to defaults', 'استرجاع المنتجات الأصلية')}</button>
+      </div>
+    </div>
+  );
+};
+
 /* ---------- Orders panel ---------- */
 const OrdersPanel = () => {
   const { t, lang, money, orders, updateOrder, deleteOrder } = useStore();
