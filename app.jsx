@@ -243,7 +243,7 @@ function App() {
     // Analytics tracking — Firebase
     try {
       const dbRef = window._juyubDb;
-      const today = new Date().toISOString().slice(0, 10);
+      const today = new Date(Date.now() + 3*60*60*1000).toISOString().slice(0, 10); // Egypt UTC+3
       if (dbRef) {
         dbRef.ref('analytics/totalVisits').transaction(v => (v || 0) + 1);
         dbRef.ref('analytics/pageViews/' + name).transaction(v => (v || 0) + 1);
