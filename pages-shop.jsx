@@ -334,24 +334,21 @@ const CheckoutPage = () => {
           </div>
 
           <h3 className="h3" style={{ margin: '14px 0 14px' }}>{t({ en: 'Payment', ar: 'الدفع' })}</h3>
-          <div className="pay-opt" onClick={()=>setPayMethod('cod')} style={{cursor:'pointer',borderColor:payMethod==='cod'?'var(--maroon)':'var(--border)'}}>
-            <span className="radio" style={{borderColor:payMethod==='cod'?'var(--maroon)':'var(--border)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              {payMethod==='cod'&&<span style={{display:'block',width:10,height:10,borderRadius:'50%',background:'var(--maroon)'}}/>}
-            </span>
-            <div>
-              <strong style={{display:'block'}}>{t({en:'Cash on delivery',ar:'الدفع عند الاستلام'})}</strong>
-              <span className="muted" style={{fontSize:14}}>{t({en:'Pay in cash when your order arrives. No deposit needed.',ar:'ادفعي كاش لما الأوردر يوصلك. من غير أي مقدم.'})}</span>
+          {[
+            {id:'cod', en:'Cash on delivery', ar:'الدفع عند الاستلام', descEn:'Pay in cash when your order arrives. No deposit needed.', descAr:'ادفعي كاش لما الأوردر يوصلك. من غير أي مقدم.'},
+            {id:'instapay', en:'InstaPay', ar:'انستاباي', descEn:'Paid in full before shipment.', descAr:'الدفع بشكل كامل قبل شحن المنتج.'},
+          ].map(opt => (
+            <div key={opt.id} className="pay-opt" onClick={()=>setPayMethod(opt.id)}
+              style={{cursor:'pointer',marginBottom:10,borderColor:payMethod===opt.id?'var(--maroon)':'var(--border)',background:payMethod===opt.id?'#fff5f5':''}}>
+              <div style={{width:20,height:20,borderRadius:'50%',border:'2px solid',borderColor:payMethod===opt.id?'var(--maroon)':'#ccc',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                {payMethod===opt.id&&<div style={{width:10,height:10,borderRadius:'50%',background:'var(--maroon)'}}/>}
+              </div>
+              <div>
+                <strong style={{display:'block'}}>{t({en:opt.en,ar:opt.ar})}</strong>
+                <span className="muted" style={{fontSize:14}}>{t({en:opt.descEn,ar:opt.descAr})}</span>
+              </div>
             </div>
-          </div>
-          <div className="pay-opt" onClick={()=>setPayMethod('instapay')} style={{cursor:'pointer',marginTop:10,borderColor:payMethod==='instapay'?'var(--maroon)':'var(--border)'}}>
-            <span className="radio" style={{borderColor:payMethod==='instapay'?'var(--maroon)':'var(--border)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              {payMethod==='instapay'&&<span style={{display:'block',width:10,height:10,borderRadius:'50%',background:'var(--maroon)'}}/>}
-            </span>
-            <div>
-              <strong style={{display:'block'}}>{t({en:'InstaPay',ar:'انستاباي'})}</strong>
-              <span className="muted" style={{fontSize:14}}>{t({en:'Paid in full before shipment.',ar:'الدفع بشكل كامل قبل شحن المنتج.'})}</span>
-            </div>
-          </div>
+          ))}
         </div>
 
         <aside className="osummary">
