@@ -47,7 +47,13 @@ const ShopPage = () => {
               <h4>{t({ en: 'Good to know', ar: 'معلومة' })}</h4>
               <div className="stack gap-m" style={{ fontSize: 14, color: 'var(--ink-soft)' }}>
                 {((content && content.goodToKnow) ? content.goodToKnow : (typeof SITE_CONTENT !== 'undefined' && SITE_CONTENT.goodToKnow) || []).map((item, i) => (
-                  <span key={i} className="row gap-s"><Icon n={item.icon} style={{ width: 19, color: 'var(--maroon)' }} />{t({ en: item.en, ar: item.ar })}</span>
+                  <span key={i} className="row gap-s">
+                    {item.icon && item.icon.startsWith('http')
+                      ? <img src={item.icon} alt="" style={{ width: 19, height: 19, objectFit: 'contain' }} />
+                      : <Icon n={item.icon} style={{ width: 19, color: 'var(--maroon)' }} />
+                    }
+                    {t({ en: item.en, ar: item.ar })}
+                  </span>
                 ))}
               </div>
             </div>
