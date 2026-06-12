@@ -218,6 +218,10 @@ const ContentEditor = () => {
               const img=p&&p.variants&&p.variants[0]&&p.variants[0].img;
               return (
                 <div key={id} style={{display:'flex',alignItems:'center',gap:10,marginBottom:8,padding:'8px 12px',borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)'}}>
+                  <div style={{display:'flex',flexDirection:'column',gap:2}}>
+                    <button type="button" disabled={i===0} onClick={()=>{const a=[...(c.featuredIds||[])];[a[i-1],a[i]]=[a[i],a[i-1]];upd('featuredIds',a);}} style={{background:'none',border:'1px solid var(--border)',borderRadius:4,cursor:i===0?'not-allowed':'pointer',fontSize:11,padding:'1px 5px',opacity:i===0?0.3:1}}>↑</button>
+                    <button type="button" disabled={i===(c.featuredIds||[]).length-1} onClick={()=>{const a=[...(c.featuredIds||[])];[a[i+1],a[i]]=[a[i],a[i+1]];upd('featuredIds',a);}} style={{background:'none',border:'1px solid var(--border)',borderRadius:4,cursor:i===(c.featuredIds||[]).length-1?'not-allowed':'pointer',fontSize:11,padding:'1px 5px',opacity:i===(c.featuredIds||[]).length-1?0.3:1}}>↓</button>
+                  </div>
                   <span style={{fontSize:12,fontWeight:700,color:'var(--ink-soft)',minWidth:18}}>#{i+1}</span>
                   {img&&<img src={img} style={{width:36,height:36,borderRadius:6,objectFit:'cover'}}/>}
                   <span style={{flex:1,fontSize:13,fontWeight:600}}>{p?t(p.name):id}</span>
