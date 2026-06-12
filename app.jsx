@@ -55,7 +55,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 
 function App() {
   const [tw, setTweak] = useTweaks(TWEAK_DEFAULTS);
-  const [lang, setLangState] = aUS(() => LS.get('lang', 'ar'));
+  const [lang, setLangState] = aUS(() => LS.get('lang', 'en'));
   const [dir] = aUS('b'); // committed to Direction B · Boutique
   const [route, setRoute] = aUS(parseHash);
   const [cart, setCart] = aUS(() => LS.get('cart', []));
