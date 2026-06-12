@@ -90,6 +90,11 @@ const ShopPage = () => {
                 ))}
               </div>
             </div>
+            {content.shop && content.shop.sidebarImg && (
+              <div style={{marginTop:24,borderRadius:12,overflow:'hidden',width:'100%'}}>
+                <img src={content.shop.sidebarImg} alt="" style={{width:'100%',height:450,objectFit:'cover',display:'block',borderRadius:12}} />
+              </div>
+            )}
           </aside>
           <div>
             <div className="shop-toolbar">
