@@ -183,7 +183,7 @@ const ProductPage = () => {
           {lightbox && (() => {
             const lbImg = thumbs[lbIdx] || activeImg;
             return (
-              <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.95)',zIndex:2000,display:'flex',alignItems:'center',justifyContent:'center'}}
+              <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,width:'100vw',height:'100vh',background:'#000',zIndex:99999,display:'flex',alignItems:'center',justifyContent:'center',isolation:'isolate'}}
                 onClick={()=>setLightbox(false)}>
                 {/* Close */}
                 <button onClick={()=>setLightbox(false)} style={{position:'absolute',top:16,right:16,background:'rgba(255,255,255,0.12)',border:'none',color:'#fff',fontSize:22,width:42,height:42,borderRadius:'50%',cursor:'pointer',zIndex:10}}>✕</button>
