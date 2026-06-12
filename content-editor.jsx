@@ -201,6 +201,20 @@ const ContentEditor = () => {
             {Pair(L('Heading', 'العنوان'), 'contact.title')}
             {Pair(L('Text', 'النص'), 'contact.lede', { area: true })}
             {Pair(L('WhatsApp button label', 'نص زر الواتساب'), 'contact.button')}
+            <div className="field">
+              <label>{L('Button icon', 'أيقونة الزرار')}</label>
+              <div style={{display:'flex',gap:10,marginTop:6}}>
+                {[['chat',L('Chat bubble','فقاعة چات')],['whatsapp',L('WhatsApp','واتساب')],['phone',L('Phone','تليفون')]].map(([val,label])=>(
+                  <button key={val} type="button" onClick={()=>upd('contact.icon', val)}
+                    style={{padding:'8px 16px',borderRadius:8,border:'2px solid',fontSize:13,cursor:'pointer',fontWeight:600,
+                      borderColor:(c.contact&&c.contact.icon||'chat')===val?'var(--maroon)':'var(--border)',
+                      background:(c.contact&&c.contact.icon||'chat')===val?'var(--maroon)':'transparent',
+                      color:(c.contact&&c.contact.icon||'chat')===val?'#fff':'var(--ink-soft)'}}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </>}
 
