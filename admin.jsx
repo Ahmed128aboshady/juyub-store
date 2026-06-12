@@ -835,7 +835,9 @@ const OrdersPanel = () => {
                       <div className="ord-field" style={{ gridColumn: '1 / -1' }}><span className="ord-k">{L('Address', 'العنوان')}</span><span className="ord-v">{o.f.address}</span></div>
                       {o.f.notes && <div className="ord-field" style={{ gridColumn: '1 / -1' }}><span className="ord-k">{L('Notes', 'ملاحظات')}</span><span className="ord-v">{o.f.notes}</span></div>}
                       <div className="ord-field"><span className="ord-k">{L('Ordered on', 'تاريخ الطلب')}</span><span className="ord-v">{fmtDate(o.at)}</span></div>
-                      <div className="ord-field"><span className="ord-k">{L('Payment', 'الدفع')}</span><span className="ord-v">{L('Cash on delivery', 'عند الاستلام')}</span></div>
+                      <div className="ord-field"><span className="ord-k">{L('Payment', 'الدفع')}</span><span className="ord-v">
+                        {o.payMethod === 'instapay' ? L('InstaPay', 'انستاباي') : L('Cash on delivery', 'عند الاستلام')}
+                      </span></div>
                     </div>
 
                     <div className="ord-totals">
