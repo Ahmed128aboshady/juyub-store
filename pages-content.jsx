@@ -34,7 +34,10 @@ const ValIcon = ({ item }) => (
 /* ---------- Home ---------- */
 const HomePage = () => {
   const { t, dir, navigate, lang, products, content } = useStore();
-  const featured = (products.filter(p => p.featured).length ? products.filter(p => p.featured) : products).slice(0, 4);
+  const featuredIds = content.featuredIds || [];
+  const featured = featuredIds.length
+    ? featuredIds.map(id => products.find(p => p.id === id)).filter(Boolean).slice(0, 8)
+    : (products.filter(p => p.featured).length ? products.filter(p => p.featured) : products).slice(0, 8);
   const go = useCta();
   const hc = content.hero || {};
   const heroImg = hc.image || 'assets/products/tote-beige.png';
