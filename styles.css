@@ -665,15 +665,14 @@ a.ord-v{color:var(--maroon)}
   .adm-row .a-price,.adm-row .a-pill{display:none}
 }
 
-/* Lightbox: hide overlapping UI elements */
-body.lightbox-open .hdr,
-body.lightbox-open .fs-social,
-body.lightbox-open .float-wa,
-body.lightbox-open .admin-bar,
-body.lightbox-open .ftr,
-body.lightbox-open .cart-drawer {
-  visibility: hidden !important;
-  z-index: 0 !important;
+/* Lightbox: dim everything except the lightbox itself */
+body.lightbox-open > * {
+  filter: brightness(0.08) !important;
+  pointer-events: none !important;
+}
+body.lightbox-open #juyub-lightbox {
+  filter: none !important;
+  pointer-events: all !important;
 }
 body.lightbox-open {
   overflow: hidden !important;
