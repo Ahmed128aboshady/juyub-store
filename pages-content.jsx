@@ -144,6 +144,7 @@ const HomePage = () => {
 const ContactBand = () => {
   const { t, content } = useStore();
   const c = content.contact || {};
+  const waLink = (msg) => 'https://wa.me/message/HRQIN2XJSVOWO1' + (msg ? '?text=' + encodeURIComponent(msg) : '');
   return (
     <section className="wrap section-sm">
       <div className="contact-band">
