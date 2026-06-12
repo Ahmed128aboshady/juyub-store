@@ -395,30 +395,73 @@ const AnalyticsPanel = () => {
         </div>
 
         {/* Daily bar chart */}
-        {sortedDays.length > 0 && (
-          <div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:16,padding:'28px 24px 20px',marginBottom:28,boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
-            <h4 style={{margin:'0 0 24px',fontSize:14,fontWeight:700,color:'var(--ink)',textTransform:'uppercase',letterSpacing:1}}>
-              📈 {L('Daily visits — last 14 days','الزيارات اليومية — آخر ١٤ يوم')}
-            </h4>
-            <div style={{display:'flex',alignItems:'flex-end',gap:6,height:160,paddingBottom:0}}>
-              {sortedDays.map(([day,count]) => {
-                const pct = maxDay > 0 ? (count/maxDay) : 0;
-                const barH = Math.max(8, Math.round(pct * 120));
-                return (
-                  <div key={day} title={day+': '+count+' visits'} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:0,minWidth:0}}>
-                    {/* count label above bar */}
-                    <div style={{fontSize:12,fontWeight:700,color:'#540b14',marginBottom:6,lineHeight:1}}>{count}</div>
-                    {/* bar */}
-                    <div style={{width:'100%',background:'linear-gradient(180deg,#8b1a2a,#540b14)',borderRadius:'6px 6px 0 0',
-                      height:barH+'px',transition:'height 0.4s ease',minHeight:8}} />
-                    {/* date label below */}
-                    <div style={{marginTop:8,fontSize:11,color:'var(--ink-soft)',fontWeight:500,textAlign:'center',lineHeight:1.2}}>{day.slice(5)}</div>
-                  </div>
-                );
-              })}
+        {(() => {
+          const DAYS_AR = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+          const DAYS_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+          const [chartRange, setChartRange] = adUS('7');
+          const today = new Date();
+          const allDays = [];
+          const rangeDays = chartRange === 'all' ? 90 : parseInt(chartRange);
+          for (let i = rangeDays - 1; i >= 0; i--) {
+            const d = new Date(today); d.setDate(today.getDate() - i);
+            const key = d.toISOString().slice(0,10);
+            const dow = d.getDay();
+            allDays.push({ key, count: dailyVisits[key] || 0, date: d.getDate(), month: d.getMonth()+1, dow });
+          }
+          const chartMax = Math.max(...allDays.map(d=>d.count), 1);
+          const BAR_H = 140;
+          return (
+            <div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:16,padding:'24px 24px 16px',marginBottom:28,boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
+              {/* header + range selector */}
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+                <h4 style={{margin:0,fontSize:14,fontWeight:700,color:'var(--ink)',textTransform:'uppercase',letterSpacing:1}}>
+                  📈 {L('Daily visits','الزيارات اليومية')}
+                </h4>
+                <div style={{display:'flex',gap:6}}>
+                  {[['7',L('7 days','٧ أيام')],['14',L('14 days','١٤ يوم')],['30',L('30 days','٣٠ يوم')],['all',L('All','الكل')]].map(([v,label])=>(
+                    <button key={v} onClick={()=>setChartRange(v)} style={{padding:'5px 12px',borderRadius:7,border:'1px solid',fontSize:12,fontWeight:600,cursor:'pointer',
+                      borderColor: chartRange===v?'#540b14':'var(--border)',
+                      background: chartRange===v?'#540b14':'transparent',
+                      color: chartRange===v?'#fff':'var(--ink-soft)'}}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* bars */}
+              <div style={{display:'flex',alignItems:'flex-end',gap:4,height:BAR_H+'px',overflowX:'auto',paddingBottom:0}}>
+                {allDays.map(({key,count,date,month,dow})=>{
+                  const pct   = count > 0 ? count/chartMax : 0;
+                  const barH  = count > 0 ? Math.max(24, Math.round(pct * (BAR_H-10))) : 4;
+                  const isToday = key === today.toISOString().slice(0,10);
+                  const isEmpty = count === 0;
+                  return (
+                    <div key={key} title={key+': '+count} style={{flex:'0 0 auto',width: rangeDays<=14?'calc((100% - '+(rangeDays-1)*4+'px) / '+rangeDays+')':'32px',
+                      display:'flex',flexDirection:'column',alignItems:'center',gap:0}}>
+                      {/* bar */}
+                      <div style={{
+                        width:'100%', borderRadius:'6px 6px 0 0',
+                        height: barH+'px',
+                        background: isEmpty ? '#f0ebe6' : isToday ? 'linear-gradient(180deg,#e53935,#540b14)' : 'linear-gradient(180deg,#8b1a2a,#540b14)',
+                        border: isToday ? '2px solid #e53935' : 'none',
+                        display:'flex', alignItems:'center', justifyContent:'center',
+                        position:'relative', transition:'height 0.4s ease', minHeight:4}}>
+                        {count > 0 && barH >= 24 && (
+                          <span style={{color:'#fff',fontSize:11,fontWeight:700,position:'absolute',top:'50%',transform:'translateY(-50%)'}}>{count}</span>
+                        )}
+                      </div>
+                      {/* date */}
+                      <div style={{marginTop:6,textAlign:'center',lineHeight:1.3}}>
+                        <div style={{fontSize:10,fontWeight: isToday?700:500, color: isToday?'#540b14':'var(--ink-soft)'}}>{month+'/'+date}</div>
+                        <div style={{fontSize:9,color: isToday?'#540b14':'#bbb',fontWeight: isToday?700:400}}>{lang==='ar'?DAYS_AR[dow]:DAYS_EN[dow]}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24,marginBottom:28}}>
 
