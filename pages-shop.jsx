@@ -399,7 +399,7 @@ const ConfirmPage = () => {
       <img className="confirm-emblem" src="https://juyub.odoo.com/web/image/1082" alt="" />
       <span className="eyebrow">{t({ en: 'Order received', ar: 'تم استلام الطلب' })}</span>
       <h1 className="h1">{t({ en: 'Thank you, ', ar: 'شكراً ليكي، ' })}{o.f.name.split(' ')[0]}!</h1>
-      <p className="lede" style={{ textAlign: 'center' }}>{t({ en: 'We’ve received your order and our team will confirm everything with you shortly. Pay in cash when it arrives.', ar: 'استلمنا طلبك وفريقنا هيأكد معاكي كل حاجة قريب. ادفعي كاش لما يوصلك.' })}</p>
+      <p className="lede" style={{ textAlign: 'center' }}>{isInstaPay ? t({ en: 'We’ve received your order. A team member will contact you on WhatsApp to arrange InstaPay payment.', ar: 'استلمنا طلبك. هيتواصل معاكي أحد أفراد الفريق على واتساب لترتيب الدفع عبر انستاباي.' }) : t({ en: 'We’ve received your order and our team will confirm everything with you shortly. Pay in cash when it arrives.', ar: 'استلمنا طلبك وفريقنا هيأكد معاكي كل حاجة قريب. ادفعي كاش لما يوصلك.' })}</p>
       <div className="confirm-card">
         <div className="row between" style={{ marginBottom: 14 }}>
           <span className="muted">{t({ en: 'Order number', ar: 'رقم الطلب' })}</span>
