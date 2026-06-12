@@ -122,10 +122,25 @@ const ProductEditor = ({ initial, onDone }) => {
           🏷️ {L('Discount', 'الخصم')}: <strong style={{ color: 'var(--maroon)' }}>-{Math.round((1 - Number(f.price) / Number(f.compareAt)) * 100)}%</strong> — {L('shown as a sale badge on the product.', 'هيظهر كشارة تخفيض على المنتج.')}
         </p>
       )}
-      <label className="field-check" style={{ marginBottom: 14 }}>
-        <input type="checkbox" checked={f.featured} onChange={e => upd({ featured: e.target.checked })} />
-        {L('Show as bestseller', 'يظهر كأكثر مبيعاً')}
-      </label>
+      <div style={{marginBottom:18}}>
+        <div style={{fontSize:12,fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase',color:'var(--ink-soft)',marginBottom:10}}>{L('Product badges','شارات المنتج')}</div>
+        <div style={{display:'flex',flexWrap:'wrap',gap:10}}>
+          {[
+            {key:'featured',   en:'Bestseller',   ar:'الأكثر مبيعاً', color:'#540b14'},
+            {key:'onSale',     en:'On Sale',       ar:'تخفيض',          color:'#d97706'},
+            {key:'juyubPicks', en:'JUYUB Picks',   ar:'مختارات جيوب',   color:'#0369a1'},
+            {key:'newArrival', en:'New Arrival',   ar:'وصل حديثاً',     color:'#047857'},
+            {key:'limitedEd',  en:'Limited Edition',ar:'إصدار محدود',   color:'#7c3aed'},
+          ].map(b=>(
+            <label key={b.key} style={{display:'flex',alignItems:'center',gap:8,padding:'8px 14px',borderRadius:10,cursor:'pointer',
+              border:'2px solid', borderColor:f[b.key]?b.color:'var(--border)',
+              background:f[b.key]?b.color+'18':'var(--bg)', userSelect:'none'}}>
+              <input type="checkbox" checked={!!f[b.key]} onChange={e=>upd({[b.key]:e.target.checked})} style={{accentColor:b.color}} />
+              <span style={{fontSize:13,fontWeight:600,color:f[b.key]?b.color:'var(--ink)'}}>{L(b.en,b.ar)}</span>
+            </label>
+          ))}
+        </div>
+      </div>
       <div className="adm-grid">
         {field(L('Tagline (EN)', 'سطر تعريفي (EN)'), f.tagline.en, v => updName('tagline', 'en', v))}
         {field(L('Tagline (AR)', 'سطر تعريفي (AR)'), f.tagline.ar, v => updName('tagline', 'ar', v))}
