@@ -278,8 +278,8 @@ const AdminPage = () => {
             </div>
             <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
               <button onClick={()=>setFilterCat('all')} style={{padding:'5px 14px',borderRadius:99,border:'1px solid',fontSize:13,cursor:'pointer',fontWeight:filterCat==='all'?700:400,borderColor:filterCat==='all'?'var(--maroon)':'var(--border)',background:filterCat==='all'?'var(--maroon)':'transparent',color:filterCat==='all'?'#fff':'var(--ink-soft)'}}>{L('All','الكل')}</button>
-              {(categories||[]).map(cat=>(
-                <button key={cat.en} onClick={()=>setFilterCat(cat.en)} style={{padding:'5px 14px',borderRadius:99,border:'1px solid',fontSize:13,cursor:'pointer',fontWeight:filterCat===cat.en?700:400,borderColor:filterCat===cat.en?'var(--maroon)':'var(--border)',background:filterCat===cat.en?'var(--maroon)':'transparent',color:filterCat===cat.en?'#fff':'var(--ink-soft)'}}>
+              {(categories||[]).filter(cat=>cat.id!=='all').map(cat=>(
+                <button key={cat.id} onClick={()=>setFilterCat(cat.id)} style={{padding:'5px 14px',borderRadius:99,border:'1px solid',fontSize:13,cursor:'pointer',fontWeight:filterCat===cat.id?700:400,borderColor:filterCat===cat.id?'var(--maroon)':'var(--border)',background:filterCat===cat.id?'var(--maroon)':'transparent',color:filterCat===cat.id?'#fff':'var(--ink-soft)'}}>
                   {lang==='ar'?cat.ar:cat.en}
                 </button>
               ))}
@@ -288,7 +288,7 @@ const AdminPage = () => {
               {products.filter(p=>filterCat==='all'||p.cat===filterCat).map(p => {
                 const inStock = p.variants.some(v => v.stock);
                 return (
-                  <div className="adm-row" key={p.id}>
+                  <div className="adm-row" key={p.id} style={{opacity:p.hidden?0.4:1,filter:p.hidden?'grayscale(0.6)':'none'}}>
                     <div className="a-thumb"><img src={p.variants[0].img} alt="" /></div>
                     <div className="a-info">
                       <div className="a-name">{t(p.name) || L('(untitled)', '(بدون اسم)')}</div>
@@ -297,9 +297,12 @@ const AdminPage = () => {
                     <span className={'a-pill ' + (inStock ? 'in' : 'out')}>{inStock ? L('In stock', 'متوفر') : L('Out', 'نفد')}</span>
                     <span className="a-price">{money(p.price)}</span>
                     <div className="adm-actions">
-                      <button className="a-iconbtn" onClick={()=>saveProduct({...p,hidden:!p.hidden})} title={p.hidden?L('Show','إظهار'):L('Hide','إخفاء')} style={{opacity:p.hidden?0.4:1}}>
-                        <Icon n={p.hidden?'eye':'eye'} style={{opacity:p.hidden?0.3:1}} />
-                        <span style={{fontSize:10,display:'block',marginTop:2}}>{p.hidden?L('Off','مخفي'):L('On','ظاهر')}</span>
+                      <button onClick={()=>saveProduct({...p,hidden:!p.hidden})} title={p.hidden?L('Show product','إظهار المنتج'):L('Hide product','إخفاء المنتج')}
+                        style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
+                        <div style={{width:36,height:20,borderRadius:99,background:p.hidden?'#ccc':'#22c55e',position:'relative',transition:'background 0.2s'}}>
+                          <div style={{position:'absolute',top:2,width:16,height:16,borderRadius:'50%',background:'#fff',transition:'left 0.2s',left:p.hidden?'2px':'18px',boxShadow:'0 1px 3px rgba(0,0,0,0.2)'}}/>
+                        </div>
+                        <span style={{fontSize:9,color:p.hidden?'#999':'#22c55e',fontWeight:600}}>{p.hidden?L('Off','مخفي'):L('On','ظاهر')}</span>
                       </button>
                       <button className="a-iconbtn" onClick={() => setEditing(JSON.parse(JSON.stringify(p)))} title={L('Edit', 'تعديل')}><Icon n="edit" /></button>
                       <button className="a-iconbtn danger" onClick={() => { if (confirm(L('Delete this product?', 'تحذفي المنتج ده؟'))) deleteProduct(p.id); }} title={L('Delete', 'حذف')}><Icon n="trash" /></button>
