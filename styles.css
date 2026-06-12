@@ -665,15 +665,7 @@ a.ord-v{color:var(--maroon)}
   .adm-row .a-price,.adm-row .a-pill{display:none}
 }
 
-/* Lightbox: dim everything except the lightbox itself */
-body.lightbox-open > * {
-  filter: brightness(0.08) !important;
-  pointer-events: none !important;
-}
-body.lightbox-open #juyub-lightbox {
-  filter: none !important;
-  pointer-events: all !important;
-}
+/* Lightbox open: just lock scroll */
 body.lightbox-open {
   overflow: hidden !important;
 }
