@@ -254,7 +254,7 @@ const Footer = () => {
         ])}
       </div>
       <div className="ftr-bottom">
-        <span>© {new Date().getFullYear()} JUYUB · <a href="https://www.linkedin.com/in/ahmed-aboshady-55751023a/" target="_blank" rel="noopener" style={{color:'inherit',textDecoration:'underline'}}>{t({ en: 'Made by Ahmed Abo Shady', ar: 'صنع بواسطه احمد ابو شادي' })}</a></span>
+        <span>{t(fc.founded) ? t(fc.founded) : <>© {new Date().getFullYear()} JUYUB</>} · <a href="https://www.linkedin.com/in/ahmed-aboshady-55751023a/" target="_blank" rel="noopener" style={{color:'inherit',textDecoration:'underline'}}>{t({ en: 'Made by Ahmed Abo Shady', ar: 'صنع بواسطه احمد ابو شادي' })}</a></span>
         {socials.length > 0 && (
           <div className="ftr-social">
             {socials.map(([key, icon, label]) => (
