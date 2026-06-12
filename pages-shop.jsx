@@ -146,6 +146,7 @@ const ProductPage = () => {
   const [vi, setVi] = uS(firstInStock < 0 ? 0 : firstInStock);
   const [qty, setQty] = uS(1);
   const [activeImg, setActiveImg] = uS(p.variants[firstInStock < 0 ? 0 : firstInStock].img);
+  const [lightbox, setLightbox] = uS(false);
   uE(() => {
     const fi = firstInStock < 0 ? 0 : firstInStock;
     setVi(fi); setQty(1); window.scrollTo(0, 0);
@@ -173,10 +174,17 @@ const ProductPage = () => {
       </div>
       <div className="pdp">
         <div className="pdp-gallery">
-          <div className="pdp-main">
+          <div className="pdp-main" onClick={()=>setLightbox(true)} style={{cursor:'zoom-in',position:'relative'}}>
             {!v.stock && <div className="card-oos"><span>{t({ en: 'Out of stock', ar: 'نفد المخزون' })}</span></div>}
             <img src={activeImg} alt={t(p.name)} />
+            <div style={{position:'absolute',bottom:10,right:10,background:'rgba(0,0,0,0.3)',borderRadius:6,padding:'4px 8px',color:'#fff',fontSize:12,pointerEvents:'none'}}>🔍</div>
           </div>
+          {lightbox && (
+            <div onClick={()=>setLightbox(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.88)',zIndex:2000,display:'flex',alignItems:'center',justifyContent:'center',cursor:'zoom-out'}}>
+              <img src={activeImg} alt={t(p.name)} style={{maxWidth:'88vw',maxHeight:'88vh',objectFit:'contain',borderRadius:10,boxShadow:'0 20px 60px rgba(0,0,0,0.5)'}} onClick={e=>e.stopPropagation()} />
+              <button onClick={()=>setLightbox(false)} style={{position:'absolute',top:20,right:20,background:'rgba(255,255,255,0.15)',border:'none',color:'#fff',fontSize:26,width:44,height:44,borderRadius:'50%',cursor:'pointer'}}>✕</button>
+            </div>
+          )}
           {thumbs.length > 1 && (
             <div className="pdp-thumbs">
               {thumbs.map((img, i) => (
