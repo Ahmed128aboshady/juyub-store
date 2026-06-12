@@ -123,7 +123,7 @@ const ContentEditor = () => {
           <div className="adm-sec">
             <h4>{L('Footer', 'الفوتر')}</h4>
             {Pair(L('Footer tagline', 'جملة الفوتر'), 'footer.tagline', { area: true })}
-            {Pair(L('Founded text', 'جملة «صنع في مصر»'), 'footer.founded')}
+            {Pair(L('Copyright line (e.g. © 2026 JUYUB)', 'سطر الحقوق (مثال: © 2026 JUYUB)'), 'footer.founded')}
           </div>
           <div className="adm-sec">
             <h4>{L('Social links', 'لينكات السوشيال')}</h4>
