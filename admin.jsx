@@ -691,27 +691,7 @@ const AdminSettings = () => {
         </div>
       </div>
 
-      {/* categories */}
-      <div className="adm-sec">
-        <h4>{L('Categories', 'الفئات')}</h4>
-        <div className="cat-chips">
-          {categories.filter(c => c.id !== 'all').map(c => (
-            <span className="cat-chip" key={c.id}>
-              {t(c)}
-              <button onClick={() => { if (confirm(L('Delete this category?', 'تحذفي الفئة دي؟'))) deleteCategory(c.id); }} aria-label="Delete"><Icon n="close" style={{ width: 13 }} /></button>
-            </span>
-          ))}
-        </div>
-        <div className="adm-grid" style={{ marginTop: 12 }}>
-          <div className="field"><label>{L('New category (English)', 'فئة جديدة (إنجليزي)')}</label><input className="input" value={newCatEn} onChange={e => setNewCatEn(e.target.value)} placeholder="e.g. Backpacks" /></div>
-          <div className="field"><label>{L('New category (Arabic)', 'فئة جديدة (عربي)')}</label><input className="input" value={newCatAr} onChange={e => setNewCatAr(e.target.value)} placeholder="مثلاً: شنط ظهر" /></div>
-        </div>
-        <button className="btn btn-outline" onClick={() => {
-          if (!newCatEn.trim() && !newCatAr.trim()) return;
-          addCategory(newCatEn.trim(), newCatAr.trim()); setNewCatEn(''); setNewCatAr(''); toast(L('Category added', 'تمت إضافة الفئة'));
-        }}><Icon n="plus" style={{ width: 16 }} />{L('Add category', 'أضف فئة')}</button>
-      </div>
-
+      {/* categories moved to General tab in Content Editor */}
       {/* shipping moved to Shipping tab */}
       {/* reset */}
       <div className="adm-sec">
