@@ -149,7 +149,7 @@ const ContactBand = () => {
           <h2 className="h2" style={{ color: 'var(--ivory)' }}>{t(c.title)}</h2>
           <p style={{ color: 'rgba(246,241,231,.78)', maxWidth: '42ch' }}>{t(c.lede)}</p>
         </div>
-        <a className="btn btn-wa btn-lg" href={waLink()} target="_blank" rel="noopener"><Icon n="chat" style={{ width: 19 }} />{t(c.button)}</a>
+        <a className="btn btn-wa btn-lg" href={waLink()} target="_blank" rel="noopener"><Icon n={c.icon || "chat"} style={{ width: 19 }} />{t(c.button)}</a>
       </div>
     </section>
   );
