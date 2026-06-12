@@ -151,10 +151,12 @@ const ProductPage = () => {
   uE(() => {
     if (lightbox) {
       document.body.style.overflow = 'hidden';
+      document.body.classList.add('lightbox-open');
     } else {
       document.body.style.overflow = '';
+      document.body.classList.remove('lightbox-open');
     }
-    return () => { document.body.style.overflow = ''; };
+    return () => { document.body.style.overflow = ''; document.body.classList.remove('lightbox-open'); };
   }, [lightbox]);
   uE(() => {
     const fi = firstInStock < 0 ? 0 : firstInStock;
