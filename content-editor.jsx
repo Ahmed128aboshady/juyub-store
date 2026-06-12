@@ -12,7 +12,7 @@ const ceSet = (obj, path, val) => {
 };
 
 const ContentEditor = () => {
-  const { t, lang, content, saveContent, resetContent, toast, products } = useStore();
+  const { t, lang, content, saveContent, resetContent, toast, products, categories, addCategory, deleteCategory } = useStore();
   const [c, setC] = ceUS(() => JSON.parse(JSON.stringify({ ...SITE_CONTENT, ...content })));
   const [sec, setSec] = ceUS('general');
   const L = (en, ar) => t({ en, ar });
@@ -161,6 +161,26 @@ const ContentEditor = () => {
               </div>
             </div>
           </div>
+        <div className="adm-sec">
+          <h4>{L('Categories','الفئات')}</h4>
+          <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:14}}>
+            {(categories||[]).map(cat=>(
+              <span key={cat.en} style={{display:'flex',alignItems:'center',gap:6,padding:'5px 12px',borderRadius:99,border:'1px solid var(--border)',fontSize:13,background:'var(--surface)'}}>
+                {lang==='ar'?cat.ar:cat.en}
+                <button onClick={()=>deleteCategory(cat.en)} style={{background:'none',border:'none',cursor:'pointer',color:'var(--ink-soft)',fontSize:14,lineHeight:1,padding:0}}>×</button>
+              </span>
+            ))}
+          </div>
+          <div className="adm-grid">
+            <div className="field"><label>{L('New category (English)','فئة جديدة (إنجليزي)')}</label><input id="cat-en" className="input" placeholder="e.g. Backpacks" /></div>
+            <div className="field"><label>{L('New category (Arabic)','فئة جديدة (عربي)')}</label><input id="cat-ar" className="input" dir="rtl" placeholder="مثلاً: شنط ظهر" /></div>
+          </div>
+          <button className="btn btn-outline" style={{marginTop:10}} onClick={()=>{
+            const en=document.getElementById('cat-en').value.trim();
+            const ar=document.getElementById('cat-ar').value.trim();
+            if(en&&ar){addCategory(en,ar);document.getElementById('cat-en').value='';document.getElementById('cat-ar').value='';}
+          }}><span>+</span> {L('Add category','أضف فئة')}</button>
+        </div>
         </>}
 
         {/* ---------------- HERO ---------------- */}
