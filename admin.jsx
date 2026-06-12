@@ -308,7 +308,6 @@ const AdminPage = () => {
                     <span className={'a-pill ' + (inStock ? 'in' : 'out')}>{inStock ? L('In stock', 'متوفر') : L('Out', 'نفد')}</span>
                     <span className="a-price">{money(p.price)}</span>
                     <div className="adm-actions">
-                      <div style={{display:'none'}}>
                       <button onClick={()=>saveProduct({...p,featured:!p.featured})} title={p.featured?L('Remove from featured','شيل من المميزين'):L('Add to featured','أضف للمميزين')}
                         style={{background:'none',border:'none',cursor:'pointer',fontSize:20,lineHeight:1,color:p.featured?'#f59e0b':'#ccc'}}>★</button>
                       <button onClick={()=>saveProduct({...p,hidden:!p.hidden})} title={p.hidden?L('Show product','إظهار المنتج'):L('Hide product','إخفاء المنتج')}
