@@ -387,9 +387,12 @@ const ConfirmPage = () => {
   uE(() => window.scrollTo(0, 0), []);
   const o = lastOrder;
   if (!o) { navigate('home'); return null; }
+  const isInstaPay = o.payMethod === 'instapay';
+  const payLabel = isInstaPay ? 'InstaPay' : 'Cash on delivery';
+  const payLabelAr = isInstaPay ? 'انستاباي' : 'دفع عند الاستلام';
   const waMsg = t({
-    en: `Hi JUYUB! Confirming my order ${o.id}\nName: ${o.f.name}\nPhone: ${o.f.phone}\n${o.f.gov}, ${o.f.address}\nTotal: ${money(o.total)} (Cash on delivery)`,
-    ar: `أهلاً چيوب! بأكد أوردري ${o.id}\nالاسم: ${o.f.name}\nالموبايل: ${o.f.phone}\n${o.f.gov}، ${o.f.address}\nالإجمالي: ${money(o.total)} (دفع عند الاستلام)`,
+    en: `Hi JUYUB! Confirming my order ${o.id}\nName: ${o.f.name}\nPhone: ${o.f.phone}\n${o.f.gov}, ${o.f.address}\nTotal: ${money(o.total)} (${payLabel})`,
+    ar: `أهلاً چيوب! بأكد أوردري ${o.id}\nالاسم: ${o.f.name}\nالموبايل: ${o.f.phone}\n${o.f.gov}، ${o.f.address}\nالإجمالي: ${money(o.total)} (${payLabelAr})`,
   });
   return (
     <section className="wrap confirm">
@@ -412,7 +415,13 @@ const ConfirmPage = () => {
         <div className="summary-row total" style={{ paddingTop: 16 }}><span>{t({ en: 'Total (COD)', ar: 'الإجمالي (عند الاستلام)' })}</span><span>{money(o.total)}</span></div>
       </div>
       <div className="row gap-m" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
-        <a className="btn btn-wa btn-lg" href={waLink(waMsg)} target="_blank" rel="noopener"><Icon n="chat" style={{ width: 19 }} />{t({ en: 'Chat with us on WhatsApp', ar: 'كلّمينا على واتساب' })}</a>
+        {isInstaPay && (
+        <div style={{background:'#fff8e1',border:'1px solid #ffd54f',borderRadius:12,padding:'16px 20px',marginBottom:20,textAlign:'center'}}>
+          <div style={{fontWeight:700,fontSize:15,marginBottom:6}}>📲 {t({en:'Payment Required',ar:'مطلوب الدفع'})}</div>
+          <div style={{fontSize:14,color:'#666'}}>{t({en:'A team member will contact you on WhatsApp with the InstaPay number to complete your payment.',ar:'هيتواصل معاك أحد أفراد الفريق على واتساب برقم الانستاباي عشان تكمل الدفع.'})}</div>
+        </div>
+      )}
+      <a className="btn btn-wa btn-lg" href={waLink(waMsg)} target="_blank" rel="noopener"><Icon n="chat" style={{ width: 19 }} />{t({ en: 'Chat with us on WhatsApp', ar: 'كلّمينا على واتساب' })}</a>
         <button className="btn btn-outline btn-lg" onClick={() => navigate('shop')}>{t({ en: 'Continue shopping', ar: 'كمّلي تسوق' })}</button>
       </div>
     </section>
