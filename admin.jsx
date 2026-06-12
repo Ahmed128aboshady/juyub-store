@@ -178,8 +178,12 @@ const ProductEditor = ({ initial, onDone }) => {
       <div className="adm-sec">
         <h4>{L('Colors & images', 'الألوان والصور')}</h4>
         {f.variants.map((v, i) => (
-          <div className="adm-variant" key={i}>
+          <div className="adm-variant" key={i} style={{position:'relative'}}>
             {f.variants.length > 1 && <button className="v-remove" onClick={() => rmVar(i)}>{L('Remove', 'حذف')}</button>}
+            <div style={{position:'absolute',top:10,left:10,display:'flex',flexDirection:'column',gap:4}}>
+              <button type="button" disabled={i===0} onClick={()=>{const a=[...f.variants];[a[i-1],a[i]]=[a[i],a[i-1]];upd({variants:a});}} style={{width:28,height:28,borderRadius:6,border:'1px solid var(--border)',background:'var(--surface)',cursor:i===0?'not-allowed':'pointer',fontSize:14,opacity:i===0?0.3:1,display:'flex',alignItems:'center',justifyContent:'center'}}>↑</button>
+              <button type="button" disabled={i===f.variants.length-1} onClick={()=>{const a=[...f.variants];[a[i+1],a[i]]=[a[i],a[i+1]];upd({variants:a});}} style={{width:28,height:28,borderRadius:6,border:'1px solid var(--border)',background:'var(--surface)',cursor:i===f.variants.length-1?'not-allowed':'pointer',fontSize:14,opacity:i===f.variants.length-1?0.3:1,display:'flex',alignItems:'center',justifyContent:'center'}}>↓</button>
+            </div>
             <div className="adm-grid">
               {field(L('Color name (EN)', 'اللون (EN)'), v.color.en, val => updVarColor(i, 'en', val))}
               {field(L('Color name (AR)', 'اللون (AR)'), v.color.ar, val => updVarColor(i, 'ar', val))}
