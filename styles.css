@@ -130,7 +130,7 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:var(--disp-weight);line-
 [data-lang="ar"] .btn{text-transform:none;font-size:15px}
 .btn-primary{background:var(--accent);color:var(--ivory)}
 .btn-primary:hover{background:var(--maroon-deep);transform:translateY(-2px)}
-.btn-outline{background:radial-gradient(120% 100% at 50% 0%,#fff,#efe7da);color:var(--ink);box-shadow:inset 0 0 0 1.4px var(--ink)}
+.btn-outline{background:var(--bg);color:var(--ink);box-shadow:inset 0 0 0 1.4px var(--ink)}
 .btn-outline:hover{background:var(--ink);color:var(--ivory)}
 .btn-ghost{padding-inline:0;color:var(--maroon);border-bottom:1.4px solid var(--maroon);border-radius:0;padding-bottom:3px}
 .btn-block{width:100%}
