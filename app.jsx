@@ -290,7 +290,7 @@ function App() {
     LS.set('orderSeq', seq);
     const id = 'JY' + String(seq).padStart(4, '0');
     const total = subtotal + shipping;
-    const order = { id, f, items: cart, total, shipping, at: Date.now(), status: 'new' };
+    const order = { id, f, payMethod: f.payMethod || 'cod', items: cart, total, shipping, at: Date.now(), status: 'new' };
     
     if (db) {
       db.ref('orders/' + id).set(order);
