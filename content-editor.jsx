@@ -276,20 +276,7 @@ const ContentEditor = () => {
             {LinkField(L('Button link', 'لينك الزر'), 'gift.buttonHref')}
             {ImageField(L('Gift image', 'صورة الهدية'), 'gift.image')}
           </div>
-          <div className="adm-sec">
-            <h4>{L('Sidebar image / GIF','صورة أو GIF جانبي')}</h4>
-            <p className="muted" style={{fontSize:13,marginBottom:12}}>{L('Paste an image or GIF link — appears below Good to Know in the shop sidebar (200×450px recommended).','الصق لينك صورة أو GIF — بتظهر تحت Good to Know في الشريط الجانبي.')}</p>
-            <div className="field">
-              <label>{L('Image / GIF URL','لينك الصورة / GIF')}</label>
-              <input className="input" value={(c.shop&&c.shop.sidebarImg)||''} placeholder="https://..." onChange={e=>upd('shop.sidebarImg',e.target.value)} />
-            </div>
-            {c.shop && c.shop.sidebarImg && (
-              <div style={{marginTop:12,borderRadius:10,overflow:'hidden',width:120}}>
-                <img src={c.shop.sidebarImg} alt="preview" style={{width:'100%',height:180,objectFit:'cover',display:'block'}}/>
-              </div>
-            )}
-          </div>
-        </>}
+          
 
         {/* ---------------- ABOUT ---------------- */}
         {sec === 'about' && <>
