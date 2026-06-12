@@ -163,8 +163,6 @@ const ContentEditor = () => {
           </div>
         </>}
 
-        </>}
-
         {/* ---------------- HERO ---------------- */}
         {sec === 'hero' && <>
           <h3 className="h3">{L('Hero banner', 'البانر الرئيسي')}</h3>
