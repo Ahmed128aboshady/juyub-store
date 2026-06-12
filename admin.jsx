@@ -316,6 +316,7 @@ const AnalyticsPanel = () => {
   const [data, setData] = adUS({});
   const [loading, setLoading] = adUS(true);
   const [chartRange, setChartRange] = adUS('7');
+  const [selectedMonth, setSelectedMonth] = adUS(null);
 
   React.useEffect(() => {
     const db = window._juyubDb;
@@ -399,61 +400,128 @@ const AnalyticsPanel = () => {
         {(() => {
           const DAYS_AR = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
           const DAYS_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+          const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+          const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
           const today = new Date();
+          const todayKey = today.toISOString().slice(0,10);
+          const BAR_H = 140;
+
+          // ── Monthly view (when chartRange === 'all' and no month selected) ──
+          if (chartRange === 'all' && !selectedMonth) {
+            const monthMap = {};
+            Object.entries(dailyVisits).forEach(([day, count]) => {
+              const m = day.slice(0,7); // "2026-06"
+              monthMap[m] = (monthMap[m]||0) + count;
+            });
+            const months = Object.keys(monthMap).sort();
+            const maxM = Math.max(...months.map(m=>monthMap[m]), 1);
+            return (
+              <div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:16,padding:'24px',marginBottom:28,boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+                  <h4 style={{margin:0,fontSize:14,fontWeight:700,color:'var(--ink)',textTransform:'uppercase',letterSpacing:1}}>📈 {L('Visits','الزيارات')}</h4>
+                  <div style={{display:'flex',gap:6}}>
+                    {[['7',L('7 days','٧ أيام')],['14',L('14 days','١٤ يوم')],['30',L('30 days','٣٠ يوم')],['all',L('Months','الشهور')]].map(([v,label])=>(
+                      <button key={v} onClick={()=>{setChartRange(v);setSelectedMonth(null);}} style={{padding:'5px 12px',borderRadius:7,border:'1px solid',fontSize:12,fontWeight:600,cursor:'pointer',
+                        borderColor:chartRange===v?'#540b14':'var(--border)',background:chartRange===v?'#540b14':'transparent',color:chartRange===v?'#fff':'var(--ink-soft)'}}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {months.length === 0 ? <p style={{textAlign:'center',color:'var(--ink-soft)',padding:32}}>{L('No data yet','لا توجد بيانات بعد')}</p> : (
+                  <div style={{display:'flex',alignItems:'flex-end',gap:8,height:BAR_H+'px'}}>
+                    {months.map(m=>{
+                      const count = monthMap[m];
+                      const pct   = count/maxM;
+                      const barH  = Math.max(24, Math.round(pct*(BAR_H-16)));
+                      const [yr,mo] = m.split('-');
+                      const moIdx = parseInt(mo)-1;
+                      const isThisMonth = m === todayKey.slice(0,7);
+                      return (
+                        <div key={m} onClick={()=>setSelectedMonth(m)} title={L('Click to see days','اضغط لتفاصيل الأيام')}
+                          style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',cursor:'pointer',gap:0}}>
+                          <div style={{width:'100%',borderRadius:'8px 8px 0 0',height:barH+'px',position:'relative',
+                            background: isThisMonth?'linear-gradient(180deg,#e53935,#540b14)':'linear-gradient(180deg,#8b1a2a,#540b14)',
+                            boxShadow:'0 2px 8px rgba(84,11,20,0.3)',transition:'opacity 0.2s'}}
+                            onMouseEnter={e=>e.currentTarget.style.opacity='0.8'}
+                            onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
+                            {barH>=24 && <span style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',color:'#fff',fontSize:12,fontWeight:700}}>{count}</span>}
+                          </div>
+                          <div style={{marginTop:6,textAlign:'center'}}>
+                            <div style={{fontSize:11,fontWeight:isThisMonth?700:500,color:isThisMonth?'#540b14':'var(--ink-soft)'}}>{lang==='ar'?MONTHS_AR[moIdx]:MONTHS_EN[moIdx]}</div>
+                            <div style={{fontSize:10,color:'#bbb'}}>{yr}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                <p style={{textAlign:'center',fontSize:12,color:'var(--ink-soft)',marginTop:12}}>💡 {L('Click a month to see daily breakdown','اضغط على شهر لتفاصيل الأيام')}</p>
+              </div>
+            );
+          }
+
+          // ── Daily view (7 / 14 / 30 days OR drilled-down month) ──
           const allDays = [];
-          const rangeDays = chartRange === 'all' ? 90 : parseInt(chartRange);
-          for (let i = rangeDays - 1; i >= 0; i--) {
-            const d = new Date(today); d.setDate(today.getDate() - i);
-            const key = d.toISOString().slice(0,10);
-            const dow = d.getDay();
-            allDays.push({ key, count: dailyVisits[key] || 0, date: d.getDate(), month: d.getMonth()+1, dow });
+          if (selectedMonth) {
+            // show all days of selected month
+            const [yr, mo] = selectedMonth.split('-').map(Number);
+            const daysInMonth = new Date(yr, mo, 0).getDate();
+            for (let day = 1; day <= daysInMonth; day++) {
+              const key = `${yr}-${String(mo).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+              const d2  = new Date(yr, mo-1, day);
+              allDays.push({ key, count: dailyVisits[key]||0, date: day, month: mo, dow: d2.getDay() });
+            }
+          } else {
+            const rangeDays = parseInt(chartRange);
+            for (let i = rangeDays-1; i >= 0; i--) {
+              const d2 = new Date(today); d2.setDate(today.getDate()-i);
+              const key = d2.toISOString().slice(0,10);
+              allDays.push({ key, count: dailyVisits[key]||0, date: d2.getDate(), month: d2.getMonth()+1, dow: d2.getDay() });
+            }
           }
           const chartMax = Math.max(...allDays.map(d=>d.count), 1);
-          const BAR_H = 140;
+          const barW = allDays.length <= 14 ? null : '28px';
+
           return (
-            <div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:16,padding:'24px 24px 16px',marginBottom:28,boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
-              {/* header + range selector */}
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
-                <h4 style={{margin:0,fontSize:14,fontWeight:700,color:'var(--ink)',textTransform:'uppercase',letterSpacing:1}}>
-                  📈 {L('Daily visits','الزيارات اليومية')}
-                </h4>
-                <div style={{display:'flex',gap:6}}>
-                  {[['7',L('7 days','٧ أيام')],['14',L('14 days','١٤ يوم')],['30',L('30 days','٣٠ يوم')],['all',L('All','الكل')]].map(([v,label])=>(
-                    <button key={v} onClick={()=>setChartRange(v)} style={{padding:'5px 12px',borderRadius:7,border:'1px solid',fontSize:12,fontWeight:600,cursor:'pointer',
-                      borderColor: chartRange===v?'#540b14':'var(--border)',
-                      background: chartRange===v?'#540b14':'transparent',
-                      color: chartRange===v?'#fff':'var(--ink-soft)'}}>
-                      {label}
+            <div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:16,padding:'24px',marginBottom:28,boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20,flexWrap:'wrap',gap:8}}>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  {selectedMonth && (
+                    <button onClick={()=>setSelectedMonth(null)} style={{padding:'4px 10px',borderRadius:7,border:'1px solid var(--border)',fontSize:12,cursor:'pointer',background:'var(--surface)',color:'var(--ink-soft)'}}>
+                      ← {L('Back to months','رجوع للشهور')}
                     </button>
-                  ))}
+                  )}
+                  <h4 style={{margin:0,fontSize:14,fontWeight:700,color:'var(--ink)',textTransform:'uppercase',letterSpacing:1}}>
+                    📈 {L('Visits','الزيارات')} {selectedMonth ? '— '+selectedMonth.slice(0,7) : ''}
+                  </h4>
                 </div>
+                {!selectedMonth && (
+                  <div style={{display:'flex',gap:6}}>
+                    {[['7',L('7 days','٧ أيام')],['14',L('14 days','١٤ يوم')],['30',L('30 days','٣٠ يوم')],['all',L('Months','الشهور')]].map(([v,label])=>(
+                      <button key={v} onClick={()=>{setChartRange(v);setSelectedMonth(null);}} style={{padding:'5px 12px',borderRadius:7,border:'1px solid',fontSize:12,fontWeight:600,cursor:'pointer',
+                        borderColor:chartRange===v?'#540b14':'var(--border)',background:chartRange===v?'#540b14':'transparent',color:chartRange===v?'#fff':'var(--ink-soft)'}}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-              {/* bars */}
-              <div style={{display:'flex',alignItems:'flex-end',gap:4,height:BAR_H+'px',overflowX:'auto',paddingBottom:0}}>
+              <div style={{display:'flex',alignItems:'flex-end',gap:4,height:BAR_H+'px',overflowX:'auto'}}>
                 {allDays.map(({key,count,date,month,dow})=>{
-                  const pct   = count > 0 ? count/chartMax : 0;
-                  const barH  = count > 0 ? Math.max(24, Math.round(pct * (BAR_H-10))) : 4;
-                  const isToday = key === today.toISOString().slice(0,10);
-                  const isEmpty = count === 0;
+                  const pct  = count>0 ? count/chartMax : 0;
+                  const barH = count>0 ? Math.max(24,Math.round(pct*(BAR_H-16))) : 4;
+                  const isToday = key===todayKey;
                   return (
-                    <div key={key} title={key+': '+count} style={{flex:'0 0 auto',width: rangeDays<=14?'calc((100% - '+(rangeDays-1)*4+'px) / '+rangeDays+')':'32px',
-                      display:'flex',flexDirection:'column',alignItems:'center',gap:0}}>
-                      {/* bar */}
-                      <div style={{
-                        width:'100%', borderRadius:'6px 6px 0 0',
-                        height: barH+'px',
-                        background: isEmpty ? '#f0ebe6' : isToday ? 'linear-gradient(180deg,#e53935,#540b14)' : 'linear-gradient(180deg,#8b1a2a,#540b14)',
-                        border: isToday ? '2px solid #e53935' : 'none',
-                        display:'flex', alignItems:'center', justifyContent:'center',
-                        position:'relative', transition:'height 0.4s ease', minHeight:4}}>
-                        {count > 0 && barH >= 24 && (
-                          <span style={{color:'#fff',fontSize:11,fontWeight:700,position:'absolute',top:'50%',transform:'translateY(-50%)'}}>{count}</span>
-                        )}
+                    <div key={key} title={key+': '+count} style={{flex: barW?'0 0 auto':'1',width:barW||'auto',display:'flex',flexDirection:'column',alignItems:'center',gap:0,minWidth:0}}>
+                      <div style={{width:'100%',borderRadius:'6px 6px 0 0',height:barH+'px',position:'relative',
+                        background: count===0?'#f0ebe6': isToday?'linear-gradient(180deg,#e53935,#540b14)':'linear-gradient(180deg,#8b1a2a,#540b14)',
+                        border: isToday?'2px solid #e53935':'none', transition:'height 0.3s'}}>
+                        {count>0 && barH>=24 && <span style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',color:'#fff',fontSize:11,fontWeight:700,whiteSpace:'nowrap'}}>{count}</span>}
                       </div>
-                      {/* date */}
-                      <div style={{marginTop:6,textAlign:'center',lineHeight:1.3}}>
-                        <div style={{fontSize:10,fontWeight: isToday?700:500, color: isToday?'#540b14':'var(--ink-soft)'}}>{month+'/'+date}</div>
-                        <div style={{fontSize:9,color: isToday?'#540b14':'#bbb',fontWeight: isToday?700:400}}>{lang==='ar'?DAYS_AR[dow]:DAYS_EN[dow]}</div>
+                      <div style={{marginTop:5,textAlign:'center',lineHeight:1.2}}>
+                        <div style={{fontSize:10,fontWeight:isToday?700:400,color:isToday?'#540b14':'var(--ink-soft)'}}>{month+'/'+date}</div>
+                        <div style={{fontSize:9,color:isToday?'#540b14':'#ccc'}}>{lang==='ar'?DAYS_AR[dow]:DAYS_EN[dow]}</div>
                       </div>
                     </div>
                   );
