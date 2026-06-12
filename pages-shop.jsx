@@ -267,6 +267,7 @@ const SPEC_LABELS = {
 const CheckoutPage = () => {
   const { t, money, cart, subtotal, navigate, lang, placeOrder, shipRates } = useStore();
   const [f, setF] = uS({ name: '', phone: '', gov: '', city: '', address: '', notes: '' });
+  const [payMethod, setPayMethod] = uS('cod');
   const [errs, setErrs] = uS({});
   const set = (k) => (e) => setF(s => ({ ...s, [k]: e.target.value }));
   const freeAll  = (() => { try { return JSON.parse(localStorage.getItem('juyub_freeAll')||'false'); } catch{return false;} })();
@@ -291,7 +292,7 @@ const CheckoutPage = () => {
     if (!f.gov) er.gov = t({ en: 'Required', ar: 'مطلوب' });
     if (!f.address.trim()) er.address = t({ en: 'Required', ar: 'مطلوب' });
     setErrs(er);
-    if (Object.keys(er).length === 0) placeOrder(f, shipping || 0);
+    if (Object.keys(er).length === 0) placeOrder({ ...f, payMethod }, shipping || 0);
   };
   // plain function (NOT a component) → returns elements inline, avoids remount/focus-loss
   const field = ({ k, label, type = 'text', ph, full, ac }) => (
@@ -333,11 +334,22 @@ const CheckoutPage = () => {
           </div>
 
           <h3 className="h3" style={{ margin: '14px 0 14px' }}>{t({ en: 'Payment', ar: 'الدفع' })}</h3>
-          <div className="pay-opt">
-            <span className="radio" />
+          <div className="pay-opt" onClick={()=>setPayMethod('cod')} style={{cursor:'pointer',borderColor:payMethod==='cod'?'var(--maroon)':'var(--border)'}}>
+            <span className="radio" style={{borderColor:payMethod==='cod'?'var(--maroon)':'var(--border)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              {payMethod==='cod'&&<span style={{display:'block',width:10,height:10,borderRadius:'50%',background:'var(--maroon)'}}/>}
+            </span>
             <div>
-              <strong style={{ display: 'block' }}>{t({ en: 'Cash on delivery', ar: 'الدفع عند الاستلام' })}</strong>
-              <span className="muted" style={{ fontSize: 14 }}>{t({ en: 'Pay in cash when your order arrives. No deposit needed.', ar: 'ادفعي كاش لما الأوردر يوصلك. من غير أي مقدم.' })}</span>
+              <strong style={{display:'block'}}>{t({en:'Cash on delivery',ar:'الدفع عند الاستلام'})}</strong>
+              <span className="muted" style={{fontSize:14}}>{t({en:'Pay in cash when your order arrives. No deposit needed.',ar:'ادفعي كاش لما الأوردر يوصلك. من غير أي مقدم.'})}</span>
+            </div>
+          </div>
+          <div className="pay-opt" onClick={()=>setPayMethod('instapay')} style={{cursor:'pointer',marginTop:10,borderColor:payMethod==='instapay'?'var(--maroon)':'var(--border)'}}>
+            <span className="radio" style={{borderColor:payMethod==='instapay'?'var(--maroon)':'var(--border)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              {payMethod==='instapay'&&<span style={{display:'block',width:10,height:10,borderRadius:'50%',background:'var(--maroon)'}}/>}
+            </span>
+            <div>
+              <strong style={{display:'block'}}>{t({en:'InstaPay',ar:'انستاباي'})}</strong>
+              <span className="muted" style={{fontSize:14}}>{t({en:'Paid in full before shipment.',ar:'الدفع بشكل كامل قبل شحن المنتج.'})}</span>
             </div>
           </div>
         </div>
