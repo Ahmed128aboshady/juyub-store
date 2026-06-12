@@ -111,7 +111,7 @@ const HomePage = () => {
       <section className="section" style={{ background: dir === 'b' ? 'var(--paper)' : 'transparent' }}>
         <div className="wrap split">
           <div className="split-img" style={{ aspectRatio: '1/1', background: 'radial-gradient(120% 90% at 50% 20%,#fff,var(--sand))', display: 'grid', placeItems: 'center', overflow: 'hidden', padding: 0 }}>
-            <img src={gift.image} alt="JUYUB packaging" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'right center' }} />
+            <img src={gift.image} alt="JUYUB packaging" style={{ width: '120%', height: '120%', objectFit: 'cover', objectPosition: 'right center', marginLeft: '-20%' }} />
           </div>
           <div className="stack gap-l">
             <span className="eyebrow">{t(gift.eyebrow)}</span>
