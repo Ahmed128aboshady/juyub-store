@@ -396,19 +396,26 @@ const AnalyticsPanel = () => {
 
         {/* Daily bar chart */}
         {sortedDays.length > 0 && (
-          <div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:16,padding:'24px 24px 16px',marginBottom:28,boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
-            <h4 style={{margin:'0 0 20px',fontSize:14,fontWeight:700,color:'var(--ink)',textTransform:'uppercase',letterSpacing:1}}>
+          <div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:16,padding:'28px 24px 20px',marginBottom:28,boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
+            <h4 style={{margin:'0 0 24px',fontSize:14,fontWeight:700,color:'var(--ink)',textTransform:'uppercase',letterSpacing:1}}>
               📈 {L('Daily visits — last 14 days','الزيارات اليومية — آخر ١٤ يوم')}
             </h4>
-            <div style={{display:'flex',alignItems:'flex-end',gap:8,height:140}}>
-              {sortedDays.map(([day,count]) => (
-                <div key={day} title={day+': '+count} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
-                  <div style={{fontSize:11,fontWeight:700,color:'var(--maroon)'}}>{count}</div>
-                  <div style={{width:'100%',background:'linear-gradient(180deg,#8b1a2a,#540b14)',borderRadius:'6px 6px 0 0',
-                    height:Math.max(6,(count/maxDay)*110)+'px',transition:'height 0.3s'}} />
-                  <div style={{fontSize:10,color:'var(--ink-soft)',writingMode:'vertical-rl',transform:'rotate(180deg)',height:32,marginTop:4}}>{day.slice(5)}</div>
-                </div>
-              ))}
+            <div style={{display:'flex',alignItems:'flex-end',gap:6,height:160,paddingBottom:0}}>
+              {sortedDays.map(([day,count]) => {
+                const pct = maxDay > 0 ? (count/maxDay) : 0;
+                const barH = Math.max(8, Math.round(pct * 120));
+                return (
+                  <div key={day} title={day+': '+count+' visits'} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:0,minWidth:0}}>
+                    {/* count label above bar */}
+                    <div style={{fontSize:12,fontWeight:700,color:'#540b14',marginBottom:6,lineHeight:1}}>{count}</div>
+                    {/* bar */}
+                    <div style={{width:'100%',background:'linear-gradient(180deg,#8b1a2a,#540b14)',borderRadius:'6px 6px 0 0',
+                      height:barH+'px',transition:'height 0.4s ease',minHeight:8}} />
+                    {/* date label below */}
+                    <div style={{marginTop:8,fontSize:11,color:'var(--ink-soft)',fontWeight:500,textAlign:'center',lineHeight:1.2}}>{day.slice(5)}</div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
