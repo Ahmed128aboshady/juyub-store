@@ -15,7 +15,7 @@ const ShopPage = () => {
     const c = {}; categories.forEach(k => c[k.id] = k.id === 'all' ? products.length : products.filter(p => p.cat === k.id).length);
     return c;
   }, [products, categories]);
-  let list = cat === 'all' ? [...products] : products.filter(p => p.cat === cat);
+  let list = (cat === 'all' ? [...products] : products.filter(p => p.cat === cat)).filter(p => !p.hidden);
   if (sort === 'low') list.sort((a, b) => a.price - b.price);
   if (sort === 'high') list.sort((a, b) => b.price - a.price);
   if (sort === 'featured') list.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
