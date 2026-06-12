@@ -128,7 +128,7 @@ const HomePage = () => {
         <div className="band-inner">
           <img className="band-emblem" src="https://juyub.odoo.com/web/image/1082" alt="" />
           <p className="h2 display">{t(quote.text)}</p>
-          <Cta go={go} href={quote.buttonHref} fallback="about" className="btn btn-outline btn-lg" style={{ marginTop: 30, boxShadow: 'inset 0 0 0 1.4px var(--ivory)', color: 'var(--ivory)' }}>{t(quote.button)}</Cta>
+          <Cta go={go} href={quote.buttonHref} fallback="about" className="btn btn-outline btn-lg" style={{ marginTop: 30, boxShadow: 'inset 0 0 0 1.4px var(--ivory)', color: 'var(--ivory)', background: 'transparent' }}>{t(quote.button)}</Cta>
         </div>
       </section>
 
