@@ -373,7 +373,7 @@ const CheckoutPage = () => {
           <div className="summary-row total" style={{ borderTop: '1px solid var(--line)', paddingTop: 16 }}>
             <span>{t({ en: 'Total', ar: 'الإجمالي' })}</span><span>{money(total)}</span>
           </div>
-          <div className="cod-note" style={{ margin: '16px 0' }}><Icon n="cash" />{t({ en: 'You pay on delivery', ar: 'بتدفعي عند الاستلام' })}</div>
+          <div className="cod-note" style={{ margin: '16px 0' }}><Icon n="cash" />{payMethod === 'instapay' ? t({ en: 'You pay before shipping', ar: 'بتدفعي قبل الشحن' }) : t({ en: 'You pay on delivery', ar: 'بتدفعي عند الاستلام' })}</div>
           <button className="btn btn-primary btn-lg btn-block" type="submit">{t({ en: 'Place order', ar: 'تأكيد الطلب' })}</button>
         </aside>
       </form>
