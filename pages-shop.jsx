@@ -14,11 +14,11 @@ const ShopPage = () => {
   uE(() => { if (route.params.cat) setCat(route.params.cat); }, [route.params.cat]);
 
   const counts = uM(() => {
-    const c = {}; categories.forEach(k => c[k.id] = k.id === 'all' ? products.length : products.filter(p => p.cat === k.id).length);
+    const c = {}; categories.forEach(k => c[k.id] = k.id === 'all' ? products.length : products.filter(p => Array.isArray(p.cats) ? p.cats.includes(k.id) : p.cat === k.id).length);
     return c;
   }, [products, categories]);
   const featuredList = products.filter(p => p.featured && !p.hidden).sort((a,b)=>(a.sortOrder??999)-(b.sortOrder??999));
-  let list = (cat === 'all' ? [...products] : products.filter(p => p.cat === cat)).filter(p => !p.hidden);
+  let list = (cat === 'all' ? [...products] : products.filter(p => Array.isArray(p.cats) ? p.cats.includes(cat) : p.cat === cat)).filter(p => !p.hidden);
   if (sort === 'low') list.sort((a, b) => a.price - b.price);
   if (sort === 'high') list.sort((a, b) => b.price - a.price);
   if (sort === 'default') list.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
