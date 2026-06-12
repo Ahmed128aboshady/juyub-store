@@ -88,8 +88,13 @@ const ProductEditor = ({ initial, onDone }) => {
     if (!f.name.en.trim() && !f.name.ar.trim()) { alert(t({ en: 'Please enter a product name', ar: 'اكتبي اسم المنتج' })); return; }
     const latest = products.find(x => x.id === f.id) || {};
     const clean = { ...f, price: Number(f.price) || 0, compareAt: Number(f.compareAt) || 0, variants: f.variants.map(v => ({ ...v, shots: (v.shots || []).filter(Boolean) })),
-      sortOrder: latest.sortOrder,
-      hidden: latest.hidden,
+      sortOrder: latest.sortOrder ?? 0,
+      hidden: latest.hidden ?? false,
+      featured: f.featured ?? false,
+      onSale: f.onSale ?? false,
+      juyubPicks: f.juyubPicks ?? false,
+      newArrival: f.newArrival ?? false,
+      limitedEd: f.limitedEd ?? false,
     };
     saveProduct(clean);
     onDone();
