@@ -224,14 +224,8 @@ const ProductPage = () => {
             </div>
           </div>
           <a className="btn btn-wa btn-block" href={waLink(waMsg)} target="_blank" rel="noopener">
-            <Icon n="chat" style={{ width: 19 }} />{t({ en: 'Order on WhatsApp', ar: 'اطلبي على واتساب' })}
+            <Icon n="whatsapp" style={{ width: 19 }} />{t({ en: 'Order on WhatsApp', ar: 'اطلبي على واتساب' })}
           </a>
-
-          <div className="trust-row">
-            <span className="trust"><Icon n="cash" />{t({ en: 'Pay on delivery', ar: 'دفع عند الاستلام' })}</span>
-            <span className="trust"><Icon n="truck" />{t({ en: '2–4 day delivery', ar: 'توصيل ٢–٤ أيام' })}</span>
-            <span className="trust"><Icon n="shield" />{t({ en: 'Genuine leather', ar: 'جلد طبيعي' })}</span>
-          </div>
 
           <dl className="specs">
             {Object.entries(p.specs).map(([k, val]) => (
