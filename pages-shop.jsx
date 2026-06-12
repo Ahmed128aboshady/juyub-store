@@ -180,38 +180,28 @@ const ProductPage = () => {
             <img src={activeImg} alt={t(p.name)} />
             <div style={{position:'absolute',bottom:10,right:10,background:'rgba(0,0,0,0.28)',borderRadius:6,padding:'4px 8px',color:'#fff',fontSize:11,pointerEvents:'none',backdropFilter:'blur(4px)'}}>⤢</div>
           </div>
-          {lightbox && (() => {
-            const lbImg = thumbs[lbIdx] || activeImg;
-            return (
-              <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,width:'100vw',height:'100vh',background:'#000',zIndex:99999,display:'flex',alignItems:'center',justifyContent:'center',isolation:'isolate'}}
-                onClick={()=>setLightbox(false)}>
-                {/* Close */}
-                <button onClick={()=>setLightbox(false)} style={{position:'absolute',top:16,right:16,background:'rgba(255,255,255,0.12)',border:'none',color:'#fff',fontSize:22,width:42,height:42,borderRadius:'50%',cursor:'pointer',zIndex:10}}>✕</button>
-                {/* Counter */}
-                <div style={{position:'absolute',top:20,left:'50%',transform:'translateX(-50%)',color:'rgba(255,255,255,0.6)',fontSize:13}}>{lbIdx+1} / {thumbs.length}</div>
-                {/* Prev */}
-                {lbIdx > 0 && <button onClick={e=>{e.stopPropagation();setLbIdx(i=>i-1);}} style={{position:'absolute',left:16,top:'50%',transform:'translateY(-50%)',background:'rgba(255,255,255,0.12)',border:'none',color:'#fff',fontSize:28,width:50,height:50,borderRadius:'50%',cursor:'pointer',zIndex:10,display:'flex',alignItems:'center',justifyContent:'center'}}>‹</button>}
-                {/* Next */}
-                {lbIdx < thumbs.length-1 && <button onClick={e=>{e.stopPropagation();setLbIdx(i=>i+1);}} style={{position:'absolute',right:16,top:'50%',transform:'translateY(-50%)',background:'rgba(255,255,255,0.12)',border:'none',color:'#fff',fontSize:28,width:50,height:50,borderRadius:'50%',cursor:'pointer',zIndex:10,display:'flex',alignItems:'center',justifyContent:'center'}}>›</button>}
-                {/* Image with zoom on hover */}
-                <div onClick={e=>e.stopPropagation()} style={{overflow:'hidden',borderRadius:8,maxWidth:'82vw',maxHeight:'82vh',cursor:'crosshair'}}
-                  onMouseMove={e=>{const r=e.currentTarget.getBoundingClientRect();const x=((e.clientX-r.left)/r.width*100).toFixed(1);const y=((e.clientY-r.top)/r.height*100).toFixed(1);e.currentTarget.querySelector('img').style.transformOrigin=x+'% '+y+'%';e.currentTarget.querySelector('img').style.transform='scale(2)';}}
-                  onMouseLeave={e=>{e.currentTarget.querySelector('img').style.transform='scale(1)';}}>
-                  <img src={lbImg} alt={t(p.name)} style={{display:'block',maxWidth:'82vw',maxHeight:'82vh',objectFit:'contain',transition:'transform 0.1s ease'}} />
-                </div>
-                {/* Thumbnails */}
-                {thumbs.length > 1 && (
-                  <div style={{position:'absolute',bottom:16,left:'50%',transform:'translateX(-50%)',display:'flex',gap:8}}>
-                    {thumbs.map((img,i)=>(
-                      <div key={i} onClick={e=>{e.stopPropagation();setLbIdx(i);}} style={{width:48,height:48,borderRadius:6,overflow:'hidden',cursor:'pointer',border:'2px solid',borderColor:i===lbIdx?'#fff':'rgba(255,255,255,0.3)',opacity:i===lbIdx?1:0.6,transition:'all 0.2s'}}>
-                        <img src={img} style={{width:'100%',height:'100%',objectFit:'cover'}} />
-                      </div>
-                    ))}
-                  </div>
-                )}
+          {lightbox && (
+            <div style={{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',background:'rgba(0,0,0,0.97)',zIndex:2147483647,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setLightbox(false)}>
+              <button onClick={()=>setLightbox(false)} style={{position:'fixed',top:16,right:16,background:'rgba(255,255,255,0.15)',border:'none',color:'#fff',fontSize:22,width:44,height:44,borderRadius:'50%',cursor:'pointer'}}>✕</button>
+              <div style={{position:'fixed',top:18,left:'50%',transform:'translateX(-50%)',color:'rgba(255,255,255,0.5)',fontSize:13,zIndex:10}}>{lbIdx+1} / {thumbs.length}</div>
+              {lbIdx>0 && <button onClick={e=>{e.stopPropagation();setLbIdx(i=>i-1);}} style={{position:'fixed',left:12,top:'50%',transform:'translateY(-50%)',background:'rgba(255,255,255,0.12)',border:'none',color:'#fff',fontSize:32,width:52,height:52,borderRadius:'50%',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>‹</button>}
+              {lbIdx<thumbs.length-1 && <button onClick={e=>{e.stopPropagation();setLbIdx(i=>i+1);}} style={{position:'fixed',right:12,top:'50%',transform:'translateY(-50%)',background:'rgba(255,255,255,0.12)',border:'none',color:'#fff',fontSize:32,width:52,height:52,borderRadius:'50%',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>›</button>}
+              <div onClick={e=>e.stopPropagation()} style={{overflow:'hidden',borderRadius:8,cursor:'crosshair',maxWidth:'80vw',maxHeight:'80vh'}}
+                onMouseMove={e=>{const r=e.currentTarget.getBoundingClientRect();const x=((e.clientX-r.left)/r.width*100).toFixed(1);const y=((e.clientY-r.top)/r.height*100).toFixed(1);const im=e.currentTarget.querySelector('img');im.style.transformOrigin=x+'% '+y+'%';im.style.transform='scale(2.2)';}}
+                onMouseLeave={e=>{e.currentTarget.querySelector('img').style.transform='scale(1)';}}>
+                <img src={thumbs[lbIdx]||activeImg} alt={t(p.name)} style={{display:'block',maxWidth:'80vw',maxHeight:'80vh',objectFit:'contain',transition:'transform 0.15s ease'}} />
               </div>
-            );
-          })()}
+              {thumbs.length>1 && (
+                <div style={{position:'fixed',bottom:14,left:'50%',transform:'translateX(-50%)',display:'flex',gap:8,zIndex:10}}>
+                  {thumbs.map((img,i)=>(
+                    <div key={i} onClick={e=>{e.stopPropagation();setLbIdx(i);}} style={{width:46,height:46,borderRadius:6,overflow:'hidden',cursor:'pointer',border:'2px solid',borderColor:i===lbIdx?'#fff':'rgba(255,255,255,0.25)',opacity:i===lbIdx?1:0.55,transition:'all 0.2s'}}>
+                      <img src={img} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           {thumbs.length > 1 && (
             <div className="pdp-thumbs">
               {thumbs.map((img, i) => (
