@@ -237,6 +237,7 @@ const ContentEditor = () => {
             {LinkField(L('Button link', 'لينك الزر'), 'gift.buttonHref')}
             {ImageField(L('Gift image', 'صورة الهدية'), 'gift.image')}
           </div>
+        </>}
 
         {/* ---------------- ABOUT ---------------- */}
         {sec === 'about' && <>
