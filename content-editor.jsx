@@ -192,32 +192,25 @@ const ContentEditor = () => {
         {/* ---------------- HOME SECTIONS ---------------- */}
         {sec === 'home' && <>
           <h3 className="h3">{L('Homepage sections', 'أقسام الصفحة الرئيسية')}</h3>
-          <div className="adm-sec" style={{ borderTop: 0, marginTop: 10, paddingTop: 0 }}>
-            <h4>{L('Featured products (Bestselling section)', 'المنتجات المميزة (سيكشن الأكثر مبيعاً)')}</h4>
-            <p className="muted" style={{ fontSize: 13, marginBottom: 14 }}>{L('Pick up to 8 products. Leave empty to auto-show featured products.', 'اختار لحد ٨ منتجات. سيبها فاضية للعرض التلقائي.')}</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-              {(products || []).map(p => {
-                const ids = c.featuredIds || [];
-                const selected = ids.includes(p.id);
-                const img = p.variants && p.variants[0] && p.variants[0].img;
-                return (
-                  <div key={p.id} onClick={() => {
-                    const cur = c.featuredIds || [];
-                    const next = selected ? cur.filter(id => id !== p.id) : cur.length < 8 ? [...cur, p.id] : cur;
-                    upd('featuredIds', next);
-                  }} style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 12px', borderRadius:10, cursor:'pointer', border:'2px solid', borderColor: selected?'var(--maroon)':'var(--border)', background: selected?'#fff5f5':'var(--bg)', transition:'all 0.15s' }}>
-                    {img && <img src={img} style={{ width:32, height:32, borderRadius:6, objectFit:'cover' }} />}
-                    <span style={{ fontSize:13, fontWeight: selected?700:400, color: selected?'var(--maroon)':'var(--ink)' }}>{t(p.name)}</span>
-                    {selected && <span style={{ fontSize:11, color:'var(--maroon)', fontWeight:700 }}>#{(c.featuredIds||[]).indexOf(p.id)+1}</span>}
-                  </div>
-                );
+          <div className="adm-sec" style={{borderTop:0,marginTop:10,paddingTop:0}}>
+            <h4>{L('Featured products','المنتجات المميزة في الصفحة الرئيسية')}</h4>
+            <p className="muted" style={{fontSize:13,marginBottom:14}}>{L('Pick up to 8 products to show in the bestselling section. Leave empty to auto-show.','اختار لحد ٨ منتجات للسيكشن. سيبها فاضية للعرض التلقائي.')}</p>
+            <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:12}}>
+              {(products||[]).map(p=>{
+                const sel=(c.featuredIds||[]).includes(p.id);
+                const img=p.variants&&p.variants[0]&&p.variants[0].img;
+                return <div key={p.id} onClick={()=>{
+                  const cur=c.featuredIds||[];
+                  upd('featuredIds',sel?cur.filter(x=>x!==p.id):cur.length<8?[...cur,p.id]:cur);
+                }} style={{display:'flex',alignItems:'center',gap:8,padding:'6px 12px',borderRadius:10,cursor:'pointer',
+                  border:'2px solid',borderColor:sel?'var(--maroon)':'var(--border)',background:sel?'#fff5f5':'var(--bg)'}}>
+                  {img&&<img src={img} style={{width:32,height:32,borderRadius:6,objectFit:'cover'}}/>}
+                  <span style={{fontSize:13,fontWeight:sel?700:400,color:sel?'var(--maroon)':'var(--ink)'}}>{t(p.name)}</span>
+                  {sel&&<span style={{fontSize:11,color:'var(--maroon)',fontWeight:700}}>#{(c.featuredIds||[]).indexOf(p.id)+1}</span>}
+                </div>;
               })}
             </div>
-            {(c.featuredIds||[]).length > 0 && (
-              <button onClick={() => upd('featuredIds', [])} style={{ fontSize:12, color:'var(--ink-soft)', background:'none', border:'none', cursor:'pointer', textDecoration:'underline' }}>
-                {L('Clear selection','مسح الاختيار')}
-              </button>
-            )}
+            {(c.featuredIds||[]).length>0&&<button onClick={()=>upd('featuredIds',[])} style={{fontSize:12,color:'var(--ink-soft)',background:'none',border:'none',cursor:'pointer',textDecoration:'underline'}}>{L('Clear selection','مسح الاختيار')}</button>}
           </div>
           {linkHint}
           <div className="adm-sec" style={{ borderTop: 0, marginTop: 10, paddingTop: 0 }}>
