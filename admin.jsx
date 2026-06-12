@@ -288,7 +288,18 @@ const AdminPage = () => {
               {products.filter(p=>filterCat==='all'||p.cat===filterCat).map(p => {
                 const inStock = p.variants.some(v => v.stock);
                 return (
-                  <div className="adm-row" key={p.id} style={{opacity:p.hidden?0.4:1,filter:p.hidden?'grayscale(0.6)':'none'}}>
+                  <div key={p.id} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                    <div style={{display:'flex',flexDirection:'column',gap:4}}>
+                      <button type="button" onClick={()=>{
+                        const idx=products.findIndex(x=>x.id===p.id);
+                        if(idx>0){const a=[...products];[a[idx-1],a[idx]]=[a[idx],a[idx-1]];a.forEach((x,i)=>saveProduct({...x,sortOrder:i}));}
+                      }} style={{width:32,height:32,background:'var(--surface)',border:'1px solid var(--border)',borderRadius:6,cursor:'pointer',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>↑</button>
+                      <button type="button" onClick={()=>{
+                        const idx=products.findIndex(x=>x.id===p.id);
+                        if(idx<products.length-1){const a=[...products];[a[idx+1],a[idx]]=[a[idx],a[idx+1]];a.forEach((x,i)=>saveProduct({...x,sortOrder:i}));}
+                      }} style={{width:32,height:32,background:'var(--surface)',border:'1px solid var(--border)',borderRadius:6,cursor:'pointer',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>↓</button>
+                    </div>
+                  <div className="adm-row" style={{flex:1,opacity:p.hidden?0.4:1,filter:p.hidden?'grayscale(0.6)':'none',margin:0}}>
                     <div className="a-thumb"><img src={p.variants[0].img} alt="" /></div>
                     <div className="a-info">
                       <div className="a-name">{t(p.name) || L('(untitled)', '(بدون اسم)')}</div>
@@ -297,16 +308,7 @@ const AdminPage = () => {
                     <span className={'a-pill ' + (inStock ? 'in' : 'out')}>{inStock ? L('In stock', 'متوفر') : L('Out', 'نفد')}</span>
                     <span className="a-price">{money(p.price)}</span>
                     <div className="adm-actions">
-                      <div style={{display:'flex',flexDirection:'column',gap:2}}>
-                        <button type="button" onClick={()=>{
-                          const idx=products.findIndex(x=>x.id===p.id);
-                          if(idx>0){const a=[...products];[a[idx-1],a[idx]]=[a[idx],a[idx-1]];a.forEach((x,i)=>saveProduct({...x,sortOrder:i}));}
-                        }} style={{background:'none',border:'1px solid var(--border)',borderRadius:4,cursor:'pointer',fontSize:11,padding:'1px 6px'}}>↑</button>
-                        <button type="button" onClick={()=>{
-                          const idx=products.findIndex(x=>x.id===p.id);
-                          if(idx<products.length-1){const a=[...products];[a[idx+1],a[idx]]=[a[idx],a[idx+1]];a.forEach((x,i)=>saveProduct({...x,sortOrder:i}));}
-                        }} style={{background:'none',border:'1px solid var(--border)',borderRadius:4,cursor:'pointer',fontSize:11,padding:'1px 6px'}}>↓</button>
-                      </div>
+                      <div style={{display:'none'}}>
                       <button onClick={()=>saveProduct({...p,featured:!p.featured})} title={p.featured?L('Remove from featured','شيل من المميزين'):L('Add to featured','أضف للمميزين')}
                         style={{background:'none',border:'none',cursor:'pointer',fontSize:20,lineHeight:1,color:p.featured?'#f59e0b':'#ccc'}}>★</button>
                       <button onClick={()=>saveProduct({...p,hidden:!p.hidden})} title={p.hidden?L('Show product','إظهار المنتج'):L('Hide product','إخفاء المنتج')}
@@ -319,6 +321,7 @@ const AdminPage = () => {
                       <button className="a-iconbtn" onClick={() => setEditing(JSON.parse(JSON.stringify(p)))} title={L('Edit', 'تعديل')}><Icon n="edit" /></button>
                       <button className="a-iconbtn danger" onClick={() => { if (confirm(L('Delete this product?', 'تحذفي المنتج ده؟'))) deleteProduct(p.id); }} title={L('Delete', 'حذف')}><Icon n="trash" /></button>
                     </div>
+                  </div>
                   </div>
                 );
               })}
