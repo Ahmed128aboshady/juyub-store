@@ -380,12 +380,7 @@ const ContentEditor = () => {
             {(c.goodToKnow || []).map((item, i) => (
               <div className="adm-variant" key={i} style={{ paddingTop: 14 }}>
                 <div className="a-meta" style={{ marginBottom: 8, fontWeight: 700 }}>{L('Point', 'نقطة')} {i + 1}</div>
-                <div className="field"><label>{L('Icon', 'الأيقونة')}</label>
-                <select className="input" value={item.icon||'cash'} onChange={e=>{const arr=JSON.parse(JSON.stringify(c.goodToKnow||[]));arr[i]={...arr[i],icon:e.target.value};upd('goodToKnow',arr);}}>
-                  {[['cash','💵 Cash'],['truck','🚚 Truck'],['shield','🛡️ Shield'],['star','⭐ Star'],['heart','❤️ Heart'],['box','📦 Box'],['phone','📞 Phone'],['check','✅ Check'],['bag','👜 Bag']].map(([v,l])=>(
-                    <option key={v} value={v}>{l}</option>
-                  ))}
-                </select></div>
+                <div className="field"><label>{L('Icon / Image URL', 'أيقونة أو لينك صورة')}</label><input className="input" value={item.icon || ''} placeholder="cash / truck / https://..." onChange={e => { const arr = JSON.parse(JSON.stringify(c.goodToKnow||[])); arr[i] = {...arr[i], icon: e.target.value}; upd('goodToKnow', arr); }} /></div>
                 <div className="adm-grid">
                   <div className="field"><label>{L('Text', 'النص')} (EN)</label><input className="input" value={item.en || ''} onChange={e => { const arr = JSON.parse(JSON.stringify(c.goodToKnow||[])); arr[i] = {...arr[i], en: e.target.value}; upd('goodToKnow', arr); }} /></div>
                   <div className="field"><label>{L('Text', 'النص')} (AR)</label><input className="input" dir="rtl" value={item.ar || ''} onChange={e => { const arr = JSON.parse(JSON.stringify(c.goodToKnow||[])); arr[i] = {...arr[i], ar: e.target.value}; upd('goodToKnow', arr); }} /></div>
