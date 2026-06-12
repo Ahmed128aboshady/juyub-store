@@ -99,9 +99,23 @@ const ContentEditor = () => {
             <h4>{L('Scrolling strip (marquee)', 'الشريط المتحرك')}</h4>
             <p className="muted" style={{ marginTop: -6, marginBottom: 14, fontSize: 13.5 }}>{L('Each line scrolls across — great for offers like “30% OFF this week”.', 'كل سطر بيمشي في الشريط — مناسب للعروض زي «خصم ٣٠٪ الأسبوع ده».')}</p>
             {(c.marquee || []).map((m, i) => (
-              <div className="adm-variant" key={i} style={{ paddingTop: 14 }}>
+              <div className="adm-variant" key={i} style={{ paddingTop: 14, position: 'relative' }}>
                 {c.marquee.length > 1 && <button className="v-remove" onClick={() => listRm('marquee', i)}>{L('Remove', 'حذف')}</button>}
-                {Pair(L('Line', 'السطر') + ' ' + (i + 1), 'marquee.' + i)}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <button type="button" disabled={i === 0} onClick={() => {
+                      const arr = [...c.marquee];
+                      [arr[i-1], arr[i]] = [arr[i], arr[i-1]];
+                      upd('marquee', arr);
+                    }} style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid var(--border)', background: i === 0 ? 'var(--surface)' : 'var(--bg)', cursor: i === 0 ? 'not-allowed' : 'pointer', fontSize: 14, opacity: i === 0 ? 0.3 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↑</button>
+                    <button type="button" disabled={i === (c.marquee.length - 1)} onClick={() => {
+                      const arr = [...c.marquee];
+                      [arr[i+1], arr[i]] = [arr[i], arr[i+1]];
+                      upd('marquee', arr);
+                    }} style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid var(--border)', background: i === (c.marquee.length - 1) ? 'var(--surface)' : 'var(--bg)', cursor: i === (c.marquee.length - 1) ? 'not-allowed' : 'pointer', fontSize: 14, opacity: i === (c.marquee.length - 1) ? 0.3 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↓</button>
+                  </div>
+                  <div style={{ flex: 1 }}>{Pair(L('Line', 'السطر') + ' ' + (i + 1), 'marquee.' + i)}</div>
+                </div>
               </div>
             ))}
             <button className="btn btn-outline" onClick={() => listAdd('marquee', { en: '', ar: '' })} style={{ marginTop: 4 }}><Icon n="plus" style={{ width: 16 }} />{L('Add line', 'أضف سطر')}</button>
