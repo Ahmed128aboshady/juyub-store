@@ -242,6 +242,27 @@ const ProductEditor = ({ initial, onDone }) => {
         ))}
       </div>
 
+      {/* Extra custom specs */}
+      <div style={{marginBottom:20}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+          <span style={{fontSize:12,fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase',color:'var(--ink-soft)'}}>{L('Custom specifications','مواصفات مخصصة')}</span>
+          <button type="button" className="btn btn-outline" style={{fontSize:12,padding:'5px 12px'}} onClick={()=>upd({extraSpecs:[...(f.extraSpecs||[]),{label:{en:'',ar:''},value:{en:'',ar:''}}]})}>
+            + {L('Add row','أضف خانة')}
+          </button>
+        </div>
+        {(f.extraSpecs||[]).map((s,i)=>(
+          <div key={i} style={{display:'flex',gap:8,marginBottom:8,alignItems:'flex-start'}}>
+            <div style={{flex:1,display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+              <input className="input" placeholder={L('Label (EN)','الاسم (EN)')} value={s.label.en||''} onChange={e=>{const a=[...f.extraSpecs];a[i]={...a[i],label:{...a[i].label,en:e.target.value}};upd({extraSpecs:a});}} />
+              <input className="input" placeholder={L('Label (AR)','الاسم (AR)')} dir="rtl" value={s.label.ar||''} onChange={e=>{const a=[...f.extraSpecs];a[i]={...a[i],label:{...a[i].label,ar:e.target.value}};upd({extraSpecs:a});}} />
+              <input className="input" placeholder={L('Value (EN)','القيمة (EN)')} value={s.value.en||''} onChange={e=>{const a=[...f.extraSpecs];a[i]={...a[i],value:{...a[i].value,en:e.target.value}};upd({extraSpecs:a});}} />
+              <input className="input" placeholder={L('Value (AR)','القيمة (AR)')} dir="rtl" value={s.value.ar||''} onChange={e=>{const a=[...f.extraSpecs];a[i]={...a[i],value:{...a[i].value,ar:e.target.value}};upd({extraSpecs:a});}} />
+            </div>
+            <button type="button" onClick={()=>{const a=[...f.extraSpecs];a.splice(i,1);upd({extraSpecs:a});}} style={{background:'none',border:'none',cursor:'pointer',color:'#e53935',fontSize:20,padding:'4px',marginTop:2}}>×</button>
+          </div>
+        ))}
+      </div>
+
       <div className="adm-foot">
         <button className="btn btn-outline" onClick={onDone}>{L('Cancel', 'إلغاء')}</button>
         <button className="btn btn-primary" onClick={save}>{L('Save product', 'حفظ المنتج')}</button>
