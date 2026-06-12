@@ -8,7 +8,8 @@ const waLink = () => WA_LINK;
 const ShopPage = () => {
   const { t, route, navigate, lang, products, categories, content } = useStore();
   const [cat, setCat] = uS(route.params.cat || 'all');
-  const [sort, setSort] = uS('featured');
+  const [sort, setSort] = uS('default');
+  const [page, setPage] = uS(1);
   uE(() => { if (route.params.cat) setCat(route.params.cat); }, [route.params.cat]);
 
   const counts = uM(() => {
@@ -18,7 +19,11 @@ const ShopPage = () => {
   let list = (cat === 'all' ? [...products] : products.filter(p => p.cat === cat)).filter(p => !p.hidden);
   if (sort === 'low') list.sort((a, b) => a.price - b.price);
   if (sort === 'high') list.sort((a, b) => b.price - a.price);
-  if (sort === 'featured') list.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+  if (sort === 'default') list.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
+  const featuredList = list.filter(p => p.featured);
+  const ITEMS_PER_PAGE = 15;
+  const totalPages = Math.ceil(list.length / ITEMS_PER_PAGE);
+  const pagedList = list.slice((page-1)*ITEMS_PER_PAGE, page*ITEMS_PER_PAGE);
 
   return (
     <>
@@ -67,14 +72,44 @@ const ShopPage = () => {
                 ))}
               </div>
               <select className="select" value={sort} onChange={e => setSort(e.target.value)}>
-                <option value="featured">{lang === 'en' ? 'Featured' : 'المميزة'}</option>
                 <option value="low">{lang === 'en' ? 'Price: Low to High' : 'السعر: من الأقل'}</option>
                 <option value="high">{lang === 'en' ? 'Price: High to Low' : 'السعر: من الأعلى'}</option>
               </select>
             </div>
+            {featuredList.length > 0 && (
+              <div style={{marginBottom:32}}>
+                <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+                  <span style={{fontSize:11,fontWeight:700,letterSpacing:'0.1em',color:'var(--maroon)',textTransform:'uppercase'}}>★ {t({en:'Featured Picks',ar:'مختارات مميزة'})}</span>
+                  <div style={{flex:1,height:1,background:'var(--border)'}}/>
+                </div>
+                <div className="grid-products shop-grid">
+                  {featuredList.map(p => <ProductCard key={p.id} p={p} />)}
+                </div>
+                <div style={{height:1,background:'var(--border)',margin:'28px 0'}}/>
+              </div>
+            )}
             <div className="grid-products shop-grid">
-              {list.map(p => <ProductCard key={p.id} p={p} />)}
+              {pagedList.map(p => <ProductCard key={p.id} p={p} />)}
             </div>
+            {totalPages > 1 && (
+              <div style={{display:'flex',justifyContent:'center',alignItems:'center',gap:8,marginTop:32,flexWrap:'wrap'}}>
+                <button onClick={()=>{setPage(p=>Math.max(1,p-1));window.scrollTo(0,300);}} disabled={page===1}
+                  style={{padding:'8px 18px',borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',cursor:page===1?'not-allowed':'pointer',opacity:page===1?0.4:1,fontSize:13}}>
+                  ← {t({en:'Prev',ar:'السابق'})}
+                </button>
+                {Array.from({length:totalPages},(_,i)=>i+1).map(n=>(
+                  <button key={n} onClick={()=>{setPage(n);window.scrollTo(0,300);}}
+                    style={{width:36,height:36,borderRadius:8,border:'1px solid',fontSize:13,fontWeight:n===page?700:400,cursor:'pointer',
+                      borderColor:n===page?'var(--maroon)':'var(--border)',background:n===page?'var(--maroon)':'var(--bg)',color:n===page?'#fff':'var(--ink)'}}>
+                    {n}
+                  </button>
+                ))}
+                <button onClick={()=>{setPage(p=>Math.min(totalPages,p+1));window.scrollTo(0,300);}} disabled={page===totalPages}
+                  style={{padding:'8px 18px',borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',cursor:page===totalPages?'not-allowed':'pointer',opacity:page===totalPages?0.4:1,fontSize:13}}>
+                  {t({en:'Next',ar:'التالي'})} →
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>
