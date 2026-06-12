@@ -180,7 +180,7 @@ const ProductPage = () => {
             <img src={activeImg} alt={t(p.name)} />
             <div style={{position:'absolute',bottom:10,right:10,background:'rgba(0,0,0,0.28)',borderRadius:6,padding:'4px 8px',color:'#fff',fontSize:11,pointerEvents:'none',backdropFilter:'blur(4px)'}}>⤢</div>
           </div>
-          {lightbox && ReactDOM.createPortal((() => {
+          {lightbox && (() => {
             const lbImg = thumbs[lbIdx] || activeImg;
             return (
               <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,width:'100vw',height:'100vh',background:'#000',zIndex:99999,display:'flex',alignItems:'center',justifyContent:'center',isolation:'isolate'}}
@@ -211,7 +211,7 @@ const ProductPage = () => {
                 )}
               </div>
             );
-          })()), document.body)}
+          })()}
           {thumbs.length > 1 && (
             <div className="pdp-thumbs">
               {thumbs.map((img, i) => (
