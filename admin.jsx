@@ -297,6 +297,18 @@ const AdminPage = () => {
                     <span className={'a-pill ' + (inStock ? 'in' : 'out')}>{inStock ? L('In stock', 'متوفر') : L('Out', 'نفد')}</span>
                     <span className="a-price">{money(p.price)}</span>
                     <div className="adm-actions">
+                      <div style={{display:'flex',flexDirection:'column',gap:2}}>
+                        <button type="button" onClick={()=>{
+                          const idx=products.findIndex(x=>x.id===p.id);
+                          if(idx>0){const a=[...products];[a[idx-1],a[idx]]=[a[idx],a[idx-1]];a.forEach((x,i)=>saveProduct({...x,sortOrder:i}));}
+                        }} style={{background:'none',border:'1px solid var(--border)',borderRadius:4,cursor:'pointer',fontSize:11,padding:'1px 6px'}}>↑</button>
+                        <button type="button" onClick={()=>{
+                          const idx=products.findIndex(x=>x.id===p.id);
+                          if(idx<products.length-1){const a=[...products];[a[idx+1],a[idx]]=[a[idx],a[idx+1]];a.forEach((x,i)=>saveProduct({...x,sortOrder:i}));}
+                        }} style={{background:'none',border:'1px solid var(--border)',borderRadius:4,cursor:'pointer',fontSize:11,padding:'1px 6px'}}>↓</button>
+                      </div>
+                      <button onClick={()=>saveProduct({...p,featured:!p.featured})} title={p.featured?L('Remove from featured','شيل من المميزين'):L('Add to featured','أضف للمميزين')}
+                        style={{background:'none',border:'none',cursor:'pointer',fontSize:20,lineHeight:1,color:p.featured?'#f59e0b':'#ccc'}}>★</button>
                       <button onClick={()=>saveProduct({...p,hidden:!p.hidden})} title={p.hidden?L('Show product','إظهار المنتج'):L('Hide product','إخفاء المنتج')}
                         style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
                         <div style={{width:36,height:20,borderRadius:99,background:p.hidden?'#ccc':'#22c55e',position:'relative',transition:'background 0.2s'}}>
