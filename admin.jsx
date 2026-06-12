@@ -309,9 +309,9 @@ const AdminPage = () => {
                     <span className={'a-pill ' + (inStock ? 'in' : 'out')}>{inStock ? L('In stock', 'متوفر') : L('Out', 'نفد')}</span>
                     <span className="a-price">{money(p.price)}</span>
                     <div className="adm-actions">
-                      <button onClick={()=>saveProduct({...p,featured:!p.featured})} title={p.featured?L('Remove from featured','شيل من المميزين'):L('Add to featured','أضف للمميزين')}
+                      <button onClick={()=>{const latest=products.find(x=>x.id===p.id)||p;saveProduct({...latest,featured:!latest.featured});}} title={p.featured?L('Remove from featured','شيل من المميزين'):L('Add to featured','أضف للمميزين')}
                         style={{background:'none',border:'none',cursor:'pointer',fontSize:20,lineHeight:1,color:p.featured?'#f59e0b':'#ccc'}}>★</button>
-                      <button onClick={()=>saveProduct({...p,hidden:!p.hidden})} title={p.hidden?L('Show product','إظهار المنتج'):L('Hide product','إخفاء المنتج')}
+                      <button onClick={()=>{const latest=products.find(x=>x.id===p.id)||p;saveProduct({...latest,hidden:!latest.hidden});}} title={p.hidden?L('Show product','إظهار المنتج'):L('Hide product','إخفاء المنتج')}
                         style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
                         <div style={{width:36,height:20,borderRadius:99,background:p.hidden?'#ccc':'#22c55e',position:'relative',transition:'background 0.2s'}}>
                           <div style={{position:'absolute',top:2,width:16,height:16,borderRadius:'50%',background:'#fff',transition:'left 0.2s',left:p.hidden?'2px':'18px',boxShadow:'0 1px 3px rgba(0,0,0,0.2)'}}/>
