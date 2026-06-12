@@ -88,9 +88,8 @@ const ProductEditor = ({ initial, onDone }) => {
     if (!f.name.en.trim() && !f.name.ar.trim()) { alert(t({ en: 'Please enter a product name', ar: 'اكتبي اسم المنتج' })); return; }
     const latest = products.find(x => x.id === f.id) || {};
     const clean = { ...f, price: Number(f.price) || 0, compareAt: Number(f.compareAt) || 0, variants: f.variants.map(v => ({ ...v, shots: (v.shots || []).filter(Boolean) })),
-      featured: f.featured !== undefined ? f.featured : latest.featured,
-      sortOrder: f.sortOrder !== undefined ? f.sortOrder : latest.sortOrder,
-      hidden: f.hidden !== undefined ? f.hidden : latest.hidden,
+      sortOrder: latest.sortOrder,
+      hidden: latest.hidden,
     };
     saveProduct(clean);
     onDone();
@@ -323,7 +322,7 @@ const AdminPage = () => {
                         </div>
                         <span style={{fontSize:9,color:p.hidden?'#999':'#22c55e',fontWeight:600}}>{p.hidden?L('Off','مخفي'):L('On','ظاهر')}</span>
                       </button>
-                      <button className="a-iconbtn" onClick={() => setEditing(JSON.parse(JSON.stringify(p)))} title={L('Edit', 'تعديل')}><Icon n="edit" /></button>
+                      <button className="a-iconbtn" onClick={() => setEditing(JSON.parse(JSON.stringify(products.find(x=>x.id===p.id)||p)))} title={L('Edit', 'تعديل')}><Icon n="edit" /></button>
                       <button className="a-iconbtn danger" onClick={() => { if (confirm(L('Delete this product?', 'تحذفي المنتج ده؟'))) deleteProduct(p.id); }} title={L('Delete', 'حذف')}><Icon n="trash" /></button>
                     </div>
                   </div>
