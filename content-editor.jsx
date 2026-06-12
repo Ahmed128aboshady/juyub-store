@@ -167,7 +167,7 @@ const ContentEditor = () => {
             {(categories||[]).map(cat=>(
               <span key={cat.en} style={{display:'flex',alignItems:'center',gap:6,padding:'5px 12px',borderRadius:99,border:'1px solid var(--border)',fontSize:13,background:'var(--surface)'}}>
                 {lang==='ar'?cat.ar:cat.en}
-                <button onClick={()=>deleteCategory(cat.en)} style={{background:'none',border:'none',cursor:'pointer',color:'var(--ink-soft)',fontSize:14,lineHeight:1,padding:0}}>×</button>
+                <button onClick={()=>deleteCategory(cat.id||cat.en)} style={{background:'none',border:'none',cursor:'pointer',color:'var(--ink-soft)',fontSize:14,lineHeight:1,padding:0}}>×</button>
               </span>
             ))}
           </div>
