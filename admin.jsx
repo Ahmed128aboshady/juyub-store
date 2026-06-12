@@ -145,15 +145,6 @@ const ProductEditor = ({ initial, onDone }) => {
               {field(L('Color name (EN)', 'اللون (EN)'), v.color.en, val => updVarColor(i, 'en', val))}
               {field(L('Color name (AR)', 'اللون (AR)'), v.color.ar, val => updVarColor(i, 'ar', val))}
             </div>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16,padding:'12px 16px',borderRadius:10,background:freeAll?'#e8f5e9':'#fff8f8',border:'1px solid',borderColor:freeAll?'#a5d6a7':'#f5c5c5'}}>
-          <div>
-            <div style={{fontWeight:700,fontSize:14,color:freeAll?'#2e7d32':'#540b14'}}>{L('Free shipping for all governorates','شحن مجاني لكل المحافظات')}</div>
-            <div style={{fontSize:12,color:'var(--ink-soft)',marginTop:2}}>{L('Prices are kept — just overrides to free','الأسعار محفوظة — بس بيحسب مجاني')}</div>
-          </div>
-          <button onClick={toggleFreeAll} style={{padding:'8px 18px',borderRadius:8,border:'none',cursor:'pointer',fontWeight:700,fontSize:13,background:freeAll?'#2e7d32':'#540b14',color:'#fff'}}>
-            {freeAll?L('✓ Active — disable','✓ فعّال — إلغاء'):L('Enable free shipping','فعّل الشحن المجاني')}
-          </button>
-        </div>
         <div className="adm-row-inline">
               <div className="field" style={{ flex: 1, minWidth: 200 }}>
                 <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
