@@ -228,10 +228,16 @@ const ProductPage = () => {
           </a>
 
           <dl className="specs">
-            {Object.entries(p.specs).map(([k, val]) => (
+            {Object.entries(p.specs).filter(([k,val])=>t(val)&&t(val).trim()).map(([k, val]) => (
               <div className="spec-row" key={k}>
-                <dt>{t({ en: SPEC_LABELS[k].en, ar: SPEC_LABELS[k].ar })}</dt>
+                <dt>{SPEC_LABELS[k] ? t({ en: SPEC_LABELS[k].en, ar: SPEC_LABELS[k].ar }) : k}</dt>
                 <dd>{t(val)}</dd>
+              </div>
+            ))}
+            {(p.extraSpecs||[]).filter(s=>s.label&&t(s.label)).map((s,i)=>(
+              <div className="spec-row" key={'ex'+i}>
+                <dt>{t(s.label)}</dt>
+                <dd>{t(s.value)}</dd>
               </div>
             ))}
           </dl>
