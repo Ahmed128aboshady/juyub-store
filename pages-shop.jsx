@@ -190,7 +190,7 @@ const ProductPage = () => {
             <img src={activeImg} alt={t(p.name)} />
             <div style={{position:'absolute',bottom:10,right:10,background:'rgba(0,0,0,0.28)',borderRadius:6,padding:'4px 8px',color:'#fff',fontSize:11,pointerEvents:'none',backdropFilter:'blur(4px)'}}>⤢</div>
           </div>
-          {lightbox && (
+          {lightbox && ReactDOM.createPortal(
             <div id="juyub-lightbox" style={{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',background:'rgba(0,0,0,0.97)',zIndex:2147483647,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setLightbox(false)}>
               <button onClick={()=>setLightbox(false)} style={{position:'fixed',top:16,right:16,background:'rgba(255,255,255,0.15)',border:'none',color:'#fff',fontSize:22,width:44,height:44,borderRadius:'50%',cursor:'pointer'}}>✕</button>
               <div style={{position:'fixed',top:18,left:'50%',transform:'translateX(-50%)',color:'rgba(255,255,255,0.5)',fontSize:13,zIndex:10}}>{lbIdx+1} / {thumbs.length}</div>
@@ -210,8 +210,8 @@ const ProductPage = () => {
                   ))}
                 </div>
               )}
-            </div>
-          )}
+            </div>,
+          document.body)}
           {thumbs.length > 1 && (
             <div className="pdp-thumbs">
               {thumbs.map((img, i) => (
