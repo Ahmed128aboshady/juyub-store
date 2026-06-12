@@ -247,6 +247,9 @@ const AdminPage = () => {
   const [tab, setTab] = adUS('products');
   const [editing, setEditing] = adUS(null);
   const [filterCat, setFilterCat] = adUS('all');
+  const [showReorder, setShowReorder] = adUS(false);
+  const [reorderList, setReorderList] = adUS([]);
+  const [dragIdx, setDragIdx] = adUS(null);
   const L = (en, ar) => t({ en, ar });
 
   return (
@@ -274,7 +277,10 @@ const AdminPage = () => {
           <>
             <div className="admin-head">
               <div><h2 className="h2">{L('Products', 'المنتجات')}</h2><p className="muted">{products.length} {L('items', 'منتج')}</p></div>
-              <button className="btn btn-primary" onClick={() => setEditing(blankProduct())}><Icon n="plus" style={{ width: 16 }} />{L('Add product', 'أضف منتج')}</button>
+              <div style={{display:'flex',gap:10}}>
+                <button className="btn btn-outline" onClick={()=>{const feat=products.filter(p=>p.featured).sort((a,b)=>(a.sortOrder??999)-(b.sortOrder??999));setReorderList(feat);setShowReorder(true);}} style={{fontSize:13}}>★ {L('Reorder Featured','رتب المميزين')}</button>
+                <button className="btn btn-primary" onClick={() => setEditing(blankProduct())}><Icon n="plus" style={{ width: 16 }} />{L('Add product', 'أضف منتج')}</button>
+              </div>
             </div>
             <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
               <button onClick={()=>setFilterCat('all')} style={{padding:'5px 14px',borderRadius:99,border:'1px solid',fontSize:13,cursor:'pointer',fontWeight:filterCat==='all'?700:400,borderColor:filterCat==='all'?'var(--maroon)':'var(--border)',background:filterCat==='all'?'var(--maroon)':'transparent',color:filterCat==='all'?'#fff':'var(--ink-soft)'}}>{L('All','الكل')}</button>
@@ -315,6 +321,39 @@ const AdminPage = () => {
             </div>
           </>
         ))}
+
+        {showReorder && (
+          <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setShowReorder(false)}>
+            <div style={{background:'var(--bg)',borderRadius:16,padding:28,width:400,maxWidth:'90vw',boxShadow:'0 20px 60px rgba(0,0,0,0.2)'}} onClick={e=>e.stopPropagation()}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+                <h3 style={{margin:0,fontSize:18,fontWeight:800}}>{L('Reorder Featured','رتب المميزين')}</h3>
+                <button onClick={()=>setShowReorder(false)} style={{background:'none',border:'none',cursor:'pointer',fontSize:22,color:'var(--ink-soft)'}}>×</button>
+              </div>
+              <p style={{fontSize:13,color:'var(--ink-soft)',marginBottom:16}}>{L('Drag to reorder','اسحب عشان ترتب')}</p>
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {reorderList.map((p,i)=>{
+                  const img=p.variants&&p.variants[0]&&p.variants[0].img;
+                  return (
+                    <div key={p.id} draggable
+                      onDragStart={()=>setDragIdx(i)}
+                      onDragOver={e=>{e.preventDefault();if(dragIdx===null||dragIdx===i)return;const a=[...reorderList];const item=a.splice(dragIdx,1)[0];a.splice(i,0,item);setReorderList(a);setDragIdx(i);}}
+                      onDragEnd={()=>setDragIdx(null)}
+                      style={{display:'flex',alignItems:'center',gap:12,padding:'10px 14px',borderRadius:10,border:'1px solid var(--border)',background:dragIdx===i?'var(--surface)':'var(--bg)',cursor:'grab',userSelect:'none'}}>
+                      <span style={{color:'var(--ink-soft)',fontSize:16}}>⠿</span>
+                      {img&&<img src={img} style={{width:40,height:40,borderRadius:8,objectFit:'cover'}}/>}
+                      <span style={{fontSize:14,fontWeight:600,flex:1}}>{t(p.name)}</span>
+                      <span style={{fontSize:12,color:'var(--ink-soft)'}}>#{i+1}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{display:'flex',gap:10,marginTop:20}}>
+                <button onClick={()=>setShowReorder(false)} className="btn btn-outline" style={{flex:1}}>{L('Cancel','إلغاء')}</button>
+                <button onClick={()=>{reorderList.forEach((p,i)=>saveProduct({...p,sortOrder:i}));setShowReorder(false);}} className="btn btn-primary" style={{flex:1}}>{L('Save order','حفظ الترتيب')}</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {tab === 'orders' && <OrdersPanel />}
 
