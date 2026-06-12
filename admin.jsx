@@ -315,6 +315,7 @@ const AnalyticsPanel = () => {
   const L = (en, ar) => t({ en, ar });
   const [data, setData] = adUS({});
   const [loading, setLoading] = adUS(true);
+  const [chartRange, setChartRange] = adUS('7');
 
   React.useEffect(() => {
     const db = window._juyubDb;
@@ -398,7 +399,6 @@ const AnalyticsPanel = () => {
         {(() => {
           const DAYS_AR = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
           const DAYS_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-          const [chartRange, setChartRange] = adUS('7');
           const today = new Date();
           const allDays = [];
           const rangeDays = chartRange === 'all' ? 90 : parseInt(chartRange);
