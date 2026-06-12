@@ -246,6 +246,7 @@ const AdminPage = () => {
     orders, updateOrder, deleteOrder, creds, setCreds, logout, categories } = useStore();
   const [tab, setTab] = adUS('products');
   const [editing, setEditing] = adUS(null);
+  const [filterCat, setFilterCat] = adUS('all');
   const L = (en, ar) => t({ en, ar });
 
   return (
@@ -275,8 +276,16 @@ const AdminPage = () => {
               <div><h2 className="h2">{L('Products', 'المنتجات')}</h2><p className="muted">{products.length} {L('items', 'منتج')}</p></div>
               <button className="btn btn-primary" onClick={() => setEditing(blankProduct())}><Icon n="plus" style={{ width: 16 }} />{L('Add product', 'أضف منتج')}</button>
             </div>
+            <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
+              <button onClick={()=>setFilterCat('all')} style={{padding:'5px 14px',borderRadius:99,border:'1px solid',fontSize:13,cursor:'pointer',fontWeight:filterCat==='all'?700:400,borderColor:filterCat==='all'?'var(--maroon)':'var(--border)',background:filterCat==='all'?'var(--maroon)':'transparent',color:filterCat==='all'?'#fff':'var(--ink-soft)'}}>{L('All','الكل')}</button>
+              {(categories||[]).map(cat=>(
+                <button key={cat.en} onClick={()=>setFilterCat(cat.en)} style={{padding:'5px 14px',borderRadius:99,border:'1px solid',fontSize:13,cursor:'pointer',fontWeight:filterCat===cat.en?700:400,borderColor:filterCat===cat.en?'var(--maroon)':'var(--border)',background:filterCat===cat.en?'var(--maroon)':'transparent',color:filterCat===cat.en?'#fff':'var(--ink-soft)'}}>
+                  {lang==='ar'?cat.ar:cat.en}
+                </button>
+              ))}
+            </div>
             <div className="adm-table">
-              {products.map(p => {
+              {products.filter(p=>filterCat==='all'||p.cat===filterCat).map(p => {
                 const inStock = p.variants.some(v => v.stock);
                 return (
                   <div className="adm-row" key={p.id}>
@@ -288,6 +297,10 @@ const AdminPage = () => {
                     <span className={'a-pill ' + (inStock ? 'in' : 'out')}>{inStock ? L('In stock', 'متوفر') : L('Out', 'نفد')}</span>
                     <span className="a-price">{money(p.price)}</span>
                     <div className="adm-actions">
+                      <button className="a-iconbtn" onClick={()=>saveProduct({...p,hidden:!p.hidden})} title={p.hidden?L('Show','إظهار'):L('Hide','إخفاء')} style={{opacity:p.hidden?0.4:1}}>
+                        <Icon n={p.hidden?'eye':'eye'} style={{opacity:p.hidden?0.3:1}} />
+                        <span style={{fontSize:10,display:'block',marginTop:2}}>{p.hidden?L('Off','مخفي'):L('On','ظاهر')}</span>
+                      </button>
                       <button className="a-iconbtn" onClick={() => setEditing(JSON.parse(JSON.stringify(p)))} title={L('Edit', 'تعديل')}><Icon n="edit" /></button>
                       <button className="a-iconbtn danger" onClick={() => { if (confirm(L('Delete this product?', 'تحذفي المنتج ده؟'))) deleteProduct(p.id); }} title={L('Delete', 'حذف')}><Icon n="trash" /></button>
                     </div>
