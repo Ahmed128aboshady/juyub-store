@@ -191,24 +191,39 @@ const ContentEditor = () => {
         {sec === 'home' && <>
           <h3 className="h3">{L('Homepage sections', 'أقسام الصفحة الرئيسية')}</h3>
           <div className="adm-sec" style={{borderTop:0,marginTop:10,paddingTop:0}}>
-            <h4>{L('Featured products','المنتجات المميزة في الصفحة الرئيسية')}</h4>
-            <p className="muted" style={{fontSize:13,marginBottom:14}}>{L('Pick up to 8 products to show in the bestselling section. Leave empty to auto-show.','اختار لحد ٨ منتجات للسيكشن. سيبها فاضية للعرض التلقائي.')}</p>
-            <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:12}}>
-              {(products||[]).map(p=>{
-                const sel=(c.featuredIds||[]).includes(p.id);
-                const img=p.variants&&p.variants[0]&&p.variants[0].img;
-                return <div key={p.id} onClick={()=>{
-                  const cur=c.featuredIds||[];
-                  upd('featuredIds',sel?cur.filter(x=>x!==p.id):cur.length<8?[...cur,p.id]:cur);
-                }} style={{display:'flex',alignItems:'center',gap:8,padding:'6px 12px',borderRadius:10,cursor:'pointer',
-                  border:'2px solid',borderColor:sel?'var(--maroon)':'var(--border)',background:sel?'#fff5f5':'var(--bg)'}}>
-                  {img&&<img src={img} style={{width:32,height:32,borderRadius:6,objectFit:'cover'}}/>}
-                  <span style={{fontSize:13,fontWeight:sel?700:400,color:sel?'var(--maroon)':'var(--ink)'}}>{t(p.name)}</span>
-                  {sel&&<span style={{fontSize:11,color:'var(--maroon)',fontWeight:700}}>#{(c.featuredIds||[]).indexOf(p.id)+1}</span>}
-                </div>;
-              })}
-            </div>
-            {(c.featuredIds||[]).length>0&&<button onClick={()=>upd('featuredIds',[])} style={{fontSize:12,color:'var(--ink-soft)',background:'none',border:'none',cursor:'pointer',textDecoration:'underline'}}>{L('Clear selection','مسح الاختيار')}</button>}
+            <h4>{L('Featured products (Bestselling section)','المنتجات المميزة — سيكشن الأكثر مبيعاً')}</h4>
+            <p className="muted" style={{fontSize:13,marginBottom:14}}>{L('Pick up to 8 products. Leave empty to auto-show featured products.','اختار لحد ٨ منتجات. سيبها فاضية للعرض التلقائي.')}</p>
+            {(c.featuredIds||[]).map((id,i)=>{
+              const p=products.find(x=>x.id===id);
+              const img=p&&p.variants&&p.variants[0]&&p.variants[0].img;
+              return (
+                <div key={id} style={{display:'flex',alignItems:'center',gap:10,marginBottom:8,padding:'8px 12px',borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)'}}>
+                  <span style={{fontSize:12,fontWeight:700,color:'var(--ink-soft)',minWidth:18}}>#{i+1}</span>
+                  {img&&<img src={img} style={{width:36,height:36,borderRadius:6,objectFit:'cover'}}/>}
+                  <span style={{flex:1,fontSize:13,fontWeight:600}}>{p?t(p.name):id}</span>
+                  <button onClick={()=>upd('featuredIds',(c.featuredIds||[]).filter(x=>x!==id))} style={{background:'none',border:'none',cursor:'pointer',color:'var(--ink-soft)',fontSize:18,lineHeight:1}}>×</button>
+                </div>
+              );
+            })}
+            {(c.featuredIds||[]).length<8&&(
+              <select onChange={e=>{
+                const val=e.target.value;
+                if(!val) return;
+                const cur=c.featuredIds||[];
+                if(!cur.includes(val)) upd('featuredIds',[...cur,val]);
+                e.target.value='';
+              }} style={{width:'100%',padding:'10px 12px',borderRadius:8,border:'1px solid var(--border)',fontSize:13,fontFamily:'inherit',marginTop:4}}>
+                <option value="">{L('+ Add a product...','+ أضف منتج...')}</option>
+                {(products||[]).filter(p=>!(c.featuredIds||[]).includes(p.id)).map(p=>(
+                  <option key={p.id} value={p.id}>{t(p.name)}</option>
+                ))}
+              </select>
+            )}
+            {(c.featuredIds||[]).length>0&&(
+              <button onClick={()=>upd('featuredIds',[])} style={{fontSize:12,color:'var(--ink-soft)',background:'none',border:'none',cursor:'pointer',textDecoration:'underline',marginTop:8}}>
+                {L('Clear all (revert to auto)','مسح الكل (رجوع للتلقائي)')}
+              </button>
+            )}
           </div>
           {linkHint}
           <div className="adm-sec" style={{ borderTop: 0, marginTop: 10, paddingTop: 0 }}>
