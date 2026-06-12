@@ -111,10 +111,25 @@ const ProductEditor = ({ initial, onDone }) => {
       <div className="adm-grid">
         {field(L('SKU / code', 'الكود'), f.sku, v => upd({ sku: v }), 'B10-001')}
         <div className="field">
-          <label>{L('Category', 'الفئة')}</label>
-          <select className="input" value={f.cat} onChange={e => upd({ cat: e.target.value })}>
-            {categories.filter(c => c.id !== 'all').map(c => <option key={c.id} value={c.id}>{t(c)}</option>)}
-          </select>
+          <label>{L('Categories', 'الفئات')}</label>
+          <div style={{display:'flex',flexWrap:'wrap',gap:8,marginTop:4}}>
+            {categories.filter(c=>c.id!=='all').map(c=>{
+              const cats=Array.isArray(f.cats)?f.cats:(f.cat?[f.cat]:[]);
+              const sel=cats.includes(c.id);
+              return (
+                <label key={c.id} style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:99,cursor:'pointer',
+                  border:'1.5px solid',borderColor:sel?'var(--maroon)':'var(--border)',
+                  background:sel?'#fff5f5':'var(--bg)',userSelect:'none'}}>
+                  <input type="checkbox" checked={sel} style={{accentColor:'var(--maroon)'}} onChange={()=>{
+                    const cur=Array.isArray(f.cats)?f.cats:(f.cat?[f.cat]:[]);
+                    const next=sel?cur.filter(x=>x!==c.id):[...cur,c.id];
+                    upd({cats:next,cat:next[0]||''});
+                  }}/>
+                  <span style={{fontSize:13,fontWeight:sel?700:400,color:sel?'var(--maroon)':'var(--ink)'}}>{t(c)}</span>
+                </label>
+              );
+            })}
+          </div>
         </div>
       </div>
       <div className="adm-grid">
