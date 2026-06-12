@@ -181,7 +181,11 @@ const ProductCard = ({ p }) => {
     <article className="card" onClick={() => navigate('product', { id: p.id })}>
       <div className="card-media">
         {onSale && <span className="card-tag sale">-{Math.round((1 - p.price / p.compareAt) * 100)}%</span>}
-        {!onSale && p.featured && showBadges !== false && <span className="card-tag">{t({ en: 'Bestseller', ar: 'الأكثر طلباً' })}</span>}
+        {!onSale && p.featured    && showBadges !== false && <span className="card-tag" style={{background:'#540b14'}}>{t({en:'Bestseller',ar:'الأكثر مبيعاً'})}</span>}
+        {!onSale && p.juyubPicks  && showBadges !== false && <span className="card-tag" style={{background:'#0369a1'}}>{t({en:'JUYUB Picks',ar:'مختارات جيوب'})}</span>}
+        {!onSale && p.newArrival  && showBadges !== false && <span className="card-tag" style={{background:'#047857'}}>{t({en:'New Arrival',ar:'وصل حديثاً'})}</span>}
+        {!onSale && p.limitedEd   && showBadges !== false && <span className="card-tag" style={{background:'#7c3aed'}}>{t({en:'Limited',ar:'إصدار محدود'})}</span>}
+        {p.onSale && !onSale      && showBadges !== false && <span className="card-tag sale">{t({en:'On Sale',ar:'تخفيض'})}</span>}
         <button className="card-fav" onClick={(e) => e.stopPropagation()} aria-label="Save"><Icon n="heart" /></button>
         <img src={v.img} alt={t(p.name)} />
         {!anyStock && <div className="card-oos"><span>{t({ en: 'Out of stock', ar: 'نفد المخزون' })}</span></div>}
