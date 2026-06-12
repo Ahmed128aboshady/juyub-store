@@ -149,6 +149,14 @@ const ProductPage = () => {
   const [lightbox, setLightbox] = uS(false);
   const [lbIdx, setLbIdx] = uS(0);
   uE(() => {
+    if (lightbox) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [lightbox]);
+  uE(() => {
     const fi = firstInStock < 0 ? 0 : firstInStock;
     setVi(fi); setQty(1); window.scrollTo(0, 0);
   }, [p.id]);
