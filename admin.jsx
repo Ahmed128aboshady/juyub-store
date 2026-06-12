@@ -74,7 +74,7 @@ const blankProduct = () => ({
 
 /* ---------- Product editor ---------- */
 const ProductEditor = ({ initial, onDone }) => {
-  const { t, lang, saveProduct, categories } = useStore();
+  const { t, lang, saveProduct, categories, products } = useStore();
   const [f, setF] = adUS(() => JSON.parse(JSON.stringify(initial)));
   const upd = (patch) => setF(s => ({ ...s, ...patch }));
   const updName = (field, lng, val) => setF(s => ({ ...s, [field]: { ...s[field], [lng]: val } }));
@@ -86,7 +86,12 @@ const ProductEditor = ({ initial, onDone }) => {
 
   const save = () => {
     if (!f.name.en.trim() && !f.name.ar.trim()) { alert(t({ en: 'Please enter a product name', ar: 'اكتبي اسم المنتج' })); return; }
-    const clean = { ...f, price: Number(f.price) || 0, compareAt: Number(f.compareAt) || 0, variants: f.variants.map(v => ({ ...v, shots: (v.shots || []).filter(Boolean) })) };
+    const latest = products.find(x => x.id === f.id) || {};
+    const clean = { ...f, price: Number(f.price) || 0, compareAt: Number(f.compareAt) || 0, variants: f.variants.map(v => ({ ...v, shots: (v.shots || []).filter(Boolean) })),
+      featured: f.featured !== undefined ? f.featured : latest.featured,
+      sortOrder: f.sortOrder !== undefined ? f.sortOrder : latest.sortOrder,
+      hidden: f.hidden !== undefined ? f.hidden : latest.hidden,
+    };
     saveProduct(clean);
     onDone();
   };
