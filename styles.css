@@ -665,15 +665,15 @@ a.ord-v{color:var(--maroon)}
   .adm-row .a-price,.adm-row .a-pill{display:none}
 }
 
-/* Lightbox: hide everything else */
+/* Lightbox: hide overlapping UI elements */
 body.lightbox-open .hdr,
 body.lightbox-open .fs-social,
 body.lightbox-open .float-wa,
 body.lightbox-open .admin-bar,
 body.lightbox-open .ftr,
-body.lightbox-open .cart-drawer,
-body.lightbox-open main > *:not(.pdp-lightbox-wrap) {
+body.lightbox-open .cart-drawer {
   visibility: hidden !important;
+  z-index: 0 !important;
 }
 body.lightbox-open {
   overflow: hidden !important;
