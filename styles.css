@@ -130,7 +130,7 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:var(--disp-weight);line-
 [data-lang="ar"] .btn{text-transform:none;font-size:15px}
 .btn-primary{background:var(--accent);color:var(--ivory)}
 .btn-primary:hover{background:var(--maroon-deep);transform:translateY(-2px)}
-.btn-outline{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.4px var(--ink)}
+.btn-outline{background:radial-gradient(120% 100% at 50% 0%,#fff,#efe7da);color:var(--ink);box-shadow:inset 0 0 0 1.4px var(--ink)}
 .btn-outline:hover{background:var(--ink);color:var(--ivory)}
 .btn-ghost{padding-inline:0;color:var(--maroon);border-bottom:1.4px solid var(--maroon);border-radius:0;padding-bottom:3px}
 .btn-block{width:100%}
@@ -240,9 +240,9 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:var(--disp-weight);line-
 .hero-a .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(30px,5vw,70px);align-items:center}
 .hero-copy{display:flex;flex-direction:column;gap:24px;align-items:flex-start;max-width:34ch}
 .hero-copy .h-hero{margin-block:2px}
-.hero-art{position:relative;aspect-ratio:4/5;border-radius:5px;overflow:hidden;background:transparent}
+.hero-art{position:relative;aspect-ratio:4/5;border-radius:5px;overflow:hidden;background:radial-gradient(120% 90% at 70% 10%,#fff 0%,var(--sand) 100%)}
 .hero-art .kang{position:absolute;inset:0;background:url(https://juyub.odoo.com/web/image/1083) center/68% no-repeat;opacity:.5;mix-blend-mode:luminosity}
-.hero-art .prod{position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat}
+.hero-art .prod{position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat;border-radius:inherit}
 .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
 
 /* hero B — full bleed maroon */
@@ -256,7 +256,7 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:var(--disp-weight);line-
 .hero-b .lede{color:rgba(246,241,231,.82)}
 .hero-b .btn-outline{box-shadow:inset 0 0 0 1.4px var(--ivory);color:var(--ivory)}
 .hero-b .btn-outline:hover{background:var(--ivory);color:var(--maroon)}
-.hero-b-art{position:relative;aspect-ratio:1/1;width:100%;max-width:430px;margin-inline:auto;border-radius:var(--radius-lg);overflow:hidden;background:transparent}
+.hero-b-art{position:relative;aspect-ratio:1/1;width:100%;max-width:430px;margin-inline:auto;border-radius:var(--radius-lg);overflow:hidden;background:radial-gradient(120% 100% at 50% 0%,#fff,#efe7da)}
 .hero-b-art img{position:absolute;inset:5%;width:90%;height:90%;object-fit:contain;filter:drop-shadow(0 24px 36px rgba(0,0,0,.25))}
 .hero-emblem{width:84px;height:84px;margin-bottom:6px}
 
