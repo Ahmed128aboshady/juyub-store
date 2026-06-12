@@ -16,11 +16,11 @@ const ShopPage = () => {
     const c = {}; categories.forEach(k => c[k.id] = k.id === 'all' ? products.length : products.filter(p => p.cat === k.id).length);
     return c;
   }, [products, categories]);
+  const featuredList = products.filter(p => p.featured && !p.hidden).sort((a,b)=>(a.sortOrder??999)-(b.sortOrder??999));
   let list = (cat === 'all' ? [...products] : products.filter(p => p.cat === cat)).filter(p => !p.hidden);
   if (sort === 'low') list.sort((a, b) => a.price - b.price);
   if (sort === 'high') list.sort((a, b) => b.price - a.price);
   if (sort === 'default') list.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
-  const featuredList = list.filter(p => p.featured);
   const ITEMS_PER_PAGE = 15;
   const totalPages = Math.ceil(list.length / ITEMS_PER_PAGE);
   const pagedList = list.slice((page-1)*ITEMS_PER_PAGE, page*ITEMS_PER_PAGE);
@@ -35,6 +35,17 @@ const ShopPage = () => {
           <p className="lede">{t((content.shop && content.shop.lede) || { en: 'A curated edit of leather bags and wallets — selected to complement the modern everyday.', ar: 'تشكيلة مختارة من شنط ومحافظ الجلد — منتقاة عشان تكمّل يومك العصري.' })}</p>
         </div>
       </div>
+      {featuredList.length > 0 && (
+        <section className="wrap" style={{paddingTop:32,paddingBottom:0}}>
+          <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
+            <span style={{fontSize:12,fontWeight:700,letterSpacing:'0.1em',color:'var(--maroon)',textTransform:'uppercase'}}>★ {t({en:'Featured Picks',ar:'مختارات مميزة'})}</span>
+            <div style={{flex:1,height:1,background:'var(--border)'}}/>
+          </div>
+          <div className="grid-products shop-grid">
+            {featuredList.map(p => <ProductCard key={p.id} p={p} />)}
+          </div>
+        </section>
+      )}
       <section className="wrap section-sm">
         <div className="shop-layout">
           <aside className="filters">
@@ -76,18 +87,6 @@ const ShopPage = () => {
                 <option value="high">{lang === 'en' ? 'Price: High to Low' : 'السعر: من الأعلى'}</option>
               </select>
             </div>
-            {featuredList.length > 0 && (
-              <div style={{marginBottom:32}}>
-                <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
-                  <span style={{fontSize:11,fontWeight:700,letterSpacing:'0.1em',color:'var(--maroon)',textTransform:'uppercase'}}>★ {t({en:'Featured Picks',ar:'مختارات مميزة'})}</span>
-                  <div style={{flex:1,height:1,background:'var(--border)'}}/>
-                </div>
-                <div className="grid-products shop-grid">
-                  {featuredList.map(p => <ProductCard key={p.id} p={p} />)}
-                </div>
-                <div style={{height:1,background:'var(--border)',margin:'28px 0'}}/>
-              </div>
-            )}
             <div className="grid-products shop-grid">
               {pagedList.map(p => <ProductCard key={p.id} p={p} />)}
             </div>
