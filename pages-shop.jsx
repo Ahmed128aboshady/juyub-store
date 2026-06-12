@@ -10,6 +10,7 @@ const ShopPage = () => {
   const [cat, setCat] = uS(route.params.cat || 'all');
   const [sort, setSort] = uS('default');
   const [page, setPage] = uS(1);
+  const [featSlide, setFeatSlide] = uS(0);
   uE(() => { if (route.params.cat) setCat(route.params.cat); }, [route.params.cat]);
 
   const counts = uM(() => {
@@ -41,8 +42,24 @@ const ShopPage = () => {
             <span style={{fontSize:12,fontWeight:700,letterSpacing:'0.1em',color:'var(--maroon)',textTransform:'uppercase'}}>★ {t({en:'Featured Picks',ar:'مختارات مميزة'})}</span>
             <div style={{flex:1,height:1,background:'var(--border)'}}/>
           </div>
-          <div className="grid-products shop-grid">
-            {featuredList.map(p => <ProductCard key={p.id} p={p} />)}
+          <div style={{position:'relative'}}>
+            {/* Carousel track */}
+            <div style={{overflow:'hidden'}}>
+              <div style={{display:'flex',gap:20,transform:`translateX(calc(-${featSlide * (100/3)}% - ${featSlide * 20/3}px))`,transition:'transform 0.4s cubic-bezier(0.4,0,0.2,1)'}}>
+                {featuredList.map(p => (
+                  <div key={p.id} style={{flex:'0 0 calc(33.333% - 14px)',minWidth:'calc(33.333% - 14px)'}}>
+                    <ProductCard p={p} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Arrows */}
+            {featSlide > 0 && (
+              <button onClick={()=>setFeatSlide(s=>s-1)} style={{position:'absolute',top:'50%',left:-20,transform:'translateY(-50%)',width:44,height:44,borderRadius:'50%',background:'#fff',border:'1px solid var(--border)',boxShadow:'0 4px 16px rgba(0,0,0,0.12)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,zIndex:2,color:'var(--ink)'}}>‹</button>
+            )}
+            {featSlide < featuredList.length - 3 && (
+              <button onClick={()=>setFeatSlide(s=>s+1)} style={{position:'absolute',top:'50%',right:-20,transform:'translateY(-50%)',width:44,height:44,borderRadius:'50%',background:'#fff',border:'1px solid var(--border)',boxShadow:'0 4px 16px rgba(0,0,0,0.12)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,zIndex:2,color:'var(--ink)'}}>›</button>
+            )}
           </div>
         </section>
       )}
