@@ -339,7 +339,7 @@ const CheckoutPage = () => {
             {id:'instapay', en:'InstaPay', ar:'انستاباي', descEn:'Paid in full before shipment.', descAr:'الدفع بشكل كامل قبل شحن المنتج.'},
           ].map(opt => (
             <div key={opt.id} className="pay-opt" onClick={()=>setPayMethod(opt.id)}
-              style={{cursor:'pointer',marginBottom:10,borderColor:payMethod===opt.id?'var(--maroon)':'var(--border)',background:payMethod===opt.id?'#fff5f5':''}}>
+              style={{cursor:'pointer',marginBottom:10,border:`2px solid ${payMethod===opt.id?'var(--maroon)':'transparent'}`,background:payMethod===opt.id?'#fff5f5':'var(--bg)'}}>
               <div style={{width:20,height:20,borderRadius:'50%',border:'2px solid',borderColor:payMethod===opt.id?'var(--maroon)':'#ccc',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
                 {payMethod===opt.id&&<div style={{width:10,height:10,borderRadius:'50%',background:'var(--maroon)'}}/>}
               </div>
