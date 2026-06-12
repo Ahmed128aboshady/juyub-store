@@ -254,7 +254,7 @@ h1,h2,h3,h4{font-family:var(--font-display);font-weight:var(--disp-weight);line-
 .hero-b .eyebrow{color:var(--taupe)}
 .hero-b h1{color:var(--ivory)}
 .hero-b .lede{color:rgba(246,241,231,.82)}
-.hero-b .btn-outline{box-shadow:inset 0 0 0 1.4px var(--ivory);color:var(--ivory)}
+.hero-b .btn-outline{box-shadow:inset 0 0 0 1.4px var(--ivory);color:var(--ivory);background:transparent}
 .hero-b .btn-outline:hover{background:var(--ivory);color:var(--maroon)}
 .hero-b-art{position:relative;aspect-ratio:1/1;width:100%;max-width:430px;margin-inline:auto;border-radius:var(--radius-lg);overflow:hidden;background:radial-gradient(120% 100% at 50% 0%,#fff,#efe7da)}
 .hero-b-art img{position:absolute;inset:5%;width:90%;height:90%;object-fit:contain;filter:drop-shadow(0 24px 36px rgba(0,0,0,.25))}
