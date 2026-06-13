@@ -1250,47 +1250,34 @@ body.lightbox-open {
 
 
 /* ===== SHOP CAROUSEL — MOBILE ONLY ===== */
-/* Desktop: show grid, hide carousel */
 .shop-carousel-mob{ display: none; }
 .shop-grid-desk{ display: grid; }
 .shop-pagination-desk{ display: flex; }
 
 @media(max-width:860px){
-  /* Hide desktop grid & pagination, show carousel */
   .shop-grid-desk{ display: none !important; }
   .shop-pagination-desk{ display: none !important; }
-  .shop-carousel-mob{
-    display: block;
-    margin-top: 4px;
-  }
-  /* Card inside carousel: full width, taller image */
+  .shop-carousel-mob{ display: block; margin-top: 4px; }
+
+  /* Match featured card sizing exactly — 1:1 image, normal card body */
   .shop-carousel-mob .card-media{
-    aspect-ratio: 4/5;
-    border-radius: 16px;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-lg);
   }
   .shop-carousel-mob .card-body{
-    padding: 14px 4px 8px;
-    gap: 6px;
+    padding: 12px 4px 4px;
+    gap: 5px;
   }
   .shop-carousel-mob .card-name{
-    font-size: clamp(18px,4.5vw,22px);
-    -webkit-line-clamp: unset;
+    font-size: clamp(16px,4vw,20px);
+    line-height: 1.15;
     display: block;
     overflow: visible;
+    -webkit-line-clamp: unset;
   }
-  .shop-carousel-mob .card-price{
-    font-size: 18px;
-  }
-  [data-dir="a"] .shop-carousel-mob .card-price{ font-size: 22px; }
-  .shop-carousel-mob .card-tag{
-    font-size: 11px;
-    padding: 6px 12px;
-    top: 12px;
-    inset-inline-start: 12px;
-  }
-  .shop-carousel-mob .card-cat{
-    font-size: 12px;
-    letter-spacing: .1em;
-  }
-  .shop-carousel-mob .sw{ width: 16px; height: 16px; }
+  .shop-carousel-mob .card-price{ font-size: 16px; }
+  [data-dir="a"] .shop-carousel-mob .card-price{ font-size: 19px; }
+  .shop-carousel-mob .card-tag{ font-size: 10.5px; padding: 5px 10px; top: 10px; inset-inline-start: 10px; }
+  .shop-carousel-mob .card-cat{ font-size: 11px; }
+  .shop-carousel-mob .sw{ width: 15px; height: 15px; }
 }
