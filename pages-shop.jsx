@@ -36,33 +36,78 @@ const ShopPage = () => {
           <p className="lede">{t((content.shop && content.shop.lede) || { en: 'A curated edit of leather bags and wallets — selected to complement the modern everyday.', ar: 'تشكيلة مختارة من شنط ومحافظ الجلد — منتقاة عشان تكمّل يومك العصري.' })}</p>
         </div>
       </div>
-      {featuredList.length > 0 && (
-        <section className="wrap" style={{paddingTop:32,paddingBottom:0}}>
-          <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
-            <span style={{fontSize:12,fontWeight:700,letterSpacing:'0.1em',color:'var(--maroon)',textTransform:'uppercase'}}>★ {t({en:'Featured Picks',ar:'مختارات مميزة'})}</span>
-            <div style={{flex:1,height:1,background:'var(--border)'}}/>
-          </div>
-          <div style={{position:'relative'}}>
-            {/* Carousel track - 1 card on mobile, 3 on desktop */}
-            <div style={{overflow:'hidden'}}>
-              <div className="feat-carousel-track" style={{display:'flex',gap:20,transform:`translateX(calc(-${featSlide * (100/3)}% - ${featSlide * 20/3}px))`,transition:'transform 0.4s cubic-bezier(0.4,0,0.2,1)'}}>
-                {featuredList.map(p => (
-                  <div key={p.id} style={{flex:'0 0 calc(33.333% - 14px)',minWidth:'calc(33.333% - 14px)'}}>
-                    <ProductCard p={p} />
-                  </div>
+      {featuredList.length > 0 && (() => {
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 860;
+        const visibleCount = isMobile ? 1 : 3;
+        const maxSlide = Math.max(0, featuredList.length - visibleCount);
+        const pct = isMobile ? 90 : 100/3;
+        const gapPx = isMobile ? 14 : 20;
+        // touch/swipe
+        const touchRef = useRef(null);
+        const onTouchStart = e => { touchRef.current = e.touches[0].clientX; };
+        const onTouchEnd = e => {
+          if (touchRef.current == null) return;
+          const dx = touchRef.current - e.changedTouches[0].clientX;
+          if (Math.abs(dx) > 40) {
+            if (dx > 0) setFeatSlide(s => Math.min(maxSlide, s+1));
+            else setFeatSlide(s => Math.max(0, s-1));
+          }
+          touchRef.current = null;
+        };
+        return (
+          <section className="wrap" style={{paddingTop:32,paddingBottom:0}}>
+            <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
+              <span style={{fontSize:12,fontWeight:700,letterSpacing:'0.1em',color:'var(--maroon)',textTransform:'uppercase'}}>★ {t({en:'Featured Picks',ar:'مختارات مميزة'})}</span>
+              <div style={{flex:1,height:1,background:'var(--line)'}}/>
+            </div>
+            <div style={{position:'relative', margin:'0 -4px'}}>
+              {/* Track */}
+              <div style={{overflow:'hidden', padding:'4px 4px 8px'}}
+                onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+                <div className="feat-carousel-track" style={{
+                  display:'flex', gap:gapPx,
+                  transform:`translateX(calc(-${featSlide * pct}% - ${featSlide * gapPx}px))`,
+                  transition:'transform 0.4s cubic-bezier(0.4,0,0.2,1)'
+                }}>
+                  {featuredList.map(p => (
+                    <div key={p.id} style={{flex:`0 0 calc(${pct}% - ${gapPx * (visibleCount-1)/visibleCount}px)`, minWidth:`calc(${pct}% - ${gapPx * (visibleCount-1)/visibleCount}px)`}}>
+                      <ProductCard p={p} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Arrows — inside the container, not overflowing */}
+              {featSlide > 0 && (
+                <button onClick={()=>setFeatSlide(s=>s-1)}
+                  style={{position:'absolute',top:'40%',left:4,transform:'translateY(-50%)',
+                    width:40,height:40,borderRadius:'50%',background:'var(--ivory)',
+                    border:'1px solid var(--line-strong)',boxShadow:'0 4px 14px rgba(0,0,0,.14)',
+                    cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',
+                    fontSize:18,zIndex:3,color:'var(--ink)'}}>‹</button>
+              )}
+              {featSlide < maxSlide && (
+                <button onClick={()=>setFeatSlide(s=>s+1)}
+                  style={{position:'absolute',top:'40%',right:4,transform:'translateY(-50%)',
+                    width:40,height:40,borderRadius:'50%',background:'var(--ivory)',
+                    border:'1px solid var(--line-strong)',boxShadow:'0 4px 14px rgba(0,0,0,.14)',
+                    cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',
+                    fontSize:18,zIndex:3,color:'var(--ink)'}}>›</button>
+              )}
+            </div>
+            {/* Dot indicators — visible on mobile */}
+            {featuredList.length > 1 && (
+              <div style={{display:'flex',justifyContent:'center',gap:7,marginTop:14}}>
+                {Array.from({length:maxSlide+1},(_,i)=>i).map(i=>(
+                  <button key={i} onClick={()=>setFeatSlide(i)}
+                    style={{width:i===featSlide?20:7,height:7,borderRadius:4,padding:0,
+                      background:i===featSlide?'var(--maroon)':'var(--taupe)',
+                      transition:'all .25s',border:'none',cursor:'pointer'}} />
                 ))}
               </div>
-            </div>
-            {/* Arrows */}
-            {featSlide > 0 && (
-              <button onClick={()=>setFeatSlide(s=>s-1)} style={{position:'absolute',top:'50%',left:-20,transform:'translateY(-50%)',width:44,height:44,borderRadius:'50%',background:'#fff',border:'1px solid var(--border)',boxShadow:'0 4px 16px rgba(0,0,0,0.12)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,zIndex:2,color:'var(--ink)'}}>‹</button>
             )}
-            {featSlide < featuredList.length - 3 && (
-              <button onClick={()=>setFeatSlide(s=>s+1)} style={{position:'absolute',top:'50%',right:-20,transform:'translateY(-50%)',width:44,height:44,borderRadius:'50%',background:'#fff',border:'1px solid var(--border)',boxShadow:'0 4px 16px rgba(0,0,0,0.12)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,zIndex:2,color:'var(--ink)'}}>›</button>
-            )}
-          </div>
-        </section>
-      )}
+          </section>
+        );
+      })()}
       <section className="wrap section-sm">
         <div className="shop-layout">
           <aside className="filters">
@@ -464,3 +509,4 @@ const ConfirmPage = () => {
 };
 
 Object.assign(window, { ShopPage, ProductPage, CheckoutPage, ConfirmPage, SPEC_LABELS, waLink });
+
