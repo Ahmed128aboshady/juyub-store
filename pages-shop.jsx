@@ -156,11 +156,11 @@ const ShopPage = () => {
                   onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
                   <div style={{
                     display:'flex', gap:14,
-                    transform:`translateX(calc(-${shopSlide * 90}% - ${shopSlide * 14}px))`,
+                    transform:`translateX(calc(-${shopSlide * 66}% - ${shopSlide * 14}px))`,
                     transition:'transform 0.38s cubic-bezier(0.4,0,0.2,1)'
                   }}>
                     {pagedList.map((p) => (
-                      <div key={p.id} style={{flex:'0 0 calc(90% - 7px)', minWidth:'calc(90% - 7px)'}}>
+                      <div key={p.id} style={{flex:'0 0 calc(66% - 7px)', minWidth:'calc(66% - 7px)'}}>
                         <ProductCard p={p} />
                       </div>
                     ))}
@@ -557,6 +557,7 @@ const ConfirmPage = () => {
 };
 
 Object.assign(window, { ShopPage, ProductPage, CheckoutPage, ConfirmPage, SPEC_LABELS, waLink });
+
 
 
 
