@@ -149,44 +149,32 @@ const ShopPage = () => {
               {pagedList.map(p => <ProductCard key={p.id} p={p} />)}
             </div>
 
-            {/* ── MOBILE: carousel same style as featured ── */}
+            {/* ── MOBILE: scroll-snap carousel ── */}
             <div className="shop-carousel-mob">
-              <div style={{position:'relative', margin:'0 -4px'}}>
-                <div style={{overflow:'hidden', padding:'4px 4px 8px'}}
-                  onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-                  <div style={{
-                    display:'flex', gap:14,
-                    transform:`translateX(calc(-${shopSlide * 66}% - ${shopSlide * 14}px))`,
-                    transition:'transform 0.38s cubic-bezier(0.4,0,0.2,1)'
-                  }}>
-                    {pagedList.map((p) => (
-                      <div key={p.id} style={{flex:'0 0 calc(66% - 7px)', minWidth:'calc(66% - 7px)'}}>
-                        <ProductCard p={p} />
-                      </div>
-                    ))}
+              <div
+                className="shop-snap-track"
+                ref={el => { window._shopTrack = el; }}
+                onScroll={e => {
+                  const el = e.currentTarget;
+                  const cardW = el.scrollWidth / pagedList.length;
+                  const idx = Math.round(Math.abs(el.scrollLeft) / cardW);
+                  if (idx !== shopSlide) setShopSlide(idx);
+                }}
+              >
+                {pagedList.map((p) => (
+                  <div key={p.id} className="shop-snap-item">
+                    <ProductCard p={p} />
                   </div>
-                </div>
-                {shopSlide > 0 && (
-                  <button onClick={()=>setShopSlide(s=>s-1)}
-                    style={{position:'absolute',top:'40%',left:4,transform:'translateY(-50%)',
-                      width:40,height:40,borderRadius:'50%',background:'var(--ivory)',
-                      border:'1px solid var(--line-strong)',boxShadow:'0 4px 14px rgba(0,0,0,.14)',
-                      cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',
-                      fontSize:20,zIndex:3,color:'var(--ink)'}}>‹</button>
-                )}
-                {shopSlide < maxShopSlide && (
-                  <button onClick={()=>setShopSlide(s=>s+1)}
-                    style={{position:'absolute',top:'40%',right:4,transform:'translateY(-50%)',
-                      width:40,height:40,borderRadius:'50%',background:'var(--ivory)',
-                      border:'1px solid var(--line-strong)',boxShadow:'0 4px 14px rgba(0,0,0,.14)',
-                      cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',
-                      fontSize:20,zIndex:3,color:'var(--ink)'}}>›</button>
-                )}
+                ))}
               </div>
               {/* Dots */}
-              <div style={{display:'flex',justifyContent:'center',gap:7,marginTop:14}}>
+              <div style={{display:'flex',justifyContent:'center',gap:7,marginTop:14,flexWrap:'wrap'}}>
                 {pagedList.map((_,i)=>(
-                  <button key={i} onClick={()=>setShopSlide(i)}
+                  <button key={i}
+                    onClick={()=>{
+                      const el = window._shopTrack;
+                      if(el){ const cardW = el.scrollWidth / pagedList.length; el.scrollTo({left: cardW*i, behavior:'smooth'}); }
+                    }}
                     style={{width:i===shopSlide?22:7,height:7,borderRadius:4,padding:0,
                       background:i===shopSlide?'var(--maroon)':'var(--taupe)',
                       transition:'all .25s',border:'none',cursor:'pointer'}} />
