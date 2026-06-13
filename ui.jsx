@@ -171,6 +171,21 @@ const Marquee = () => {
 };
 
 /* ---------- Product card ---------- */
+
+/* Split swatch: if hex contains "/" renders two half-circles */
+const SwatchDot = ({ hex, className, style, onClick, title }) => {
+  const parts = (hex || '').split('/').map(s => s.trim());
+  if (parts.length >= 2) {
+    return (
+      <span className={className} style={{ ...style, background: 'none', overflow: 'hidden', position: 'relative' }} onClick={onClick} title={title}>
+        <span style={{ position: 'absolute', inset: 0, clipPath: 'polygon(0 0,50% 0,50% 100%,0 100%)', background: parts[0] }} />
+        <span style={{ position: 'absolute', inset: 0, clipPath: 'polygon(50% 0,100% 0,100% 100%,50% 100%)', background: parts[1] }} />
+      </span>
+    );
+  }
+  return <span className={className} style={{ ...style, background: hex }} onClick={onClick} title={title} />;
+};
+
 const ProductCard = ({ p }) => {
   const { navigate, t, money, addToCart, toast, showBadges, categories } = useStore();
   const v = p.variants[0];
@@ -206,7 +221,7 @@ const ProductCard = ({ p }) => {
           </span>
           {p.variants.length > 1 && (
             <div className="card-swatches">
-              {p.variants.map((x, i) => <span key={i} className="sw" style={{ background: x.color.hex }} title={t(x.color)} />)}
+              {p.variants.map((x, i) => <SwatchDot key={i} className="sw" hex={x.color.hex} title={t(x.color)} />)}
             </div>
           )}
         </div>
