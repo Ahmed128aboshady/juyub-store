@@ -711,3 +711,379 @@ body.lightbox-open {
   .shop-grid{grid-template-columns:1fr}
   .feat-carousel-track > div{flex:0 0 100% !important;min-width:100% !important}
 }
+
+
+/* ===== MOBILE RESPONSIVENESS — MAJOR IMPROVEMENTS ===== */
+
+/* ---------- Featured Carousel: fix arrows overflow on mobile ---------- */
+@media(max-width:860px){
+  /* Carousel arrows: keep inside viewport */
+  .feat-carousel-track > div{
+    flex: 0 0 80% !important;
+    min-width: 80% !important;
+  }
+}
+@media(max-width:520px){
+  .feat-carousel-track > div{
+    flex: 0 0 90% !important;
+    min-width: 90% !important;
+  }
+}
+
+/* ---------- Header: mobile refinements ---------- */
+@media(max-width:860px){
+  .hdr-inner{
+    height: var(--hdr-h, 62px);
+    padding-inline: 14px;
+    gap: 10px;
+  }
+  .brand img{ height: 32px; }
+  .brand-word{ font-size: 20px; }
+  .hdr-actions{ gap: 2px; }
+  .icon-btn{ width: 38px; height: 38px; }
+  .icon-btn svg{ width: 19px; height: 19px; }
+  .lang-toggle.desk{ display:none; }
+  /* announce bar: smaller */
+  .announce{
+    font-size: 11.5px;
+    padding: 7px 12px;
+    letter-spacing: .06em;
+  }
+}
+
+/* ---------- Mobile nav drawer: bigger tap targets ---------- */
+@media(max-width:860px){
+  .mnav{
+    padding: 20px 20px 40px;
+    gap: 0;
+    overflow-y: auto;
+  }
+  .mnav a{
+    font-size: 26px;
+    padding: 13px 0;
+  }
+}
+
+/* ---------- Hero A: mobile stack ---------- */
+@media(max-width:860px){
+  .hero-a{ padding-block: clamp(28px,5vw,60px); }
+  .hero-copy{ max-width: none; align-items: center; text-align: center; }
+  .hero-actions{ justify-content: center; }
+  .hero-art{ margin-top: 24px; }
+  /* reverse: show art first on mobile */
+  .hero-a .wrap{
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 20px;
+  }
+}
+
+/* ---------- Hero B: mobile ---------- */
+@media(max-width:860px){
+  .hero-b{ min-height: clamp(420px,65vh,600px); }
+  .hero-b .wrap{
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 16px;
+  }
+  .hero-b .hero-copy{ text-align: center; align-items: center; }
+  .hero-b-art{ max-width: 260px; margin-inline: auto; }
+  .hero-b .h-hero{ font-size: clamp(34px,8vw,56px); }
+}
+
+/* ---------- Shop layout: mobile chip categories scroll ---------- */
+@media(max-width:860px){
+  /* horizontal scroll for category chips */
+  .chip-row{
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    gap: 8px;
+    padding-bottom: 4px;
+    /* hide scrollbar */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .chip-row::-webkit-scrollbar{ display: none; }
+  .chip{
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    font-size: 13px;
+    padding: 9px 16px;
+    white-space: nowrap;
+  }
+  /* toolbar: stack on mobile */
+  .shop-toolbar{
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .select{
+    width: 100%;
+    font-size: 16px; /* prevent iOS zoom */
+    padding: 13px 16px;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23241c1a' stroke-width='2'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+  }
+  [dir="rtl"] .select{
+    background-position: left 14px center;
+    padding-left: 40px;
+    padding-right: 16px;
+  }
+}
+
+/* ---------- Product grid: spacing ---------- */
+@media(max-width:860px){
+  .shop-grid{ gap: 14px; }
+  .card-name{ font-size: 15px; }
+  .card-price{ font-size: 15px; }
+  [data-dir="a"] .card-price{ font-size: 18px; }
+}
+@media(max-width:400px){
+  .shop-grid{ gap: 10px; }
+}
+
+/* ---------- Product detail page: mobile UX ---------- */
+@media(max-width:860px){
+  /* Gallery: give main image more height */
+  .pdp-main{
+    border-radius: 12px;
+    aspect-ratio: 1/1;
+  }
+  .pdp-thumbs{
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+  }
+  .pdp-thumbs::-webkit-scrollbar{ display:none; }
+  .pdp-thumb{
+    flex-shrink: 0;
+    width: 68px;
+    height: 68px;
+  }
+
+  /* Sticky CTA bar at bottom on mobile */
+  .pdp-sticky-bar{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--bg);
+    border-top: 1px solid var(--line);
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    box-shadow: 0 -8px 24px -8px rgba(58,8,16,.2);
+  }
+  .pdp-sticky-bar .btn{ flex: 1; font-size: 14px; padding: 14px 16px; }
+  .pdp-sticky-bar .btn-wa{ flex: 0 0 52px; padding: 14px; }
+
+  /* Add bottom padding to page so content clears sticky bar */
+  .pdp{ padding-bottom: 90px; }
+
+  /* Price: bigger & clearer */
+  .pdp-price{ font-size: clamp(22px,5vw,30px); }
+
+  /* Specs table: full width */
+  .spec-row{ gap: 8px; }
+  .spec-row dt{ font-size: 13.5px; }
+  .spec-row dd{ font-size: 13.5px; }
+
+  /* Swatch size: easier tap */
+  .swatch{ width: 38px; height: 38px; }
+
+  /* Qty control: bigger */
+  .qty button{ width: 50px; height: 52px; font-size: 20px; }
+  .qty span{ min-width: 44px; font-size: 17px; }
+
+  /* CTA buttons: full width on mobile */
+  .pdp-cta{ flex-direction: column; gap: 10px; }
+  .pdp-cta .btn{ min-width: unset; width: 100%; }
+
+  /* Trust row icons */
+  .trust{ font-size: 12.5px; }
+
+  /* Description text */
+  .pdp-info > p{ font-size: 15px; line-height: 1.75; }
+}
+
+/* ---------- Cart drawer: mobile full-height ---------- */
+@media(max-width:480px){
+  .drawer{
+    width: 100vw;
+    border-radius: 0;
+  }
+  .drawer-head{ padding: 18px 18px; }
+  .drawer-body{ padding: 4px 18px; }
+  .drawer-foot{ padding: 16px 18px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+  .line-item{ gap: 12px; }
+  .li-img{ width: 68px; height: 68px; }
+  .li-name{ font-size: 15px; }
+}
+
+/* ---------- Checkout: mobile ---------- */
+@media(max-width:860px){
+  .checkout{ gap: 24px; }
+  /* order summary: collapsible on mobile — show at top */
+  .osummary{
+    border-radius: 12px;
+    padding: 20px;
+  }
+  /* Input font-size 16px to prevent iOS zoom */
+  .input{ font-size: 16px; }
+  .checkout .btn-lg{ padding: 17px 24px; font-size: 15px; }
+}
+
+/* ---------- Footer: mobile ---------- */
+@media(max-width:860px){
+  .ftr-inner{
+    gap: clamp(20px,4vw,40px);
+  }
+  .ftr-tag{ font-size: clamp(17px,4vw,22px); }
+}
+@media(max-width:520px){
+  .ftr-inner{
+    grid-template-columns: 1fr;
+    padding-top: clamp(32px,5vw,56px);
+  }
+  .ftr-logo img{ height: 56px; }
+  /* two-col shop links: keep on mobile */
+  .ftr-shoplinks.two-col{
+    grid-template-columns: 1fr 1fr;
+    gap: 0 16px;
+  }
+  .ftr h4{ font-size: 12px; margin-bottom: 12px; }
+  .ftr a{ font-size: 14px; }
+  .ftr-bottom{
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 24px;
+  }
+  .ftr-social{ justify-content: flex-start; }
+}
+
+/* ---------- Section heading: mobile ---------- */
+@media(max-width:680px){
+  .sec-head{
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .sec-head .btn-ghost{ align-self: flex-end; }
+}
+
+/* ---------- Values / features: mobile ---------- */
+@media(max-width:860px){
+  .values{ gap: clamp(14px,3vw,24px); }
+  [data-dir="b"] .value{ padding: 22px; }
+  .value h3{ font-size: clamp(17px,3.5vw,21px); }
+}
+
+/* ---------- Page hero: mobile ---------- */
+@media(max-width:680px){
+  .page-hero{
+    padding-block: clamp(32px,6vw,56px);
+  }
+  .page-hero .h1{ font-size: clamp(28px,7vw,40px); }
+}
+
+/* ---------- FAQ: mobile ---------- */
+@media(max-width:680px){
+  .acc-q{ font-size: clamp(17px,4vw,22px); padding: 20px 4px; }
+  .acc-a p{ font-size: 15px; padding-bottom: 20px; }
+}
+
+/* ---------- About split: mobile ---------- */
+@media(max-width:860px){
+  .split{ gap: 24px; }
+  .split-img{ aspect-ratio: 3/2; }
+}
+
+/* ---------- Shipping page cards: mobile ---------- */
+@media(max-width:520px){
+  .ship-grid{ gap: 12px; }
+  .ship-card{ padding: 18px; flex-direction: row; align-items: flex-start; }
+  .ship-num{ font-size: 28px; }
+}
+
+/* ---------- Contact band: mobile ---------- */
+@media(max-width:680px){
+  .contact-band{
+    padding: clamp(22px,5vw,36px);
+    border-radius: var(--radius);
+    text-align: center;
+    justify-content: center;
+  }
+  .contact-band h2{ font-size: clamp(20px,5vw,28px); }
+}
+
+/* ---------- Band (about quote): mobile ---------- */
+@media(max-width:680px){
+  .band .display{ font-size: clamp(20px,5vw,30px); }
+  .band-emblem{ width: 56px; height: 56px; margin-bottom: 18px; }
+}
+
+/* ---------- Toast: above sticky bar ---------- */
+@media(max-width:860px){
+  .toast{ bottom: 100px; font-size: 13px; padding: 11px 18px; }
+}
+
+/* ---------- Dir switch: hide on mobile to save space ---------- */
+@media(max-width:480px){
+  .dir-switch{ display: none; }
+}
+
+/* ---------- Floating social: safe area ---------- */
+@media(max-width:600px){
+  .fsocial{
+    inset-block-end: calc(16px + env(safe-area-inset-bottom));
+    inset-inline-end: 12px;
+  }
+}
+
+/* ---------- Confirmation page: mobile ---------- */
+@media(max-width:680px){
+  .confirm{ padding-block: clamp(32px,6vw,64px); gap: 16px; }
+  .confirm-emblem{ width: 76px; height: 76px; }
+  .confirm-card{ padding: 18px; }
+}
+
+/* ---------- Pagination: mobile ---------- */
+@media(max-width:480px){
+  /* hide page number buttons, show only prev/next */
+  .page-nums{ display: none; }
+}
+
+/* ---------- Global mobile polish ---------- */
+@media(max-width:860px){
+  /* slightly looser body text */
+  body{ line-height: 1.68; }
+  /* section padding: tighter */
+  .section{ padding-block: clamp(40px,6vw,80px); }
+  .section-sm{ padding-block: clamp(28px,4vw,50px); }
+  /* wrap: tighter gutters */
+  :root{ --gut: clamp(14px,4vw,40px); }
+  /* Smooth tap highlight */
+  a, button{ -webkit-tap-highlight-color: rgba(84,11,20,.12); }
+  /* No hover states on touch */
+  .card:hover .card-quick{ opacity: 0; }
+  .card:hover .card-fav{ opacity: 0; }
+}
+
+/* iPhone notch / dynamic island safe areas */
+@supports(padding-top: env(safe-area-inset-top)){
+  .hdr{ padding-top: env(safe-area-inset-top); }
+  .mnav{ padding-top: calc(20px + env(safe-area-inset-top)); }
+}
