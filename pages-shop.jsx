@@ -143,16 +143,18 @@ const ShopPage = () => {
           </aside>
           <div>
             <div className="shop-toolbar">
-              <span className="toolbar-count">{list.length} {t({ en: 'pieces', ar: 'قطعة' })}</span>
+              <div className="shop-toolbar-top">
+                <span className="toolbar-count">{list.length} {t({ en: 'pieces', ar: 'قطعة' })}</span>
+                <select className="select" value={sort} onChange={e => setSort(e.target.value)}>
+                  <option value="low">{lang === 'en' ? 'Price: Low → High' : 'السعر: من الأقل'}</option>
+                  <option value="high">{lang === 'en' ? 'Price: High → Low' : 'السعر: من الأعلى'}</option>
+                </select>
+              </div>
               <div className="chip-row">
                 {categories.map(c => (
                   <button key={c.id} className={'chip mobile-cat ' + (cat === c.id ? 'active' : '')} onClick={() => setCat(c.id)}>{t(c)}</button>
                 ))}
               </div>
-              <select className="select" value={sort} onChange={e => setSort(e.target.value)}>
-                <option value="low">{lang === 'en' ? 'Price: Low to High' : 'السعر: من الأقل'}</option>
-                <option value="high">{lang === 'en' ? 'Price: High to Low' : 'السعر: من الأعلى'}</option>
-              </select>
             </div>
             <div className="grid-products shop-grid">
               {pagedList.map(p => <ProductCard key={p.id} p={p} />)}
