@@ -348,7 +348,7 @@ const AdminPage = () => {
               ))}
             </div>
             <div className="adm-table">
-              {products.filter(p=>filterCat==='all'||p.cat===filterCat).map(p => {
+              {products.filter(p=>filterCat==='all'||(Array.isArray(p.cats)?p.cats.includes(filterCat):p.cat===filterCat)).map(p => {
                 const inStock = p.variants.some(v => v.stock);
                 return (
                   <div className="adm-row" key={p.id} style={{opacity:p.hidden?0.4:1,filter:p.hidden?'grayscale(0.6)':'none'}}>
