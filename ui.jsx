@@ -272,17 +272,32 @@ const Footer = () => {
         ])}
       </div>
       <div className="ftr-bottom">
-        <span>{t(fc.founded) ? t(fc.founded) : <>© {new Date().getFullYear()} JUYUB</>} · <a href="https://www.linkedin.com/in/ahmed-aboshady-55751023a/" target="_blank" rel="noopener" style={{color:'inherit',textDecoration:'underline'}}>{t({ en: 'Made by Ahmed Abo Shady', ar: 'صنع بواسطه احمد ابو شادي' })}</a></span>
-        {socials.length > 0 && (
-          <div className="ftr-social">
-            {socials.map(([key, icon, label]) => (
-              <a key={key} href={social[key]} target="_blank" rel="noopener" aria-label={label}><Icon n={icon} /></a>
-            ))}
-          </div>
-        )}
-        <button className="ftr-admin" onClick={() => isAdmin ? navigate('admin') : setLoginOpen(true)}>
-          <Icon n="lock" style={{ width: 14 }} />{isAdmin ? t({ en: 'Dashboard', ar: 'لوحة التحكم' }) : t({ en: 'Owner login', ar: 'دخول المالك' })}
-        </button>
+        {/* Row 1: social icons (left) + lock icon (right) */}
+        <div className="ftr-bottom-row">
+          {socials.length > 0 && (
+            <div className="ftr-social">
+              {socials.map(([key, icon, label]) => (
+                <a key={key} href={social[key]} target="_blank" rel="noopener" aria-label={label}><Icon n={icon} /></a>
+              ))}
+            </div>
+          )}
+          <button
+            className="ftr-admin-icon"
+            onClick={() => isAdmin ? navigate('admin') : setLoginOpen(true)}
+            aria-label={isAdmin ? 'Dashboard' : 'Owner login'}
+            title={isAdmin ? (t({ en: 'Dashboard', ar: 'لوحة التحكم' })) : (t({ en: 'Owner login', ar: 'دخول المالك' }))}
+          >
+            <Icon n="lock" style={{ width: 16, height: 16 }} />
+          </button>
+        </div>
+        {/* Row 2: copyright */}
+        <div className="ftr-copy">
+          <span>{t(fc.founded) ? t(fc.founded) : <>© {new Date().getFullYear()} JUYUB</>}</span>
+          <span className="ftr-copy-sep">·</span>
+          <a href="https://www.linkedin.com/in/ahmed-aboshady-55751023a/" target="_blank" rel="noopener" className="ftr-copy-link">
+            {t({ en: 'Made by Ahmed Abo Shady', ar: 'صنع بواسطه احمد ابو شادي' })}
+          </a>
+        </div>
       </div>
     </footer>
   );
@@ -394,3 +409,4 @@ const DirSwitch = () => {
 };
 
 Object.assign(window, { Icon, Logo, Header, Footer, Marquee, ProductCard, CartDrawer, DirSwitch, FloatingSocial, useStore });
+
