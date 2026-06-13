@@ -43,9 +43,9 @@ const ShopPage = () => {
             <div style={{flex:1,height:1,background:'var(--border)'}}/>
           </div>
           <div style={{position:'relative'}}>
-            {/* Carousel track */}
+            {/* Carousel track - 1 card on mobile, 3 on desktop */}
             <div style={{overflow:'hidden'}}>
-              <div style={{display:'flex',gap:20,transform:`translateX(calc(-${featSlide * (100/3)}% - ${featSlide * 20/3}px))`,transition:'transform 0.4s cubic-bezier(0.4,0,0.2,1)'}}>
+              <div className="feat-carousel-track" style={{display:'flex',gap:20,transform:`translateX(calc(-${featSlide * (100/3)}% - ${featSlide * 20/3}px))`,transition:'transform 0.4s cubic-bezier(0.4,0,0.2,1)'}}>
                 {featuredList.map(p => (
                   <div key={p.id} style={{flex:'0 0 calc(33.333% - 14px)',minWidth:'calc(33.333% - 14px)'}}>
                     <ProductCard p={p} />
