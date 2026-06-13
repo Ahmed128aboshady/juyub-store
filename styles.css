@@ -1258,6 +1258,32 @@ body.lightbox-open {
   .shop-grid-desk{ display: none !important; }
   .shop-pagination-desk{ display: none !important; }
   .shop-carousel-mob{ display: block; margin-top: 4px; }
-  /* Cards inside use the same .card defaults as featured — no overrides needed */
+
+  /* Smaller cards so multiple products feel visible & page isn't dominated */
+  .shop-carousel-mob .card-media{
+    aspect-ratio: 1 / 1;
+    max-height: 46vh;
+    border-radius: var(--radius-lg);
+  }
+  .shop-carousel-mob .card-media img{
+    width: 80%;
+    height: 80%;
+  }
+  .shop-carousel-mob .card-body{
+    padding: 11px 4px 4px;
+    gap: 4px;
+  }
+  .shop-carousel-mob .card-name{
+    font-size: 15px;
+    line-height: 1.15;
+    display: block;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+  }
+  .shop-carousel-mob .card-cat{ font-size: 10px; }
+  .shop-carousel-mob .card-price{ font-size: 14px; }
+  [data-dir="a"] .shop-carousel-mob .card-price{ font-size: 17px; }
+  .shop-carousel-mob .card-tag{ font-size: 9.5px; padding: 4px 8px; top: 9px; inset-inline-start: 9px; }
+  .shop-carousel-mob .sw{ width: 13px; height: 13px; }
 }
 
