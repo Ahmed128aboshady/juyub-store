@@ -1258,26 +1258,6 @@ body.lightbox-open {
   .shop-grid-desk{ display: none !important; }
   .shop-pagination-desk{ display: none !important; }
   .shop-carousel-mob{ display: block; margin-top: 4px; }
-
-  /* Match featured card sizing exactly — 1:1 image, normal card body */
-  .shop-carousel-mob .card-media{
-    aspect-ratio: 1 / 1;
-    border-radius: var(--radius-lg);
-  }
-  .shop-carousel-mob .card-body{
-    padding: 12px 4px 4px;
-    gap: 5px;
-  }
-  .shop-carousel-mob .card-name{
-    font-size: clamp(16px,4vw,20px);
-    line-height: 1.15;
-    display: block;
-    overflow: visible;
-    -webkit-line-clamp: unset;
-  }
-  .shop-carousel-mob .card-price{ font-size: 16px; }
-  [data-dir="a"] .shop-carousel-mob .card-price{ font-size: 19px; }
-  .shop-carousel-mob .card-tag{ font-size: 10.5px; padding: 5px 10px; top: 10px; inset-inline-start: 10px; }
-  .shop-carousel-mob .card-cat{ font-size: 11px; }
-  .shop-carousel-mob .sw{ width: 15px; height: 15px; }
+  /* Cards inside use the same .card defaults as featured — no overrides needed */
 }
+
