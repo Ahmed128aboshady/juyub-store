@@ -11,7 +11,235 @@ const ShopPage = () => {
   const [sort, setSort] = uS('default');
   const [page, setPage] = uS(1);
   const [featSlide, setFeatSlide] = uS(0);
+  const [shopSlide, setShopSlide] = uS(0);
+  const touchRef = React.useRef(null);
   uE(() => { if (route.params.cat) setCat(route.params.cat); }, [route.params.cat]);
+  // reset carousel when filter/sort changes
+  uE(() => { setShopSlide(0); setPage(1); }, [cat, sort]);
+
+  const counts = uM(() => {
+    const c = {}; categories.forEach(k => c[k.id] = k.id === 'all' ? products.length : products.filter(p => Array.isArray(p.cats) ? p.cats.includes(k.id) : p.cat === k.id).length);
+    return c;
+  }, [products, categories]);
+  const featuredList = products.filter(p => p.featured && !p.hidden).sort((a,b)=>(a.sortOrder??999)-(b.sortOrder??999));
+  let list = (cat === 'all' ? [...products] : products.filter(p => Array.isArray(p.cats) ? p.cats.includes(cat) : p.cat === cat)).filter(p => !p.hidden);
+  if (sort === 'low') list.sort((a, b) => a.price - b.price);
+  if (sort === 'high') list.sort((a, b) => b.price - a.price);
+  if (sort === 'default') list.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
+  const ITEMS_PER_PAGE = 15;
+  const totalPages = Math.ceil(list.length / ITEMS_PER_PAGE);
+  const pagedList = list.slice((page-1)*ITEMS_PER_PAGE, page*ITEMS_PER_PAGE);
+
+  // detect mobile via window width
+  const isMob = typeof window !== 'undefined' && window.innerWidth <= 860;
+  const maxShopSlide = Math.max(0, pagedList.length - 1);
+
+  const onTouchStart = e => { touchRef.current = e.touches[0].clientX; };
+  const onTouchEnd = e => {
+    if (touchRef.current == null) return;
+    const dx = touchRef.current - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 40) {
+      if (dx > 0) setShopSlide(s => Math.min(maxShopSlide, s + 1));
+      else setShopSlide(s => Math.max(0, s - 1));
+    }
+    touchRef.current = null;
+  };
+
+  return (
+    <>
+      <div className="page-hero">
+        <div className="ftr-pattern" style={{ opacity: 0.06 }} />
+        <div className="wrap">
+          <span className="eyebrow">{t((content.shop && content.shop.eyebrow) || { en: 'The Collection', ar: 'المجموعة' })}</span>
+          <h1 className="h1">{t((content.shop && content.shop.title) || { en: 'Carry Your Confidence', ar: 'احملي ثقتك' })}</h1>
+          <p className="lede">{t((content.shop && content.shop.lede) || { en: 'A curated edit of leather bags and wallets — selected to complement the modern everyday.', ar: 'تشكيلة مختارة من شنط ومحافظ الجلد — منتقاة عشان تكمّل يومك العصري.' })}</p>
+        </div>
+      </div>
+      {featuredList.length > 0 && (() => {
+        const visibleCount = isMob ? 1 : 3;
+        const maxSlide = Math.max(0, featuredList.length - visibleCount);
+        const pct = isMob ? 90 : 100/3;
+        const gapPx = isMob ? 14 : 20;
+        return (
+          <section className="wrap" style={{paddingTop:32,paddingBottom:0}}>
+            <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
+              <span style={{fontSize:12,fontWeight:700,letterSpacing:'0.1em',color:'var(--maroon)',textTransform:'uppercase'}}>★ {t({en:'Featured Picks',ar:'مختارات مميزة'})}</span>
+              <div style={{flex:1,height:1,background:'var(--line)'}}/>
+            </div>
+            <div style={{position:'relative', margin:'0 -4px'}}>
+              <div style={{overflow:'hidden', padding:'4px 4px 8px'}}
+                onTouchStart={e=>{touchRef.current=e.touches[0].clientX;}}
+                onTouchEnd={e=>{if(touchRef.current==null)return;const dx=touchRef.current-e.changedTouches[0].clientX;if(Math.abs(dx)>40){if(dx>0)setFeatSlide(s=>Math.min(maxSlide,s+1));else setFeatSlide(s=>Math.max(0,s-1));}touchRef.current=null;}}>
+                <div className="feat-carousel-track" style={{display:'flex',gap:gapPx,transform:`translateX(calc(-${featSlide * pct}% - ${featSlide * gapPx}px))`,transition:'transform 0.4s cubic-bezier(0.4,0,0.2,1)'}}>
+                  {featuredList.map(p => (
+                    <div key={p.id} style={{flex:`0 0 calc(${pct}% - ${gapPx*(visibleCount-1)/visibleCount}px)`,minWidth:`calc(${pct}% - ${gapPx*(visibleCount-1)/visibleCount}px)`}}>
+                      <ProductCard p={p} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {featSlide > 0 && (
+                <button onClick={()=>setFeatSlide(s=>s-1)} style={{position:'absolute',top:'40%',left:4,transform:'translateY(-50%)',width:40,height:40,borderRadius:'50%',background:'var(--ivory)',border:'1px solid var(--line-strong)',boxShadow:'0 4px 14px rgba(0,0,0,.14)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,zIndex:3,color:'var(--ink)'}}>‹</button>
+              )}
+              {featSlide < maxSlide && (
+                <button onClick={()=>setFeatSlide(s=>s+1)} style={{position:'absolute',top:'40%',right:4,transform:'translateY(-50%)',width:40,height:40,borderRadius:'50%',background:'var(--ivory)',border:'1px solid var(--line-strong)',boxShadow:'0 4px 14px rgba(0,0,0,.14)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,zIndex:3,color:'var(--ink)'}}>›</button>
+              )}
+            </div>
+            {featuredList.length > 1 && (
+              <div style={{display:'flex',justifyContent:'center',gap:7,marginTop:14}}>
+                {Array.from({length:maxSlide+1},(_,i)=>i).map(i=>(
+                  <button key={i} onClick={()=>setFeatSlide(i)} style={{width:i===featSlide?20:7,height:7,borderRadius:4,padding:0,background:i===featSlide?'var(--maroon)':'var(--taupe)',transition:'all .25s',border:'none',cursor:'pointer'}} />
+                ))}
+              </div>
+            )}
+          </section>
+        );
+      })()}
+      <section className="wrap section-sm">
+        <div className="shop-layout">
+          <aside className="filters">
+            <div className="filter-group">
+              <h4>{t({ en: 'Category', ar: 'الفئة' })}</h4>
+              <div className="filter-list">
+                {categories.map(c => (
+                  <button key={c.id} className={cat === c.id ? 'active' : ''} onClick={() => setCat(c.id)}>
+                    <span>{t(c)}</span><span className="cnt">{counts[c.id]}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="filter-group">
+              <h4>{t({ en: 'Good to know', ar: 'معلومة' })}</h4>
+              <div className="stack gap-m" style={{ fontSize: 14, color: 'var(--ink-soft)' }}>
+                {((content && content.goodToKnow) ? content.goodToKnow : (typeof SITE_CONTENT !== 'undefined' && SITE_CONTENT.goodToKnow) || []).map((item, i) => (
+                  <span key={i} className="row gap-s">
+                    {item.icon && item.icon.startsWith('http')
+                      ? <img src={item.icon} alt="" style={{ width: 19, height: 19, objectFit: 'contain' }} />
+                      : <Icon n={item.icon} style={{ width: 19, color: 'var(--maroon)' }} />
+                    }
+                    {t({ en: item.en, ar: item.ar })}
+                  </span>
+                ))}
+              </div>
+            </div>
+            {content.shop && content.shop.sidebarImg && (
+              <div style={{marginTop:24,borderRadius:12,overflow:'hidden',width:'100%'}}>
+                <img src={content.shop.sidebarImg} alt="" style={{width:'100%',height:450,objectFit:'cover',display:'block',borderRadius:12}} />
+              </div>
+            )}
+          </aside>
+          <div>
+            <div className="shop-toolbar">
+              <div className="shop-toolbar-top">
+                <span className="toolbar-count">{list.length} {t({ en: 'pieces', ar: 'قطعة' })}</span>
+                <select className="select" value={sort} onChange={e => setSort(e.target.value)}>
+                  <option value="low">{lang === 'en' ? 'Price: Low → High' : 'السعر: من الأقل'}</option>
+                  <option value="high">{lang === 'en' ? 'Price: High → Low' : 'السعر: من الأعلى'}</option>
+                </select>
+              </div>
+              <div className="chip-row">
+                {categories.map(c => (
+                  <button key={c.id} className={'chip mobile-cat ' + (cat === c.id ? 'active' : '')} onClick={() => setCat(c.id)}>{t(c)}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── DESKTOP: normal grid ── */}
+            <div className="grid-products shop-grid shop-grid-desk">
+              {pagedList.map(p => <ProductCard key={p.id} p={p} />)}
+            </div>
+
+            {/* ── MOBILE: carousel one card at a time ── */}
+            <div className="shop-carousel-mob">
+              <div style={{position:'relative'}}>
+                <div style={{overflow:'hidden', borderRadius:14}}
+                  onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+                  <div style={{
+                    display:'flex', gap:0,
+                    transform:`translateX(-${shopSlide * 100}%)`,
+                    transition:'transform 0.38s cubic-bezier(0.4,0,0.2,1)'
+                  }}>
+                    {pagedList.map((p, i) => (
+                      <div key={p.id} style={{flex:'0 0 100%', minWidth:'100%', padding:'0 2px'}}>
+                        <ProductCard p={p} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Prev arrow */}
+                {shopSlide > 0 && (
+                  <button onClick={()=>setShopSlide(s=>s-1)}
+                    style={{position:'absolute',top:'38%',left:6,transform:'translateY(-50%)',
+                      width:40,height:40,borderRadius:'50%',background:'var(--ivory)',
+                      border:'1px solid var(--line-strong)',boxShadow:'0 4px 14px rgba(0,0,0,.14)',
+                      cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',
+                      fontSize:20,zIndex:3,color:'var(--ink)'}}>‹</button>
+                )}
+                {/* Next arrow */}
+                {shopSlide < maxShopSlide && (
+                  <button onClick={()=>setShopSlide(s=>s+1)}
+                    style={{position:'absolute',top:'38%',right:6,transform:'translateY(-50%)',
+                      width:40,height:40,borderRadius:'50%',background:'var(--ivory)',
+                      border:'1px solid var(--line-strong)',boxShadow:'0 4px 14px rgba(0,0,0,.14)',
+                      cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',
+                      fontSize:20,zIndex:3,color:'var(--ink)'}}>›</button>
+                )}
+              </div>
+              {/* Counter + dots */}
+              <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:10,marginTop:16}}>
+                <span style={{fontSize:13,color:'var(--ink-soft)',fontWeight:600}}>
+                  {shopSlide + 1} / {pagedList.length}
+                </span>
+                <div style={{display:'flex',gap:7,flexWrap:'wrap',justifyContent:'center'}}>
+                  {pagedList.map((_,i)=>(
+                    <button key={i} onClick={()=>setShopSlide(i)}
+                      style={{width:i===shopSlide?22:7,height:7,borderRadius:4,padding:0,
+                        background:i===shopSlide?'var(--maroon)':'var(--taupe)',
+                        transition:'all .25s',border:'none',cursor:'pointer'}} />
+                  ))}
+                </div>
+              </div>
+              {/* Pagination next page */}
+              {totalPages > 1 && (
+                <div style={{display:'flex',justifyContent:'center',gap:8,marginTop:20,flexWrap:'wrap'}}>
+                  <button onClick={()=>{setPage(p=>Math.max(1,p-1));setShopSlide(0);window.scrollTo(0,300);}} disabled={page===1}
+                    style={{padding:'9px 20px',borderRadius:8,border:'1px solid var(--line-strong)',background:'var(--bg)',fontSize:13,opacity:page===1?0.4:1,cursor:page===1?'not-allowed':'pointer'}}>
+                    ← {t({en:'Prev page',ar:'الصفحة السابقة'})}
+                  </button>
+                  <button onClick={()=>{setPage(p=>Math.min(totalPages,p+1));setShopSlide(0);window.scrollTo(0,300);}} disabled={page===totalPages}
+                    style={{padding:'9px 20px',borderRadius:8,border:'1px solid var(--line-strong)',background:'var(--bg)',fontSize:13,opacity:page===totalPages?0.4:1,cursor:page===totalPages?'not-allowed':'pointer'}}>
+                    {t({en:'Next page',ar:'الصفحة التالية'})} →
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Desktop pagination */}
+            {totalPages > 1 && (
+              <div className="shop-pagination-desk" style={{display:'flex',justifyContent:'center',alignItems:'center',gap:8,marginTop:32,flexWrap:'wrap'}}>
+                <button onClick={()=>{setPage(p=>Math.max(1,p-1));window.scrollTo(0,300);}} disabled={page===1}
+                  style={{padding:'8px 18px',borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',cursor:page===1?'not-allowed':'pointer',opacity:page===1?0.4:1,fontSize:13}}>
+                  ← {t({en:'Prev',ar:'السابق'})}
+                </button>
+                {Array.from({length:totalPages},(_,i)=>i+1).map(n=>(
+                  <button key={n} onClick={()=>{setPage(n);window.scrollTo(0,300);}}
+                    style={{width:36,height:36,borderRadius:8,border:'1px solid',fontSize:13,fontWeight:n===page?700:400,cursor:'pointer',
+                      borderColor:n===page?'var(--maroon)':'var(--border)',background:n===page?'var(--maroon)':'var(--bg)',color:n===page?'#fff':'var(--ink)'}}>
+                    {n}
+                  </button>
+                ))}
+                <button onClick={()=>{setPage(p=>Math.min(totalPages,p+1));window.scrollTo(0,300);}} disabled={page===totalPages}
+                  style={{padding:'8px 18px',borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',cursor:page===totalPages?'not-allowed':'pointer',opacity:page===totalPages?0.4:1,fontSize:13}}>
+                  {t({en:'Next',ar:'التالي'})} →
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+};
 
   const counts = uM(() => {
     const c = {}; categories.forEach(k => c[k.id] = k.id === 'all' ? products.length : products.filter(p => Array.isArray(p.cats) ? p.cats.includes(k.id) : p.cat === k.id).length);
