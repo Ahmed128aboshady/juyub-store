@@ -155,9 +155,9 @@ const ShopPage = () => {
                 <div style={{overflow:'hidden', padding:'4px 4px 8px'}}
                   onTouchStart={e=>{touchRef.current=e.touches[0].clientX;}}
                   onTouchEnd={e=>{if(touchRef.current==null)return;const dx=touchRef.current-e.changedTouches[0].clientX;if(Math.abs(dx)>40){if(dx>0)setShopSlide(s=>Math.min(maxShopSlide,s+1));else setShopSlide(s=>Math.max(0,s-1));}touchRef.current=null;}}>
-                  <div style={{display:'flex',gap:12,transform:`translateX(calc(-${shopSlide * 62}% - ${shopSlide * 12}px))`,transition:'transform 0.4s cubic-bezier(0.4,0,0.2,1)'}}>
+                  <div style={{display:'flex',gap:14,transform:`translateX(calc(-${shopSlide * 90}% - ${shopSlide * 14}px))`,transition:'transform 0.4s cubic-bezier(0.4,0,0.2,1)'}}>
                     {pagedList.map(p => (
-                      <div key={p.id} style={{flex:'0 0 62%',minWidth:'62%'}}>
+                      <div key={p.id} style={{flex:'0 0 calc(90% - 0px)',minWidth:'calc(90% - 0px)'}}>
                         <ProductCard p={p} />
                       </div>
                     ))}
@@ -541,6 +541,7 @@ const ConfirmPage = () => {
 };
 
 Object.assign(window, { ShopPage, ProductPage, CheckoutPage, ConfirmPage, SPEC_LABELS, waLink });
+
 
 
 
