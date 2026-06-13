@@ -559,3 +559,4 @@ const ConfirmPage = () => {
 Object.assign(window, { ShopPage, ProductPage, CheckoutPage, ConfirmPage, SPEC_LABELS, waLink });
 
 
+
