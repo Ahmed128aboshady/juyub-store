@@ -1258,11 +1258,7 @@ body.lightbox-open {
   .shop-grid-desk{ display: none !important; }
   .shop-pagination-desk{ display: none !important; }
   .shop-carousel-mob{ display: block; margin-top: 4px; }
-  /* Smaller cards = smaller text proportions */
-  .shop-carousel-mob .card-name{ font-size: 14px; }
-  .shop-carousel-mob .card-cat{ font-size: 9.5px; }
-  .shop-carousel-mob .card-price{ font-size: 13px; }
-  [data-dir="a"] .shop-carousel-mob .card-price{ font-size: 15px; }
+  /* identical to Featured Picks — no card overrides */
 }
 
 
