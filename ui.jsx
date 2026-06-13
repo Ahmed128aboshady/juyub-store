@@ -235,49 +235,77 @@ const Footer = () => {
   const { t, navigate, isAdmin, setLoginOpen, content, categories } = useStore();
   const fc = content.footer || {};
   const social = fc.social || {};
-  const col = (head, links) => (
-    <div>
-      <h4>{t(head)}</h4>
-      {links.map(([l, r], i) => <a key={i} onClick={() => navigate(r)}>{t(l)}</a>)}
-    </div>
-  );
   const goCat = (catId) => { navigate('shop', catId && catId !== 'all' ? { cat: catId } : {}); };
-  // Shop column: "All bags" first, then the live categories. Wrap to 2 cols if many.
   const shopCats = (categories || CATEGORIES).filter(c => c.id !== 'all');
   const shopLinks = [{ id: 'all', label: { en: 'All bags', ar: 'كل الشنط' } }, ...shopCats.map(c => ({ id: c.id, label: c }))];
+  const helpLinks = [
+    [{ en: 'About JUYUB', ar: 'عن چيوب' }, 'about'],
+    [{ en: 'Shipping info', ar: 'معلومات الشحن' }, 'shipping'],
+    [{ en: 'Q & A', ar: 'الأسئلة الشائعة' }, 'faq'],
+  ];
   const socials = [
     ['instagram', 'instagram', 'Instagram'],
     ['tiktok', 'tiktok', 'TikTok'],
     ['facebook', 'facebook', 'Facebook'],
     ['whatsapp', 'whatsapp', 'WhatsApp'],
   ].filter(([key]) => (social[key] || '').trim());
+  const wa = (social.whatsapp || '').trim();
+
   return (
     <footer className="ftr">
       <div className="ftr-pattern" />
       <div className="ftr-inner">
-        <div className="ftr-logo">
-          <img src="https://juyub.odoo.com/web/image/1084" alt="JUYUB" />
+
+        {/* ── Logo block: centered ── */}
+        <div className="ftr-logo-block">
+          <img src="https://juyub.odoo.com/web/image/1084" alt="JUYUB" className="ftr-logo-img" />
           <p className="ftr-tag">{t(fc.tagline || { en: '', ar: '' })}</p>
         </div>
-        <div>
-          <h4>{t({ en: 'Shop', ar: 'تسوّقي' })}</h4>
-          <div className={'ftr-shoplinks' + (shopLinks.length > 4 ? ' two-col' : '')}>
-            {shopLinks.map((l) => <a key={l.id} onClick={() => goCat(l.id)}>{t(l.label)}</a>)}
+
+        {/* ── Links row: two cards side by side ── */}
+        <div className="ftr-cards">
+
+          {/* Shop card */}
+          <div className="ftr-card">
+            <h4 className="ftr-card-head">{t({ en: 'SHOP', ar: 'تسوّقي' })}</h4>
+            <div className={'ftr-shoplinks' + (shopLinks.length > 4 ? ' two-col' : '')}>
+              {shopLinks.map((l) => (
+                <a key={l.id} onClick={() => goCat(l.id)}>{t(l.label)}</a>
+              ))}
+            </div>
           </div>
+
+          {/* Help card */}
+          <div className="ftr-card">
+            <h4 className="ftr-card-head">{t({ en: 'HELP', ar: 'مساعدة' })}</h4>
+            {helpLinks.map(([l, r], i) => (
+              <a key={i} onClick={() => navigate(r)}>{t(l)}</a>
+            ))}
+          </div>
+
         </div>
-        {col({ en: 'Help', ar: 'مساعدة' }, [
-          [{ en: 'About JUYUB', ar: 'عن چيوب' }, 'about'],
-          [{ en: 'Shipping info', ar: 'معلومات الشحن' }, 'shipping'],
-          [{ en: 'Q & A', ar: 'الأسئلة الشائعة' }, 'faq'],
-        ])}
+
+        {/* ── WhatsApp CTA above bottom bar ── */}
+        {wa && (
+          <div className="ftr-wa-row">
+            <a className="ftr-wa-btn" href={wa} target="_blank" rel="noopener">
+              <Icon n="whatsapp" style={{ width: 20, height: 20 }} />
+              {t({ en: 'Chat with us', ar: 'كلمينا على واتساب' })}
+            </a>
+          </div>
+        )}
+
       </div>
+
+      {/* ── Bottom bar ── */}
       <div className="ftr-bottom">
-        {/* Row 1: social icons (left) + lock icon (right) */}
         <div className="ftr-bottom-row">
           {socials.length > 0 && (
             <div className="ftr-social">
               {socials.map(([key, icon, label]) => (
-                <a key={key} href={social[key]} target="_blank" rel="noopener" aria-label={label}><Icon n={icon} /></a>
+                <a key={key} href={social[key]} target="_blank" rel="noopener" aria-label={label}>
+                  <Icon n={icon} />
+                </a>
               ))}
             </div>
           )}
@@ -285,12 +313,11 @@ const Footer = () => {
             className="ftr-admin-icon"
             onClick={() => isAdmin ? navigate('admin') : setLoginOpen(true)}
             aria-label={isAdmin ? 'Dashboard' : 'Owner login'}
-            title={isAdmin ? (t({ en: 'Dashboard', ar: 'لوحة التحكم' })) : (t({ en: 'Owner login', ar: 'دخول المالك' }))}
+            title={isAdmin ? t({ en: 'Dashboard', ar: 'لوحة التحكم' }) : t({ en: 'Owner login', ar: 'دخول المالك' })}
           >
             <Icon n="lock" style={{ width: 16, height: 16 }} />
           </button>
         </div>
-        {/* Row 2: copyright */}
         <div className="ftr-copy">
           <span>{t(fc.founded) ? t(fc.founded) : <>© {new Date().getFullYear()} JUYUB</>}</span>
           <span className="ftr-copy-sep">·</span>
@@ -310,33 +337,23 @@ const FloatingSocial = () => {
   const [open, setOpen] = useState(false);
   // hide on admin + checkout to avoid clutter
   if (route.name === 'admin' || route.name === 'checkout') return null;
-  const wa = (social.whatsapp || '').trim();
   const others = [
     ['instagram', 'instagram', 'Instagram'],
     ['tiktok', 'tiktok', 'TikTok'],
     ['facebook', 'facebook', 'Facebook'],
   ].filter(([key]) => (social[key] || '').trim());
-  if (!wa && others.length === 0) return null;
+  // WA moved to footer — floating rail shows only + toggle for other socials
+  if (others.length === 0) return null;
   return (
     <div className={'fsocial' + (open ? ' open' : '')}>
-      {others.length > 0 && (
-        <div className="fsocial-stack">
-          {others.map(([key, icon, label]) => (
-            <a key={key} className={'fsocial-btn fs-' + key} href={social[key]} target="_blank" rel="noopener" aria-label={label} tabIndex={open ? 0 : -1}><Icon n={icon} /></a>
-          ))}
-        </div>
-      )}
-      {others.length > 0 && (
-        <button className="fsocial-btn fsocial-toggle" onClick={() => setOpen(o => !o)} aria-label="Social links" aria-expanded={open}>
-          <Icon n={open ? 'close' : 'plus'} />
-        </button>
-      )}
-      {wa && (
-        <a className="fsocial-btn fsocial-wa" href={wa} target="_blank" rel="noopener" aria-label="WhatsApp">
-          <span className="fsocial-ping" />
-          <Icon n="whatsapp" />
-        </a>
-      )}
+      <div className="fsocial-stack">
+        {others.map(([key, icon, label]) => (
+          <a key={key} className={'fsocial-btn fs-' + key} href={social[key]} target="_blank" rel="noopener" aria-label={label} tabIndex={open ? 0 : -1}><Icon n={icon} /></a>
+        ))}
+      </div>
+      <button className="fsocial-btn fsocial-toggle" onClick={() => setOpen(o => !o)} aria-label="Social links" aria-expanded={open}>
+        <Icon n={open ? 'close' : 'plus'} />
+      </button>
     </div>
   );
 };
