@@ -149,66 +149,58 @@ const ShopPage = () => {
               {pagedList.map(p => <ProductCard key={p.id} p={p} />)}
             </div>
 
-            {/* ── MOBILE: carousel one card at a time ── */}
+            {/* ── MOBILE: carousel same style as featured ── */}
             <div className="shop-carousel-mob">
-              <div style={{position:'relative'}}>
-                <div style={{overflow:'hidden', borderRadius:14}}
+              <div style={{position:'relative', margin:'0 -4px'}}>
+                <div style={{overflow:'hidden', padding:'4px 4px 8px'}}
                   onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
                   <div style={{
-                    display:'flex', gap:0,
-                    transform:`translateX(-${shopSlide * 100}%)`,
+                    display:'flex', gap:14,
+                    transform:`translateX(calc(-${shopSlide * 90}% - ${shopSlide * 14}px))`,
                     transition:'transform 0.38s cubic-bezier(0.4,0,0.2,1)'
                   }}>
-                    {pagedList.map((p, i) => (
-                      <div key={p.id} style={{flex:'0 0 100%', minWidth:'100%', padding:'0 2px'}}>
+                    {pagedList.map((p) => (
+                      <div key={p.id} style={{flex:'0 0 calc(90% - 7px)', minWidth:'calc(90% - 7px)'}}>
                         <ProductCard p={p} />
                       </div>
                     ))}
                   </div>
                 </div>
-                {/* Prev arrow */}
                 {shopSlide > 0 && (
                   <button onClick={()=>setShopSlide(s=>s-1)}
-                    style={{position:'absolute',top:'38%',left:6,transform:'translateY(-50%)',
+                    style={{position:'absolute',top:'40%',left:4,transform:'translateY(-50%)',
                       width:40,height:40,borderRadius:'50%',background:'var(--ivory)',
                       border:'1px solid var(--line-strong)',boxShadow:'0 4px 14px rgba(0,0,0,.14)',
                       cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',
                       fontSize:20,zIndex:3,color:'var(--ink)'}}>‹</button>
                 )}
-                {/* Next arrow */}
                 {shopSlide < maxShopSlide && (
                   <button onClick={()=>setShopSlide(s=>s+1)}
-                    style={{position:'absolute',top:'38%',right:6,transform:'translateY(-50%)',
+                    style={{position:'absolute',top:'40%',right:4,transform:'translateY(-50%)',
                       width:40,height:40,borderRadius:'50%',background:'var(--ivory)',
                       border:'1px solid var(--line-strong)',boxShadow:'0 4px 14px rgba(0,0,0,.14)',
                       cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',
                       fontSize:20,zIndex:3,color:'var(--ink)'}}>›</button>
                 )}
               </div>
-              {/* Counter + dots */}
-              <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:10,marginTop:16}}>
-                <span style={{fontSize:13,color:'var(--ink-soft)',fontWeight:600}}>
-                  {shopSlide + 1} / {pagedList.length}
-                </span>
-                <div style={{display:'flex',gap:7,flexWrap:'wrap',justifyContent:'center'}}>
-                  {pagedList.map((_,i)=>(
-                    <button key={i} onClick={()=>setShopSlide(i)}
-                      style={{width:i===shopSlide?22:7,height:7,borderRadius:4,padding:0,
-                        background:i===shopSlide?'var(--maroon)':'var(--taupe)',
-                        transition:'all .25s',border:'none',cursor:'pointer'}} />
-                  ))}
-                </div>
+              {/* Dots */}
+              <div style={{display:'flex',justifyContent:'center',gap:7,marginTop:14}}>
+                {pagedList.map((_,i)=>(
+                  <button key={i} onClick={()=>setShopSlide(i)}
+                    style={{width:i===shopSlide?22:7,height:7,borderRadius:4,padding:0,
+                      background:i===shopSlide?'var(--maroon)':'var(--taupe)',
+                      transition:'all .25s',border:'none',cursor:'pointer'}} />
+                ))}
               </div>
-              {/* Pagination next page */}
               {totalPages > 1 && (
-                <div style={{display:'flex',justifyContent:'center',gap:8,marginTop:20,flexWrap:'wrap'}}>
+                <div style={{display:'flex',justifyContent:'center',gap:8,marginTop:20}}>
                   <button onClick={()=>{setPage(p=>Math.max(1,p-1));setShopSlide(0);window.scrollTo(0,300);}} disabled={page===1}
                     style={{padding:'9px 20px',borderRadius:8,border:'1px solid var(--line-strong)',background:'var(--bg)',fontSize:13,opacity:page===1?0.4:1,cursor:page===1?'not-allowed':'pointer'}}>
-                    ← {t({en:'Prev page',ar:'الصفحة السابقة'})}
+                    ← {t({en:'Prev page',ar:'السابق'})}
                   </button>
                   <button onClick={()=>{setPage(p=>Math.min(totalPages,p+1));setShopSlide(0);window.scrollTo(0,300);}} disabled={page===totalPages}
                     style={{padding:'9px 20px',borderRadius:8,border:'1px solid var(--line-strong)',background:'var(--bg)',fontSize:13,opacity:page===totalPages?0.4:1,cursor:page===totalPages?'not-allowed':'pointer'}}>
-                    {t({en:'Next page',ar:'الصفحة التالية'})} →
+                    {t({en:'Next page',ar:'التالي'})} →
                   </button>
                 </div>
               )}
