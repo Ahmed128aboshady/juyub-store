@@ -34,17 +34,6 @@ const ShopPage = () => {
   const isMob = typeof window !== 'undefined' && window.innerWidth <= 860;
   const maxShopSlide = Math.max(0, pagedList.length - 1);
 
-  const onTouchStart = e => { touchRef.current = e.touches[0].clientX; };
-  const onTouchEnd = e => {
-    if (touchRef.current == null) return;
-    const dx = touchRef.current - e.changedTouches[0].clientX;
-    if (Math.abs(dx) > 40) {
-      if (dx > 0) setShopSlide(s => Math.min(maxShopSlide, s + 1));
-      else setShopSlide(s => Math.max(0, s - 1));
-    }
-    touchRef.current = null;
-  };
-
   return (
     <>
       <div className="page-hero">
