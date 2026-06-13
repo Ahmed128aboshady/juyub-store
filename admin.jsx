@@ -214,7 +214,17 @@ const ProductEditor = ({ initial, onDone }) => {
               </div>
               <div className="field" style={{ width: 70 }}>
                 <label>{L('Swatch', 'اللون')}</label>
-                <input className="color-input" type="color" value={v.color.hex} onChange={e => updVarColor(i, 'hex', e.target.value)} />
+                <div style={{display:'flex',gap:6,alignItems:'center'}}>
+                  <input className="color-input" type="color" value={(v.color.hex||'#000000').split('/')[0].trim()} onChange={e=>{const parts=(v.color.hex||'').split('/');parts[0]=e.target.value;updVarColor(i,'hex',parts.join('/'));}} />
+                  <span style={{fontSize:11,color:'var(--ink-soft)'}}>+</span>
+                  <input className="color-input" type="color" value={(v.color.hex||'#000000').split('/')[1]?.trim()||'#ffffff'} onChange={e=>{const parts=(v.color.hex||'#000000').split('/');parts[1]=e.target.value;updVarColor(i,'hex',parts.join('/'));}} />
+                  <div style={{width:30,height:30,borderRadius:'50%',overflow:'hidden',border:'1px solid var(--border)',flexShrink:0}}>
+                    {(v.color.hex||'').includes('/')
+                      ? <><div style={{width:'50%',height:'100%',background:(v.color.hex||'').split('/')[0].trim(),float:'left'}}/><div style={{width:'50%',height:'100%',background:(v.color.hex||'').split('/')[1].trim(),float:'left'}}/></>
+                      : <div style={{width:'100%',height:'100%',background:v.color.hex}}/>
+                    }
+                  </div>
+                </div>
               </div>
               <div className="img-preview">{v.img ? <img src={v.img} alt="" /> : <Icon n="box" style={{ width: 20, opacity: .4 }} />}</div>
             </div>
