@@ -700,12 +700,6 @@ body.lightbox-open {
   .swatch-row{flex-wrap:wrap;max-width:100%}
   .swatch{width:30px;height:30px}
 
-  /* Featured carousel: 1 card on mobile */
-  .feat-carousel-track > div{flex:0 0 100% !important;min-width:100% !important}
-
-  /* Shop grid: 2 columns on mobile */
-  .shop-grid{grid-template-columns:repeat(2,1fr);gap:12px}
-
   /* Product page description doesn't overflow */
   .pdp-info p{word-break:break-word;overflow-wrap:break-word}
 
@@ -723,29 +717,10 @@ body.lightbox-open {
   .card-body h3{font-size:14px;white-space:normal;overflow-wrap:break-word}
 }
 
-@media(max-width:400px){
-  /* Very small screens: keep 2 columns for shop */
-  .shop-grid{grid-template-columns:repeat(2,1fr)}
-  .feat-carousel-track > div{flex:0 0 100% !important;min-width:100% !important}
-}
-
 
 /* ===== MOBILE RESPONSIVENESS — MAJOR IMPROVEMENTS ===== */
 
-/* ---------- Featured Carousel: fix arrows overflow on mobile ---------- */
-@media(max-width:860px){
-  /* Carousel arrows: keep inside viewport */
-  .feat-carousel-track > div{
-    flex: 0 0 80% !important;
-    min-width: 80% !important;
-  }
-}
-@media(max-width:520px){
-  .feat-carousel-track > div{
-    flex: 0 0 90% !important;
-    min-width: 90% !important;
-  }
-}
+/* ---------- Featured Carousel sizing is controlled inline by JSX (pct) ---------- */
 
 /* ---------- Header: mobile refinements ---------- */
 @media(max-width:860px){
