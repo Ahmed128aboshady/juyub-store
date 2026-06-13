@@ -304,6 +304,7 @@ const AdminPage = () => {
   const [tab, setTab] = adUS('products');
   const [editing, setEditing] = adUS(null);
   const [filterCat, setFilterCat] = adUS('all');
+  const [sortProd, setSortProd] = adUS('sku');
   const [showReorder, setShowReorder] = adUS(false);
   const [reorderList, setReorderList] = adUS([]);
   const [dragIdx, setDragIdx] = adUS(null);
@@ -347,8 +348,28 @@ const AdminPage = () => {
                 </button>
               ))}
             </div>
+            <div style={{display:'flex',justifyContent:'flex-end',marginBottom:10}}>
+              <select value={sortProd} onChange={e=>setSortProd(e.target.value)} style={{padding:'6px 12px',borderRadius:8,border:'1px solid var(--border)',fontSize:13,fontFamily:'inherit',background:'var(--bg)'}}>
+                <option value="sku">{L('Sort by SKU (A→Z)','ترتيب بالكود (أ→ي)')}</option>
+                <option value="sku_desc">{L('Sort by SKU (Z→A)','ترتيب بالكود (ي→أ)')}</option>
+                <option value="name">{L('Sort by name (A→Z)','ترتيب بالاسم (أ→ي)')}</option>
+                <option value="price_asc">{L('Price: Low to High','السعر: من الأقل')}</option>
+                <option value="price_desc">{L('Price: High to Low','السعر: من الأعلى')}</option>
+                <option value="newest">{L('Newest first','الأحدث أولاً')}</option>
+                <option value="oldest">{L('Oldest first','الأقدم أولاً')}</option>
+              </select>
+            </div>
             <div className="adm-table">
-              {products.filter(p=>filterCat==='all'||(Array.isArray(p.cats)?p.cats.includes(filterCat):p.cat===filterCat)).map(p => {
+              {[...products.filter(p=>filterCat==='all'||(Array.isArray(p.cats)?p.cats.includes(filterCat):p.cat===filterCat))].sort((a,b)=>{
+                if(sortProd==='sku') return (a.sku||'').localeCompare(b.sku||'');
+                if(sortProd==='sku_desc') return (b.sku||'').localeCompare(a.sku||'');
+                if(sortProd==='name') return (a.name&&a.name.en||'').localeCompare(b.name&&b.name.en||'');
+                if(sortProd==='price_asc') return (a.price||0)-(b.price||0);
+                if(sortProd==='price_desc') return (b.price||0)-(a.price||0);
+                if(sortProd==='newest') return (b.sortOrder??999)-(a.sortOrder??999);
+                if(sortProd==='oldest') return (a.sortOrder??999)-(b.sortOrder??999);
+                return 0;
+              }).map(p => {
                 const inStock = p.variants.some(v => v.stock);
                 return (
                   <div className="adm-row" key={p.id} style={{opacity:p.hidden?0.4:1,filter:p.hidden?'grayscale(0.6)':'none'}}>
