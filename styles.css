@@ -669,3 +669,45 @@ a.ord-v{color:var(--maroon)}
 body.lightbox-open {
   overflow: hidden !important;
 }
+
+/* ===== MOBILE IMPROVEMENTS ===== */
+@media(max-width:860px){
+  /* Product page: specs don't overflow */
+  .pdp-info{min-width:0;overflow:hidden}
+  dl.specs{width:100%}
+  .spec-row{display:flex;flex-wrap:wrap;gap:4px}
+  .spec-row dt{min-width:90px;flex-shrink:0}
+  .spec-row dd{flex:1;min-width:0;text-align:right;word-break:break-word}
+
+  /* Swatches don't overflow */
+  .swatch-row{flex-wrap:wrap;max-width:100%}
+  .swatch{width:30px;height:30px}
+
+  /* Featured carousel: 1 card on mobile */
+  .feat-carousel-track > div{flex:0 0 100% !important;min-width:100% !important}
+
+  /* Shop grid: 2 columns on mobile */
+  .shop-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+
+  /* Product page description doesn't overflow */
+  .pdp-info p{word-break:break-word;overflow-wrap:break-word}
+
+  /* Checkout: bigger inputs */
+  .checkout input,.checkout select,.checkout textarea{font-size:16px}
+
+  /* Header: compact */
+  .hdr .wrap{padding:0 14px}
+
+  /* Trust row: wrap */
+  .trust-row{flex-wrap:wrap;gap:8px}
+
+  /* Card text: no overflow */
+  .card-body{overflow:hidden}
+  .card-body h3{font-size:14px;white-space:normal;overflow-wrap:break-word}
+}
+
+@media(max-width:400px){
+  /* Very small screens: 1 column shop */
+  .shop-grid{grid-template-columns:1fr}
+  .feat-carousel-track > div{flex:0 0 100% !important;min-width:100% !important}
+}
