@@ -241,7 +241,7 @@ const ProductPage = () => {
             <div className="opt-label">{t({ en: 'Color', ar: 'اللون' })}<span className="val">{t(v.color)}</span></div>
             <div className="swatch-row">
               {p.variants.map((x, i) => (
-                <button key={i} className={'swatch ' + (i === vi ? 'active ' : '') + (x.stock ? '' : 'oos')} style={{ background: x.color.hex }} onClick={() => setVi(i)} title={t(x.color)} />
+                <SwatchDot key={i} className={'swatch ' + (i === vi ? 'active ' : '') + (x.stock ? '' : 'oos')} hex={x.color.hex} onClick={() => setVi(i)} title={t(x.color)} />
               ))}
             </div>
           </div>
