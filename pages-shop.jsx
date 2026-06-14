@@ -55,8 +55,8 @@ const ShopPage = () => {
               <span style={{fontSize:12,fontWeight:700,letterSpacing:'0.1em',color:'var(--maroon)',textTransform:'uppercase'}}>★ {t({en:'Featured Picks',ar:'مختارات مميزة'})}</span>
               <div style={{flex:1,height:1,background:'var(--line)'}}/>
             </div>
-            <div style={{position:'relative', margin:'0 -4px'}}>
-              <div style={{overflow:'hidden', padding:'4px 4px 8px'}}
+            <div style={{position:'relative'}}>
+              <div style={{overflow:'hidden', padding:'4px 0 8px'}}
                 onTouchStart={e=>{touchRef.current=e.touches[0].clientX;}}
                 onTouchEnd={e=>{if(touchRef.current==null)return;const dx=touchRef.current-e.changedTouches[0].clientX;if(Math.abs(dx)>40){if(dx>0)setFeatSlide(s=>Math.min(maxSlide,s+1));else setFeatSlide(s=>Math.max(0,s-1));}touchRef.current=null;}}>
                 <div className="feat-carousel-track" style={{display:'flex',gap:gapPx,transform:`translateX(calc(-${featSlide * pct}% - ${featSlide * gapPx}px))`,transition:'transform 0.4s cubic-bezier(0.4,0,0.2,1)'}}>
@@ -140,13 +140,13 @@ const ShopPage = () => {
 
             {/* ── MOBILE: carousel — identical to Featured Picks ── */}
             <div className="shop-carousel-mob">
-              <div style={{position:'relative', margin:'0 -4px'}}>
-                <div style={{overflow:'hidden', padding:'4px 4px 8px'}}
+              <div style={{position:'relative'}}>
+                <div style={{overflow:'hidden', padding:'4px 0 8px'}}
                   onTouchStart={e=>{touchRef.current=e.touches[0].clientX;}}
                   onTouchEnd={e=>{if(touchRef.current==null)return;const dx=touchRef.current-e.changedTouches[0].clientX;if(Math.abs(dx)>40){if(dx>0)setShopSlide(s=>Math.min(maxShopSlide,s+1));else setShopSlide(s=>Math.max(0,s-1));}touchRef.current=null;}}>
                   <div style={{display:'flex',gap:14,transform:`translateX(calc(-${shopSlide * 90}% - ${shopSlide * 14}px))`,transition:'transform 0.4s cubic-bezier(0.4,0,0.2,1)'}}>
                     {pagedList.map(p => (
-                      <div key={p.id} style={{flex:'0 0 calc(90% - 0px)',minWidth:'calc(90% - 0px)'}}>
+                      <div key={p.id} style={{flex:'0 0 90%',minWidth:'90%'}}>
                         <ProductCard p={p} />
                       </div>
                     ))}
