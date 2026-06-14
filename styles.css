@@ -923,6 +923,45 @@ body.lightbox-open {
 
   /* Description text */
   .pdp-info > p{ font-size: 15px; line-height: 1.75; }
+
+  /* ===== Overflow containment — keep everything inside the page ===== */
+  .pdp{
+    max-width: 100%;
+    overflow-x: clip;
+  }
+  .pdp-gallery,
+  .pdp-info{
+    min-width: 0;
+    max-width: 100%;
+  }
+  /* Product title: wrap long words instead of overflowing */
+  .pdp-info h1{
+    overflow-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
+  }
+  /* Breadcrumb: don't let long product name push width */
+  .crumbs{
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+  .crumbs .muted{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 60vw;
+  }
+  /* Price row wraps */
+  .pdp-price{ flex-wrap: wrap; max-width: 100%; }
+  /* Main image never exceeds width */
+  .pdp-main{ width: 100%; max-width: 100%; }
+  /* Specs: contain long values */
+  .specs{ max-width: 100%; }
+  .spec-row dd{ overflow-wrap: break-word; word-break: break-word; }
+  /* WhatsApp order button full width, no overflow */
+  .pdp-info .btn-wa{ width: 100%; max-width: 100%; }
+  /* Related products grid stays in bounds */
+  .section{ max-width: 100%; overflow-x: clip; }
 }
 
 /* ---------- Cart drawer: mobile full-height ---------- */
@@ -987,17 +1026,8 @@ body.lightbox-open {
   }
   [data-lang="ar"] .ftr-card-head{ text-transform:none; letter-spacing:.04em; font-size:12px; }
   .ftr-card a{ font-size:14px; padding:5px 0; }
-  /* WA button */
-  .ftr-wa-row{ display:flex; justify-content:center; width:100%; margin:4px 0 6px; }
-  .ftr-wa-btn{
-    display:inline-flex; align-items:center; justify-content:center; gap:9px;
-    background:#1f8f4e; color:#fff; font-family:var(--font-body);
-    font-weight:600; font-size:14px; padding:14px 26px; border-radius:999px;
-    box-shadow:0 6px 18px -6px rgba(0,0,0,.45); transition:.25s;
-    line-height:1; white-space:nowrap;
-  }
-  .ftr-wa-btn svg{ width:19px; height:19px; flex-shrink:0; }
-  .ftr-wa-btn:hover{ background:#177a41; color:#fff; }
+  /* WA button removed from mobile footer */
+  .ftr-wa-row{ display:none !important; }
   /* Bottom: social left + lock right */
   .ftr-bottom-row{ display:flex; align-items:center; justify-content:space-between; width:100%; gap:10px; }
   .ftr-social{ gap:9px; }
