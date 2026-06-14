@@ -1228,11 +1228,16 @@ body.lightbox-open {
 
 
 /* ===== SHOP CAROUSEL — MOBILE ONLY ===== */
+/* Carousel frame: desktop uses -4px margin so card shadows aren't clipped.
+   Mobile removes it to avoid horizontal overflow. */
+.carousel-frame{ margin: 0 -4px; }
+
 .shop-carousel-mob{ display: none; }
 .shop-grid-desk{ display: grid; }
 .shop-pagination-desk{ display: flex; }
 
 @media(max-width:860px){
+  .carousel-frame{ margin: 0; }
   .shop-grid-desk{ display: none !important; }
   .shop-pagination-desk{ display: none !important; }
   .shop-carousel-mob{
